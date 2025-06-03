@@ -1,0 +1,205 @@
+<div class="company-detail" *ngIf="company">
+    <!-- En-tête avec nom et statut -->
+    <div class="company-header">
+        <div class="flex align-items-center gap-3">
+            <p-avatar
+                [label]="getInitials(company.nom)"
+                size="large"
+                shape="circle"
+                [style]="{'background-color': 'var(--svs-primary)', 'color': 'white'}"
+            ></p-avatar>
+            <div>
+                <h3 class="company-name">{{ company.nom }}</h3>
+                <p class="company-legal-name">{{ company.raisonSociale }}</p>
+            </div>
+        </div>
+        <div class="company-status">
+            <p-tag
+                [value]="company.active ? 'Actif' : 'Inactif'"
+                [severity]="company.active ? 'success' : 'danger'"
+                [rounded]="true"
+            ></p-tag>
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Informations de contact -->
+    <div class="detail-section">
+        <h4 class="section-title">
+            <i class="pi pi-phone mr-2"></i>
+            Coordonnées
+        </h4>
+        <div class="grid">
+            <div class="col-12 md:col-6">
+                <div class="detail-field">
+                    <label class="field-label">Téléphone principal</label>
+                    <div class="field-value">
+                        <i class="pi pi-phone mr-2"></i>
+                        <a :href="'tel:' + company.telephone" class="link">
+                            {{ company.telephone }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 md:col-6">
+                <div class="detail-field">
+                    <label class="field-label">Email principal</label>
+                    <div class="field-value">
+                        <i class="pi pi-envelope mr-2"></i>
+                        <a :href="'mailto:' + company.email" class="link">
+                            {{ company.email }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12" *ngIf="company.siteWeb">
+                <div class="detail-field">
+                    <label class="field-label">Site web</label>
+                    <div class="field-value">
+                        <i class="pi pi-globe mr-2"></i>
+                        <a [href]="company.siteWeb" target="_blank" class="link">
+                            {{ company.siteWeb }}
+                            <i class="pi pi-external-link ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Adresse -->
+    <div class="detail-section">
+        <h4 class="section-title">
+            <i class="pi pi-map-marker mr-2"></i>
+            Adresse
+        </h4>
+        <div class="address-card">
+            <div class="address-content">
+                <p class="address-line">{{ company.adresse }}</p>
+                <p class="address-line">
+                     {{ company.ville }}
+                </p>
+                <p class="address-country">
+                    <strong>{{ company.pays }}</strong>
+                </p>
+            </div>
+            <button
+                pButton
+                type="button"
+                icon="pi pi-map"
+                class="p-button-text p-button-sm"
+                pTooltip="Voir sur la carte"
+                (click)="openInMaps()"
+            ></button>
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Contact principal -->
+    <div class="detail-section">
+        <h4 class="section-title">
+            <i class="pi pi-user mr-2"></i>
+            Contact principal
+        </h4>
+        <div class="contact-card">
+            <div class="contact-info">
+                <h5 class="contact-name">{{ company.contactPrincipal }}</h5>
+                <div class="contact-details">
+                    <div class="contact-item">
+                        <i class="pi pi-phone mr-2"></i>
+                        <a :href="'tel:' + company.telephoneContact" class="link">
+                            {{ company.telephoneContact }}
+                        </a>
+                    </div>
+                    <div class="contact-item">
+                        <i class="pi pi-envelope mr-2"></i>
+                        <a :href="'mailto:' + company.emailContact" class="link">
+                            {{ company.emailContact }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Informations légales -->
+    <div class="detail-section" *ngIf="company.rccm || company.ninea">
+        <h4 class="section-title">
+            <i class="pi pi-file mr-2"></i>
+            Informations légales
+        </h4>
+        <div class="grid">
+            <div class="col-12 md:col-6" *ngIf="company.rccm">
+                <div class="detail-field">
+                    <label class="field-label">Registre de commerce</label>
+                    <div class="field-value">
+                        {{ company.rccm }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 md:col-6" *ngIf="company.ninea">
+                <div class="detail-field">
+                    <label class="field-label">NINEA</label>
+                    <div class="field-value">
+                        {{ company.ninea }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Métadonnées -->
+    <div class="detail-section">
+        <h4 class="section-title">
+            <i class="pi pi-info-circle mr-2"></i>
+            Informations système
+        </h4>
+        <div class="grid">
+            <div class="col-12 md:col-6">
+                <div class="detail-field">
+                    <label class="field-label">Date de création</label>
+                    <div class="field-value">
+                        {{ formatDate(company.created_at) }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 md:col-6">
+                <div class="detail-field">
+                    <label class="field-label">Dernière modification</label>
+                    <div class="field-value">
+                        {{ formatDate(company.updated_at) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="detail-actions">
+        <button
+            pButton
+            type="button"
+            label="Modifier"
+            icon="pi pi-pencil"
+            class="p-button-raised"
+            (click)="onEdit()"
+            style="background-color: var(--svs-accent); border-color: var(--svs-accent)"
+        ></button>
+        <button
+            pButton
+            type="button"
+            label="Fermer"
+            icon="pi pi-times"
+            class="p-button-text ml-2"
+            (click)="onClose()"
+        ></button>
+    </div>
+</div>

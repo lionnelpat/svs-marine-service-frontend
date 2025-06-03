@@ -1,0 +1,159 @@
+.operation-detail {
+    .operation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+
+        .operation-name {
+            margin: 0;
+            color: var(--svs-primary);
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .operation-code {
+            margin: 0.25rem 0 0 0;
+            color: var(--svs-text);
+            font-size: 1rem;
+            font-family: 'Courier New', monospace;
+            opacity: 0.8;
+        }
+    }
+
+    .detail-section {
+        margin-bottom: 2rem;
+
+        .section-title {
+            color: var(--svs-primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+    }
+
+    .description-content {
+        background: var(--svs-surface);
+        border: 1px solid var(--svs-surface-dark);
+        border-radius: 6px;
+        padding: 1rem;
+
+        p {
+            margin: 0;
+            color: var(--svs-text);
+            line-height: 1.6;
+        }
+    }
+
+    .price-card {
+        background: var(--svs-surface);
+        border: 1px solid var(--svs-surface-dark);
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+
+        &.xof-card {
+            border-left: 4px solid #059669;
+
+            .price-header i {
+                color: #059669;
+            }
+
+            .price-amount {
+                color: #059669;
+            }
+        }
+
+        &.euro-card {
+            border-left: 4px solid var(--svs-accent);
+
+            .price-header i {
+                color: var(--svs-accent);
+            }
+
+            .price-amount {
+                color: var(--svs-accent);
+            }
+        }
+
+        .price-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+
+            i {
+                font-size: 1.2rem;
+            }
+
+            .currency-label {
+                font-weight: 500;
+                color: var(--svs-text);
+                font-size: 0.9rem;
+            }
+        }
+
+        .price-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+    }
+
+    .exchange-rate-display {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: var(--svs-surface-dark);
+        border-radius: 6px;
+        text-align: center;
+
+        .exchange-text {
+            color: var(--svs-text);
+            font-weight: 500;
+            font-size: 1rem;
+        }
+    }
+
+    .detail-field {
+        margin-bottom: 1rem;
+
+        .field-label {
+            display: block;
+            font-weight: 500;
+            color: var(--svs-text);
+            font-size: 0.875rem;
+            opacity: 0.8;
+            margin-bottom: 0.25rem;
+        }
+
+        .field-value {
+            color: var(--svs-text);
+            font-size: 1rem;
+        }
+    }
+
+    .detail-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--svs-surface-dark);
+    }
+
+    ::ng-deep {
+        .p-tag.p-tag-success {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .p-tag.p-tag-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+    }
+}

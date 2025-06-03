@@ -1,0 +1,130 @@
+<div class="operation-detail" *ngIf="operation">
+    <!-- En-tête avec nom et statut -->
+    <div class="operation-header">
+        <div class="flex align-items-center gap-3">
+            <p-avatar
+                icon="pi pi-cog"
+                size="large"
+                shape="circle"
+                [style]="{'background-color': 'var(--svs-primary)', 'color': 'white'}"
+            ></p-avatar>
+            <div>
+                <h3 class="operation-name">{{ operation.nom }}</h3>
+                <p class="operation-code">{{ operation.code }}</p>
+            </div>
+        </div>
+        <div class="operation-status">
+            <p-tag
+                [value]="operation.active ? 'Actif' : 'Inactif'"
+                [severity]="operation.active ? 'success' : 'danger'"
+                [rounded]="true"
+            ></p-tag>
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Description -->
+    <div class="detail-section">
+        <h4 class="section-title">
+            <i class="pi pi-file-text mr-2"></i>
+            Description
+        </h4>
+        <div class="description-content">
+            <p>{{ operation.description }}</p>
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Tarification -->
+    <div class="detail-section">
+        <h4 class="section-title">
+            <i class="pi pi-money-bill mr-2"></i>
+            Tarification
+        </h4>
+        <div class="grid">
+            <div class="col-12 md:col-6">
+                <div class="price-card xof-card">
+                    <div class="price-header">
+                        <i class="pi pi-money-bill"></i>
+                        <span class="currency-label">Franc CFA (XOF)</span>
+                    </div>
+                    <div class="price-amount">
+                        {{ formatCurrency(operation.prixXOF, 'XOF') }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 md:col-6">
+                <div class="price-card euro-card">
+                    <div class="price-header">
+                        <i class="pi pi-euro"></i>
+                        <span class="currency-label">Euro (EUR)</span>
+                    </div>
+                    <div class="price-amount">
+                        {{ formatCurrency(operation.prixEURO, 'EUR') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Taux de change -->
+        <div class="exchange-rate-display" *ngIf="operation.prixXOF > 0">
+            <div class="flex align-items-center justify-content-center gap-2">
+                <i class="pi pi-arrow-right-arrow-left text-color-secondary"></i>
+                <span class="exchange-text">
+              1 EUR = {{ getExchangeRate() }} XOF
+            </span>
+            </div>
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Métadonnées -->
+    <div class="detail-section">
+        <h4 class="section-title">
+            <i class="pi pi-info-circle mr-2"></i>
+            Informations système
+        </h4>
+        <div class="grid">
+            <div class="col-12 md:col-6">
+                <div class="detail-field">
+                    <label class="field-label">Date de création</label>
+                    <div class="field-value">
+                        {{ formatDate(operation.created_at) }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 md:col-6">
+                <div class="detail-field">
+                    <label class="field-label">Dernière modification</label>
+                    <div class="field-value">
+                        {{ formatDate(operation.updated_at) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="detail-actions">
+        <button
+            pButton
+            type="button"
+            label="Modifier"
+            icon="pi pi-pencil"
+            class="p-button-raised"
+            (click)="onEdit()"
+            style="background-color: var(--svs-accent); border-color: var(--svs-accent)"
+        ></button>
+        <button
+            pButton
+            type="button"
+            label="Fermer"
+            icon="pi pi-times"
+            class="p-button-text ml-2"
+            (click)="onClose()"
+        ></button>
+    </div>
+</div>

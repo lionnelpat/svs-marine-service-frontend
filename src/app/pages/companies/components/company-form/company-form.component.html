@@ -1,0 +1,301 @@
+<form [formGroup]="companyForm" (ngSubmit)="onSubmit()" class="company-form">
+    <!-- Informations générales -->
+    <div class="form-section">
+        <h4 class="section-title">
+            <i class="pi pi-building mr-2"></i>
+            Informations générales
+        </h4>
+
+        <div class="grid">
+            <div class="col-12 md:col-6">
+                <label for="nom" class="field-label">
+                    Nom de la compagnie <span class="required">*</span>
+                </label>
+                <input
+                    id="nom"
+                    pInputText
+                    formControlName="nom"
+                    placeholder="Ex: CMA CGM"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('nom')"
+                />
+                <small class="field-error" *ngIf="isFieldInvalid('nom')">
+                    Le nom de la compagnie est obligatoire
+                </small>
+            </div>
+
+            <div class="col-12 md:col-6">
+                <label for="raisonSociale" class="field-label">
+                    Raison sociale <span class="required">*</span>
+                </label>
+                <input
+                    id="raisonSociale"
+                    pInputText
+                    formControlName="raisonSociale"
+                    placeholder="Ex: Compagnie Maritime d'Affrètement"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('raisonSociale')"
+                />
+                <small class="field-error" *ngIf="isFieldInvalid('raisonSociale')">
+                    La raison sociale est obligatoire
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Adresse -->
+    <div class="form-section">
+        <h4 class="section-title">
+            <i class="pi pi-map-marker mr-2"></i>
+            Adresse
+        </h4>
+
+        <div class="grid">
+            <div class="col-12">
+                <label for="adresse" class="field-label">
+                    Adresse <span class="required">*</span>
+                </label>
+                <textarea
+                    id="adresse"
+                    pInputTextarea
+                    formControlName="adresse"
+                    placeholder="Adresse complète"
+                    class="w-full"
+                    rows="2"
+                    [class.ng-invalid]="isFieldInvalid('adresse')"
+                ></textarea>
+                <small class="field-error" *ngIf="isFieldInvalid('adresse')">
+                    L'adresse est obligatoire
+                </small>
+            </div>
+
+            <div class="col-12 md:col-4">
+                <label for="ville" class="field-label">
+                    Ville <span class="required">*</span>
+                </label>
+                <input
+                    id="ville"
+                    pInputText
+                    formControlName="ville"
+                    placeholder="Ex: Marseille"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('ville')"
+                />
+                <small class="field-error" *ngIf="isFieldInvalid('ville')">
+                    La ville est obligatoire
+                </small>
+            </div>
+
+            <div class="col-12 md:col-4">
+                <label for="pays" class="field-label">
+                    Pays <span class="required">*</span>
+                </label>
+                <p-dropdown
+                    id="pays"
+                    formControlName="pays"
+                    [options]="countryOptions"
+                    placeholder="Sélectionner un pays"
+                    [filter]="true"
+                    filterBy="label"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('pays')"
+                ></p-dropdown>
+                <small class="field-error" *ngIf="isFieldInvalid('pays')">
+                    Le pays est obligatoire
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Contact principal -->
+    <div class="form-section">
+        <h4 class="section-title">
+            <i class="pi pi-user mr-2"></i>
+            Contact principal
+        </h4>
+
+        <div class="grid">
+            <div class="col-12 md:col-6">
+                <label for="contactPrincipal" class="field-label">
+                    Nom du contact <span class="required">*</span>
+                </label>
+                <input
+                    id="contactPrincipal"
+                    pInputText
+                    formControlName="contactPrincipal"
+                    placeholder="Ex: Jean Dupont"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('contactPrincipal')"
+                />
+                <small class="field-error" *ngIf="isFieldInvalid('contactPrincipal')">
+                    Le nom du contact est obligatoire
+                </small>
+            </div>
+
+            <div class="col-12 md:col-6">
+                <label for="telephoneContact" class="field-label">
+                    Téléphone contact <span class="required">*</span>
+                </label>
+                <input
+                    id="telephoneContact"
+                    pInputText
+                    formControlName="telephoneContact"
+                    placeholder="Ex: +33 4 88 91 90 01"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('telephoneContact')"
+                />
+                <small class="field-error" *ngIf="isFieldInvalid('telephoneContact')">
+                    Le téléphone du contact est obligatoire
+                </small>
+            </div>
+
+            <div class="col-12 md:col-6">
+                <label for="emailContact" class="field-label">
+                    Email contact <span class="required">*</span>
+                </label>
+                <input
+                    id="emailContact"
+                    pInputText
+                    type="email"
+                    formControlName="emailContact"
+                    placeholder="Ex: jean.dupont@company.com"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('emailContact')"
+                />
+                <small class="field-error" *ngIf="isFieldInvalid('emailContact')">
+              <span *ngIf="companyForm.get('emailContact')?.hasError('required')">
+                L'email du contact est obligatoire
+              </span>
+                    <span *ngIf="companyForm.get('emailContact')?.hasError('email')">
+                Format d'email invalide
+              </span>
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Informations entreprise -->
+    <div class="form-section">
+        <h4 class="section-title">
+            <i class="pi pi-phone mr-2"></i>
+            Coordonnées entreprise
+        </h4>
+
+        <div class="grid">
+            <div class="col-12 md:col-6">
+                <label for="telephone" class="field-label">
+                    Téléphone principal <span class="required">*</span>
+                </label>
+                <input
+                    id="telephone"
+                    pInputText
+                    formControlName="telephone"
+                    placeholder="Ex: +33 4 88 91 90 00"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('telephone')"
+                />
+                <small class="field-error" *ngIf="isFieldInvalid('telephone')">
+                    Le téléphone principal est obligatoire
+                </small>
+            </div>
+
+            <div class="col-12 md:col-6">
+                <label for="email" class="field-label">
+                    Email principal <span class="required">*</span>
+                </label>
+                <input
+                    id="email"
+                    pInputText
+                    type="email"
+                    formControlName="email"
+                    placeholder="Ex: contact@company.com"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('email')"
+                />
+                <small class="field-error" *ngIf="isFieldInvalid('email')">
+              <span *ngIf="companyForm.get('email')?.hasError('required')">
+                L'email principal est obligatoire
+              </span>
+                    <span *ngIf="companyForm.get('email')?.hasError('email')">
+                Format d'email invalide
+              </span>
+                </small>
+            </div>
+
+            <div class="col-12 md:col-6">
+                <label for="siteWeb" class="field-label">Site web</label>
+                <input
+                    id="siteWeb"
+                    pInputText
+                    formControlName="siteWeb"
+                    placeholder="Ex: https://www.company.com"
+                    class="w-full"
+                />
+            </div>
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Informations légales -->
+    <div class="form-section">
+        <h4 class="section-title">
+            <i class="pi pi-file mr-2"></i>
+            Informations légales
+        </h4>
+
+        <div class="grid">
+            <div class="col-12 md:col-6">
+                <label for="rccm" class="field-label">
+                    Numéro de registre de commerce
+                </label>
+                <input
+                    id="rccm"
+                    pInputText
+                    formControlName="rccm"
+                    placeholder="Ex: RCS Marseille 954 503 474"
+                    class="w-full"
+                />
+            </div>
+
+            <div class="col-12 md:col-6">
+                <label for="ninea" class="field-label">NINEA</label>
+                <input
+                    id="ninea"
+                    pInputText
+                    formControlName="ninea"
+                    placeholder="Ex: FR 12 954503474"
+                    class="w-full"
+                />
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-actions">
+        <button
+            type="button"
+            pButton
+            label="Annuler"
+            icon="pi pi-times"
+            class="p-button-text"
+            (click)="onCancel()"
+        ></button>
+        <button
+            type="submit"
+            pButton
+            [label]="isEditMode ? 'Modifier' : 'Créer'"
+            [icon]="isEditMode ? 'pi pi-check' : 'pi pi-plus'"
+            [loading]="loading"
+            [disabled]="companyForm.invalid"
+            class="ml-2"
+            style="background-color: var(--svs-primary); border-color: var(--svs-primary)"
+        ></button>
+    </div>
+</form>

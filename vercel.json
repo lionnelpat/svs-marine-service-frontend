@@ -22,11 +22,6 @@
             "dest": "/index.html"
         }
     ],
-    "functions": {
-        "src/app/**/*.ts": {
-            "runtime": "@vercel/node@2"
-        }
-    },
     "rewrites": [
         {
             "source": "/:path*",

@@ -1,0 +1,73 @@
+.operation-form {
+    .form-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+        color: var(--svs-primary);
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .field-label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: var(--svs-text);
+    }
+
+    .required {
+        color: #ef4444;
+    }
+
+    .field-error {
+        color: #ef4444;
+        display: block;
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+    }
+
+    .code-input {
+        text-transform: uppercase;
+        font-family: 'Courier New', monospace;
+    }
+
+    .exchange-rate-info {
+        margin-top: 1rem;
+        padding: 0.75rem;
+        background: var(--svs-surface-dark);
+        border-radius: 4px;
+        border-left: 3px solid var(--svs-accent);
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--svs-surface-dark);
+    }
+
+    ::ng-deep {
+        .ng-invalid.ng-touched {
+            border-color: #ef4444 !important;
+        }
+
+        .p-inputnumber.ng-invalid.ng-touched {
+            .p-inputtext {
+                border-color: #ef4444 !important;
+            }
+        }
+
+        .p-button:disabled {
+            opacity: 0.6;
+        }
+
+        .p-inputnumber-input {
+            text-align: right;
+        }
+    }
+}

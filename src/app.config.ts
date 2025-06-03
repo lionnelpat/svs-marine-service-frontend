@@ -5,6 +5,7 @@ import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScroll
 import { providePrimeNG } from 'primeng/config';
 import { appRoutes } from './app.routes';
 import { SVSTheme } from './app/themes/svs-theme';
+import { ConfirmationService, MessageService } from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -20,6 +21,8 @@ export const appConfig: ApplicationConfig = {
                     cssLayer: false
                 }
             }
-        })
+        }),
+        MessageService,      // ✅ Ajouter MessageService
+        ConfirmationService, // ✅ Ajouter ConfirmationService
     ]
 };

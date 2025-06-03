@@ -1,0 +1,64 @@
+<div class="ships-page">
+    <!-- En-tête de page -->
+    <div class="page-header">
+        <div class="page-title">
+            <h1>
+                <i class="pi pi-send mr-3"></i>
+                Gestion des Navires
+            </h1>
+            <p class="page-description">
+                Gestion de la flotte et des navires des compagnies maritimes
+            </p>
+        </div>
+    </div>
+
+    <!-- Liste des navires -->
+    <app-ship-list
+        (shipEvent)="onShipEvent($event)"
+    ></app-ship-list>
+
+    <!-- Dialog pour le formulaire -->
+    <p-dialog
+        [(visible)]="showFormDialog"
+        [modal]="true"
+        [draggable]="false"
+        [resizable]="false"
+        [closable]="true"
+        [header]="formDialogTitle"
+        styleClass="ship-dialog"
+        [style]="{ width: '95vw', maxWidth: '900px' }"
+        (onHide)="onFormDialogHide()"
+    >
+        <app-ship-form
+            [ship]="selectedShip"
+            [visible]="showFormDialog"
+            (formSubmit)="onFormSubmit($event)"
+            (formCancel)="onFormCancel()"
+        ></app-ship-form>
+    </p-dialog>
+
+    <!-- Dialog pour les détails -->
+    <p-dialog
+        [(visible)]="showDetailDialog"
+        [modal]="true"
+        [draggable]="false"
+        [resizable]="false"
+        [closable]="true"
+        header="Détails du navire"
+        styleClass="ship-dialog"
+        [style]="{ width: '95vw', maxWidth: '800px' }"
+        (onHide)="onDetailDialogHide()"
+    >
+        <app-ship-detail
+            [ship]="selectedShip"
+            (editClick)="onDetailEditClick($event)"
+            (closeClick)="onDetailCloseClick()"
+        ></app-ship-detail>
+    </p-dialog>
+
+    <!-- Messages toast -->
+    <p-toast></p-toast>
+
+    <!-- Dialog de confirmation -->
+    <p-confirmDialog></p-confirmDialog>
+</div>
