@@ -1,0 +1,92 @@
+// Variables de couleurs SVS
+:root {
+  --svs-primary: #1e40af;
+  --svs-primary-light: #3b82f6;
+  --svs-accent: #06b6d4;
+  --svs-surface: #f8fafc;
+  --svs-surface-dark: #e2e8f0;
+  --svs-text: #4b5563;
+}
+
+// Personnalisation de la TopBar
+.layout-topbar {
+  background: linear-gradient(135deg, var(--svs-primary) 0%, var(--svs-primary-light) 100%);
+  box-shadow: 0 2px 12px 0 rgba(30, 64, 175, 0.15);
+
+   .layout-topbar-action {
+        color: #fff;
+    }
+
+  .layout-topbar-logo {
+    img {
+      height: 2.5rem;
+      width: auto;
+    }
+
+    span {
+      font-weight: 600;
+      color: white;
+      margin-left: 0.5rem;
+    }
+  }
+
+  .layout-topbar-button {
+    color: white;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+// Personnalisation du Menu
+.layout-menu {
+  .layout-menuitem-category {
+    color: var(--svs-primary);
+    font-weight: 600;
+  }
+
+  .layout-menuitem-link {
+    &:hover {
+      background-color: rgba(59, 130, 246, 0.1);
+    }
+
+    &.active-menuitem {
+      background: linear-gradient(135deg, var(--svs-primary) 0%, var(--svs-accent) 100%);
+      color: white;
+    }
+  }
+}
+
+// Personnalisation des cartes
+.card {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(30, 64, 175, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+
+  .card-header {
+    background: linear-gradient(135deg, var(--svs-surface) 0%, white 100%);
+    border-bottom: 2px solid var(--svs-accent);
+  }
+}
+
+// Boutons personnalisés
+.p-button.p-button-primary {
+  background: linear-gradient(135deg, var(--svs-primary) 0%, var(--svs-primary-light) 100%);
+  border-color: var(--svs-primary);
+
+  &:hover {
+    background: linear-gradient(135deg, var(--svs-primary-light) 0%, var(--svs-accent) 100%);
+    border-color: var(--svs-primary-light);
+  }
+}
+
+.p-button.p-button-secondary {
+  background: var(--svs-accent);
+  border-color: var(--svs-accent);
+
+  &:hover {
+    background: #0891b2;
+    border-color: #0891b2;
+  }
+}
