@@ -11,8 +11,12 @@ export const appRoutes: Routes = [
             { path: '', component: Dashboard },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') },
             {
-                path: 'companies', // J'ai aussi changé 'sociétés' en 'companies' pour éviter les accents dans les URL
+                path: 'companies',
                 loadChildren: () => import('./app/pages/companies/companies.routes')
+            },
+            {
+                path: 'operations',
+                loadChildren: () => import('./app/pages/operations/operations.routes')
             }
         ]
     },

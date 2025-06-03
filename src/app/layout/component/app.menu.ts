@@ -35,6 +35,16 @@ export class AppMenu {
                 ]
             },
             {
+                label: 'Opérations',
+                items: [
+                    {
+                        label: 'Types d\'opérations',
+                        icon: 'pi pi-cog',
+                        routerLink: ['/operations/list']
+                    }
+                ]
+            },
+            {
                 label: 'Pages',
                 icon: 'pi pi-fw pi-briefcase',
                 routerLink: ['/pages'],

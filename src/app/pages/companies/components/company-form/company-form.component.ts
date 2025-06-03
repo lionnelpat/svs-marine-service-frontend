@@ -6,7 +6,6 @@ import {
     OnInit,
     OnChanges,
     SimpleChanges,
-    CUSTOM_ELEMENTS_SCHEMA
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -17,7 +16,7 @@ import { DividerModule } from 'primeng/divider';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { CompanyService } from '../../../service/company.service';
 import { LoggerService } from '../../../../core/services/logger.service';
-import { Company, CreateCompanyRequest, UpdateCompanyRequest } from '../../../../shared/models/company.model';
+import { Company, CreateCompanyRequest, UpdateCompanyRequest } from '../../../../shared/models';
 import { Textarea } from 'primeng/textarea';
 
 @Component({
