@@ -1,0 +1,144 @@
+.company-detail {
+    .company-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+
+        .company-name {
+            margin: 0;
+            color: var(--svs-primary);
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .company-legal-name {
+            margin: 0.25rem 0 0 0;
+            color: var(--svs-text);
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+    }
+
+    .detail-section {
+        margin-bottom: 2rem;
+
+        .section-title {
+            color: var(--svs-primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+    }
+
+    .detail-field {
+        margin-bottom: 1rem;
+
+        .field-label {
+            display: block;
+            font-weight: 500;
+            color: var(--svs-text);
+            font-size: 0.875rem;
+            opacity: 0.8;
+            margin-bottom: 0.25rem;
+        }
+
+        .field-value {
+            color: var(--svs-text);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+
+            .link {
+                color: var(--svs-accent);
+                text-decoration: none;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+
+    .address-card {
+        background: var(--svs-surface);
+        border: 1px solid var(--svs-surface-dark);
+        border-radius: 6px;
+        padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+
+        .address-content {
+            flex: 1;
+
+            .address-line {
+                margin: 0 0 0.25rem 0;
+                color: var(--svs-text);
+            }
+
+            .address-country {
+                margin: 0.5rem 0 0 0;
+                color: var(--svs-primary);
+            }
+        }
+    }
+
+    .contact-card {
+        background: var(--svs-surface);
+        border: 1px solid var(--svs-surface-dark);
+        border-radius: 6px;
+        padding: 1rem;
+
+        .contact-name {
+            margin: 0 0 0.75rem 0;
+            color: var(--svs-primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .contact-details {
+            .contact-item {
+                display: flex;
+                align-items: center;
+                margin-bottom: 0.5rem;
+                color: var(--svs-text);
+
+                .link {
+                    color: var(--svs-accent);
+                    text-decoration: none;
+
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+        }
+    }
+
+    .detail-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--svs-surface-dark);
+    }
+
+    ::ng-deep {
+        .p-tag.p-tag-success {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .p-tag.p-tag-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+    }
+}

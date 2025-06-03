@@ -1,0 +1,99 @@
+.company-list {
+    .card {
+        background: var(--svs-surface);
+        border: 1px solid var(--svs-surface-dark);
+        border-radius: 6px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state {
+        padding: 3rem 1rem;
+        text-align: center;
+
+        .empty-icon {
+            font-size: 3rem;
+            color: var(--svs-text);
+            opacity: 0.5;
+            margin-bottom: 1rem;
+        }
+
+        h4 {
+            color: var(--svs-text);
+            margin: 0 0 0.5rem 0;
+            font-size: 1.25rem;
+        }
+
+        p {
+            color: var(--svs-text);
+            opacity: 0.7;
+            margin: 0 0 1rem 0;
+        }
+    }
+
+    ::ng-deep {
+        .p-datatable {
+            .p-datatable-header {
+                background: var(--svs-surface);
+                border-color: var(--svs-surface-dark);
+            }
+
+            .p-datatable-thead > tr > th {
+                background: var(--svs-surface);
+                color: var(--svs-text);
+                border-color: var(--svs-surface-dark);
+                font-weight: 600;
+            }
+
+            .p-datatable-tbody > tr > td {
+                border-color: var(--svs-surface-dark);
+            }
+
+            .p-datatable-tbody > tr:hover {
+                background: var(--svs-surface-dark);
+            }
+        }
+
+        .p-button.p-button-raised {
+            background-color: var(--svs-primary);
+            border-color: var(--svs-primary);
+
+            &:hover {
+                background-color: var(--svs-primary-light);
+                border-color: var(--svs-primary-light);
+            }
+        }
+
+        .p-tag.p-tag-success {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .p-tag.p-tag-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .p-inputtext {
+            border-color: var(--svs-surface-dark);
+
+            &:focus {
+                border-color: var(--svs-primary);
+                box-shadow: 0 0 0 0.2rem rgba(30, 64, 175, 0.2);
+            }
+        }
+
+        .p-dropdown {
+            border-color: var(--svs-surface-dark);
+
+            &:not(.p-disabled):hover {
+                border-color: var(--svs-primary);
+            }
+
+            &.p-focus {
+                border-color: var(--svs-primary);
+                box-shadow: 0 0 0 0.2rem rgba(30, 64, 175, 0.2);
+            }
+        }
+    }
+}

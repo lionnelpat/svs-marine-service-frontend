@@ -1,0 +1,64 @@
+<div class="companies-page">
+    <!-- En-tête de page -->
+    <div class="page-header">
+        <div class="page-title">
+            <h1>
+                <i class="pi pi-building mr-3"></i>
+                Compagnies Maritimes
+            </h1>
+            <p class="page-description">
+                Gestion des compagnies maritimes et de leurs informations
+            </p>
+        </div>
+    </div>
+
+    <!-- Liste des companies -->
+    <app-company-list
+        (companyEvent)="onCompanyEvent($event)"
+    ></app-company-list>
+
+    <!-- Dialog pour le formulaire -->
+    <p-dialog
+        [(visible)]="showFormDialog"
+        [modal]="true"
+        [draggable]="false"
+        [resizable]="false"
+        [closable]="true"
+        [header]="formDialogTitle"
+        styleClass="company-dialog"
+        [style]="{ width: '90vw', maxWidth: '800px' }"
+        (onHide)="onFormDialogHide()"
+    >
+        <app-company-form
+            [company]="selectedCompany"
+            [visible]="showFormDialog"
+            (formSubmit)="onFormSubmit($event)"
+            (formCancel)="onFormCancel()"
+        ></app-company-form>
+    </p-dialog>
+
+    <!-- Dialog pour les détails -->
+    <p-dialog
+        [(visible)]="showDetailDialog"
+        [modal]="true"
+        [draggable]="false"
+        [resizable]="false"
+        [closable]="true"
+        header="Détails de la compagnie"
+        styleClass="company-dialog"
+        [style]="{ width: '90vw', maxWidth: '700px' }"
+        (onHide)="onDetailDialogHide()"
+    >
+        <app-company-detail
+            [company]="selectedCompany"
+            (editClick)="onDetailEditClick($event)"
+            (closeClick)="onDetailCloseClick()"
+        ></app-company-detail>
+    </p-dialog>
+
+    <!-- Messages toast -->
+    <p-toast></p-toast>
+
+    <!-- Dialog de confirmation -->
+    <p-confirmDialog></p-confirmDialog>
+</div>

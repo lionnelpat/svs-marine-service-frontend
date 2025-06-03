@@ -25,6 +25,16 @@ export class AppMenu {
                 items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
             },
             {
+                label: 'Gestion Maritime',
+                items: [
+                    {
+                        label: 'sociétés',
+                        icon: 'pi pi-building',
+                        routerLink: ['/companies/list']
+                    }
+                ]
+            },
+            {
                 label: 'Pages',
                 icon: 'pi pi-fw pi-briefcase',
                 routerLink: ['/pages'],
