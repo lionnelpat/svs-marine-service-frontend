@@ -31,6 +31,11 @@ export class AppMenu {
                         label: 'sociétés',
                         icon: 'pi pi-building',
                         routerLink: ['/companies/list']
+                    },
+                    {
+                        label: 'navires',
+                        icon: 'pi pi-building',
+                        routerLink: ['/ships/list']
                     }
                 ]
             },

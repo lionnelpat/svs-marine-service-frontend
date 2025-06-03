@@ -17,6 +17,10 @@ export const appRoutes: Routes = [
             {
                 path: 'operations',
                 loadChildren: () => import('./app/pages/operations/operations.routes')
+            },
+            {
+                path: 'ships',
+                loadChildren: () => import('./app/pages/ships/ships.routes')
             }
         ]
     },
