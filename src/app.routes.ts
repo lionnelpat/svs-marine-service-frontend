@@ -9,7 +9,19 @@ export const appRoutes: Routes = [
         component: AppLayout,
         children: [
             { path: '', component: Dashboard },
-            { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }
+            { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') },
+            {
+                path: 'companies',
+                loadChildren: () => import('./app/pages/companies/companies.routes')
+            },
+            {
+                path: 'operations',
+                loadChildren: () => import('./app/pages/operations/operations.routes')
+            },
+            {
+                path: 'ships',
+                loadChildren: () => import('./app/pages/ships/ships.routes')
+            }
         ]
     },
     { path: 'notfound', component: Notfound },

@@ -1,0 +1,169 @@
+<form [formGroup]="operationForm" (ngSubmit)="onSubmit()" class="operation-form">
+    <!-- Informations générales -->
+    <div class="form-section">
+        <h4 class="section-title">
+            <i class="pi pi-cog mr-2"></i>
+            Informations générales
+        </h4>
+
+        <div class="grid">
+            <div class="col-12 md:col-6">
+                <label for="nom" class="field-label">
+                    Nom de l'opération <span class="required">*</span>
+                </label>
+                <input
+                    id="nom"
+                    pInputText
+                    formControlName="nom"
+                    placeholder="Ex: Pilotage d'entrée"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('nom')"
+                />
+                <small class="field-error" *ngIf="isFieldInvalid('nom')">
+                    Le nom de l'opération est obligatoire
+                </small>
+            </div>
+
+            <div class="col-12 md:col-6">
+                <label for="code" class="field-label">
+                    Code/Référence <span class="required">*</span>
+                </label>
+                <input
+                    id="code"
+                    pInputText
+                    formControlName="code"
+                    placeholder="Ex: PIL-ENT-001"
+                    class="w-full code-input"
+                    [class.ng-invalid]="isFieldInvalid('code')"
+                    (input)="onCodeChange($event)"
+                />
+                <small class="field-error" *ngIf="isFieldInvalid('code')">
+              <span *ngIf="operationForm.get('code')?.hasError('required')">
+                Le code est obligatoire
+              </span>
+                    <span *ngIf="operationForm.get('code')?.hasError('pattern')">
+                Format invalide (ex: PIL-ENT-001)
+              </span>
+                </small>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="col-12">
+                <label for="description" class="field-label">
+                    Description <span class="required">*</span>
+                </label>
+                <textarea
+                    id="description"
+                    pInputTextarea
+                    formControlName="description"
+                    placeholder="Description détaillée de l'opération..."
+                    class="w-full"
+                    rows="3"
+                    [class.ng-invalid]="isFieldInvalid('description')"
+                ></textarea>
+                <small class="field-error" *ngIf="isFieldInvalid('description')">
+                    La description est obligatoire
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Tarification -->
+    <div class="form-section">
+        <h4 class="section-title">
+            <i class="pi pi-money-bill mr-2"></i>
+            Tarification
+        </h4>
+
+        <div class="grid">
+            <div class="col-12 md:col-6">
+                <label for="prixXOF" class="field-label">
+                    Prix en XOF <span class="required">*</span>
+                </label>
+                <p-inputNumber
+                    id="prixXOF"
+                    formControlName="prixXOF"
+                    mode="currency"
+                    currency="XOF"
+                    locale="fr-FR"
+                    [min]="0"
+                    [maxFractionDigits]="0"
+                    placeholder="0"
+                    styleClass="w-full"
+                    [class.ng-invalid]="isFieldInvalid('prixXOF')"
+                    (onInput)="onPrixXOFChange($event)"
+                ></p-inputNumber>
+                <small class="field-error" *ngIf="isFieldInvalid('prixXOF')">
+              <span *ngIf="operationForm.get('prixXOF')?.hasError('required')">
+                Le prix en XOF est obligatoire
+              </span>
+                    <span *ngIf="operationForm.get('prixXOF')?.hasError('min')">
+                Le prix doit être positif
+              </span>
+                </small>
+            </div>
+
+            <div class="col-12 md:col-6">
+                <label for="prixEURO" class="field-label">
+                    Prix en EURO <span class="required">*</span>
+                </label>
+                <p-inputNumber
+                    id="prixEURO"
+                    formControlName="prixEURO"
+                    mode="currency"
+                    currency="EUR"
+                    locale="fr-FR"
+                    [min]="0"
+                    [maxFractionDigits]="2"
+                    placeholder="0.00"
+                    styleClass="w-full"
+                    [class.ng-invalid]="isFieldInvalid('prixEURO')"
+                    (onInput)="onPrixEUROChange($event)"
+                ></p-inputNumber>
+                <small class="field-error" *ngIf="isFieldInvalid('prixEURO')">
+              <span *ngIf="operationForm.get('prixEURO')?.hasError('required')">
+                Le prix en EURO est obligatoire
+              </span>
+                    <span *ngIf="operationForm.get('prixEURO')?.hasError('min')">
+                Le prix doit être positif
+              </span>
+                </small>
+            </div>
+        </div>
+
+        <!-- Taux de change calculé -->
+        <div class="exchange-rate-info" *ngIf="showExchangeRate()">
+            <div class="flex align-items-center gap-2">
+                <i class="pi pi-info-circle text-color-secondary"></i>
+                <span class="text-sm text-color-secondary">
+              Taux de change calculé : 1 EUR = {{ getCalculatedRate() }} XOF
+            </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-actions">
+        <button
+            type="button"
+            pButton
+            label="Annuler"
+            icon="pi pi-times"
+            class="p-button-text"
+            (click)="onCancel()"
+        ></button>
+        <button
+            type="submit"
+            pButton
+            [label]="isEditMode ? 'Modifier' : 'Créer'"
+            [icon]="isEditMode ? 'pi pi-check' : 'pi pi-plus'"
+            [loading]="loading"
+            [disabled]="operationForm.invalid"
+            class="ml-2"
+            style="background-color: var(--svs-primary); border-color: var(--svs-primary)"
+        ></button>
+    </div>
+</form>
