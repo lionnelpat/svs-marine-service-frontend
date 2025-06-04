@@ -1,4 +1,6 @@
-.ship-list {
+
+
+.invoice-list {
     .card {
         background: var(--svs-surface);
         border: 1px solid var(--svs-surface-dark);
@@ -7,65 +9,12 @@
         margin-bottom: 1rem;
     }
 
-    .ship-imo {
-        font-family: 'Courier New', monospace;
-        color: var(--svs-primary);
-        font-weight: 600;
+    .price-xof {
+        color: #059669;
     }
 
-    .dimensions-info {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-
-        .dimension-item {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-
-            .label {
-                font-weight: 600;
-                color: var(--svs-text);
-                opacity: 0.7;
-                min-width: 1.5rem;
-            }
-
-            span {
-                font-size: 0.9rem;
-                color: var(--svs-text);
-            }
-        }
-    }
-
-    .tonnage-info {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-
-        .tonnage-item {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-
-            .label {
-                font-weight: 600;
-                color: var(--svs-accent);
-                opacity: 0.8;
-                min-width: 2rem;
-                font-size: 0.8rem;
-            }
-
-            span {
-                font-size: 0.9rem;
-                color: var(--svs-text);
-                font-weight: 500;
-            }
-        }
-    }
-
-    .company-name {
-        font-weight: 500;
-        color: var(--svs-primary);
+    .price-euro {
+        color: var(--svs-accent);
     }
 
     .empty-state {
@@ -93,17 +42,12 @@
     }
 
     ::ng-deep {
-        .p-chip {
-            font-size: 0.75rem;
-            padding: 0.25rem 0.5rem;
-
-            &.flag-chip {
-                background-color: var(--svs-surface-dark);
-                color: var(--svs-text);
-            }
-        }
-
         .p-datatable {
+            .p-datatable-header {
+                background: var(--svs-surface);
+                border-color: var(--svs-surface-dark);
+            }
+
             .p-datatable-thead > tr > th {
                 background: var(--svs-surface);
                 color: var(--svs-text);
@@ -140,4 +84,36 @@
             color: white;
         }
     }
+}
+
+::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+    padding: 0.75rem;
+    vertical-align: top;
+}
+
+::ng-deep .p-datatable .p-datatable-thead > tr > th {
+    padding: 1rem 0.75rem;
+    background: var(--surface-50);
+    border-color: var(--surface-200);
+    font-weight: 600;
+}
+
+::ng-deep .p-tag {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+}
+
+.status-inactif {
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+}
+
+.currency {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+    background: var(--surface-50);
 }

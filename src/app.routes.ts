@@ -15,6 +15,10 @@ export const appRoutes: Routes = [
                 loadChildren: () => import('./app/pages/companies/companies.routes')
             },
             {
+                path: 'invoices',
+                loadChildren: () => import('./app/pages/invoices/invoices.routes')
+            },
+            {
                 path: 'operations',
                 loadChildren: () => import('./app/pages/operations/operations.routes')
             },

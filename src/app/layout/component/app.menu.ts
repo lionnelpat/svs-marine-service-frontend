@@ -34,7 +34,7 @@ export class AppMenu {
                     },
                     {
                         label: 'navires',
-                        icon: 'pi pi-building',
+                        icon: 'pi pi-compass',
                         routerLink: ['/ships/list']
                     }
                 ]
@@ -46,6 +46,11 @@ export class AppMenu {
                         label: 'Types d\'opérations',
                         icon: 'pi pi-cog',
                         routerLink: ['/operations/list']
+                    },
+                    {
+                        label: 'Factures',
+                        icon: 'pi pi-receipt',
+                        routerLink: ['/invoices/list']
                     }
                 ]
             },

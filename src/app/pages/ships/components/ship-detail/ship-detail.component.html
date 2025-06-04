@@ -1,1 +1,157 @@
-<p>ship-detail works!</p>
+<div class="ship-detail" *ngIf="ship">
+    <!-- En-tête avec nom et statut -->
+    <div class="ship-header">
+        <div class="flex align-items-center gap-3">
+            <p-avatar
+                icon="pi pi-send"
+                size="large"
+                shape="circle"
+                [style]="{'background-color': getTypeColor(ship.typeNavire), 'color': 'white'}"
+            ></p-avatar>
+            <div>
+                <h3 class="ship-name">{{ ship.nom }}</h3>
+                <div class="ship-info">
+                    <p-chip
+                        [label]="ship.typeNavire"
+                        [style]="{'background-color': getTypeColor(ship.typeNavire), 'color': 'white'}"
+                    ></p-chip>
+                    <p-chip
+                        [label]="ship.pavillon"
+                        styleClass="flag-chip ml-2"
+                    ></p-chip>
+                </div>
+            </div>
+        </div>
+        <div class="ship-status">
+            <p-tag
+                [value]="ship.active ? 'Actif' : 'Inactif'"
+                [severity]="ship.active ? 'success' : 'danger'"
+                [rounded]="true"
+            ></p-tag>
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Identification -->
+    <div class="detail-section">
+        <h4 class="section-title">
+            <i class="pi pi-id-card mr-2"></i>
+            Identification
+        </h4>
+        <div class="grid">
+            <div class="col-12 columns-3">
+                <div class="detail-field">
+                    <label class="field-label">Numéro IMO</label>
+                    <div class="field-value imo-value">{{ ship.numeroIMO }}</div>
+                </div>
+            </div>
+            <div class="col-12 columns-3">
+                <div class="detail-field">
+                    <label class="field-label">Numéro MMSI</label>
+                    <div class="field-value mmsi-value">{{ ship.numeroMMSI }}</div>
+                </div>
+            </div>
+            <div class="col-12 columns-3">
+                <div class="detail-field">
+                    <label class="field-label">Indicatif d'appel</label>
+                    <div class="field-value call-sign-value">{{ ship.numeroAppel }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="grid">
+            <div class="col-12 columns-3">
+                <div class="detail-field">
+                    <label class="field-label">Port d'attache</label>
+                    <div class="field-value">
+                        <i class="pi pi-map-marker mr-2"></i>
+                        {{ ship.portAttache }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 columns-3">
+                <div class="detail-field">
+                    <label class="field-label">Compagnie propriétaire</label>
+                    <div class="field-value company-value">
+                        <i class="pi pi-building mr-2"></i>
+                        {{ companyName || 'Chargement...' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Construction et classification -->
+    <div class="detail-section">
+        <h4 class="section-title">
+            <i class="pi pi-wrench mr-2"></i>
+            Construction et classification
+        </h4>
+        <div class="grid">
+            <div class="col-12 md:col-6">
+                <div class="detail-field">
+                    <label class="field-label">Société de classification</label>
+                    <div class="field-value">
+                        <i class="pi pi-verified mr-2"></i>
+                        {{ ship.classification }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="grid">
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Métadonnées -->
+    <div class="detail-section">
+        <h4 class="section-title">
+            <i class="pi pi-info-circle mr-2"></i>
+            Informations système
+        </h4>
+        <div class="grid">
+            <div class="col-12 md:col-6">
+                <div class="detail-field">
+                    <label class="field-label">Date de création</label>
+                    <div class="field-value">
+                        <i class="pi pi-plus-circle mr-2"></i>
+                        {{ formatDate(ship.created_at) }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 md:col-6">
+                <div class="detail-field">
+                    <label class="field-label">Dernière modification</label>
+                    <div class="field-value">
+                        <i class="pi pi-pencil mr-2"></i>
+                        {{ formatDate(ship.updated_at) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="detail-actions">
+        <button
+            pButton
+            type="button"
+            label="Modifier"
+            icon="pi pi-pencil"
+            class="p-button-raised"
+            (click)="onEdit()"
+            style="background-color: var(--svs-accent); border-color: var(--svs-accent)"
+        ></button>
+        <button
+            pButton
+            type="button"
+            label="Fermer"
+            icon="pi pi-times"
+            class="p-button-text ml-2"
+            (click)="onClose()"
+        ></button>
+    </div>
+</div>

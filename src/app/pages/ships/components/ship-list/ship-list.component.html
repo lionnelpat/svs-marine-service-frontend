@@ -1,1 +1,207 @@
-<p>ship-list works!</p>
+<div class="ship-list">
+    <!-- En-tête avec filtres -->
+    <div class="card">
+        <div class="flex flex-column md:flex-row gap-3 mb-4">
+            <div class="flex-1">
+                <p-iconfield iconPosition="left">
+                    <input pInputText type="text" [(ngModel)]="searchTerm"
+                           (input)="onSearch()"
+                           placeholder="Rechercher par nom, IMO, MMSI, port d'attache..."
+                           class="w-full" />
+                    <p-inputicon class="pi pi-search" />
+                </p-iconfield>
+            </div>
+            <div class="flex gap-2 flex-wrap">
+                <p-dropdown
+                    [(ngModel)]="selectedCompany"
+                    [options]="companyOptions"
+                    placeholder="Toutes les compagnies"
+                    [showClear]="true"
+                    (onChange)="onFilter()"
+                    styleClass="w-12rem"
+                    optionLabel="label"
+                    optionValue="value"
+                ></p-dropdown>
+                <p-dropdown
+                    [(ngModel)]="selectedShipType"
+                    [options]="shipTypeOptions"
+                    placeholder="Tous les types"
+                    [showClear]="true"
+                    (onChange)="onFilter()"
+                    styleClass="w-10rem"
+                ></p-dropdown>
+                <p-dropdown
+                    [(ngModel)]="selectedFlag"
+                    [options]="flagOptions"
+                    placeholder="Tous les pavillons"
+                    [showClear]="true"
+                    (onChange)="onFilter()"
+                    styleClass="w-10rem"
+                ></p-dropdown>
+                <p-dropdown
+                    [(ngModel)]="selectedStatus"
+                    [options]="statusOptions"
+                    placeholder="Tous les statuts"
+                    [showClear]="true"
+                    (onChange)="onFilter()"
+                    styleClass="w-10rem"
+                ></p-dropdown>
+                <button
+                    pButton
+                    type="button"
+                    label="Nouveau navire"
+                    icon="pi pi-plus"
+                    class="p-button-raised"
+                    (click)="onCreate()"
+                    style="background-color: var(--svs-primary)"
+                ></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau des navires -->
+    <div class="card">
+        <p-table
+            [value]="ships"
+            [loading]="loading"
+            [paginator]="true"
+            [rows]="pageSize"
+            [totalRecords]="totalRecords"
+            [lazy]="true"
+            (onLazyLoad)="onLazyLoad($event)"
+            responsiveLayout="scroll"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} navires"
+            [rowsPerPageOptions]="[10, 25, 50]"
+            styleClass="p-datatable-gridlines"
+        >
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 3rem">#</th>
+                    <th pSortableColumn="nom">
+                        Navire <p-sortIcon field="nom"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="numeroIMO">
+                        N° IMO <p-sortIcon field="numeroIMO"></p-sortIcon>
+                    </th>
+                    <th>Type & Pavillon</th>
+                    <th pSortableColumn="compagnieId">
+                        Compagnie <p-sortIcon field="compagnieId"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="active">
+                        Statut <p-sortIcon field="active"></p-sortIcon>
+                    </th>
+                    <th style="width: 12rem">Actions</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-ship let-rowIndex="rowIndex">
+                <tr>
+                    <td>
+                <span class="font-medium text-color-secondary">
+                  {{ (currentPage * pageSize) + rowIndex + 1 }}
+                </span>
+                    </td>
+                    <td>
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-primary">{{ ship.nom }}</span>
+                            <small class="text-color-secondary">
+                                <i class="pi pi-map-marker mr-1"></i>{{ ship.portAttache }}
+                            </small>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="flex flex-col">
+                            <span class="font-semibold ship-imo">{{ ship.numeroIMO }}</span>
+                            <small class="text-color-secondary">MMSI: {{ ship.numeroMMSI }}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <div class=" flex flex-col gap-1">
+                            <p-chip
+                                [label]="ship.typeNavire"
+                                [style]="{'background-color': getTypeColor(ship.typeNavire), 'color': 'white'}"
+                            ></p-chip>
+                            <p-chip
+                                [label]="ship.pavillon"
+                                styleClass="flag-chip"
+                            ></p-chip>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="company-name">{{ getCompanyName(ship.compagnieId) }}</span>
+                    </td>
+                    <td>
+                        <p-tag
+                            [value]="ship.active ? 'Actif' : 'Inactif'"
+                            [severity]="ship.active ? 'success' : 'danger'"
+                        ></p-tag>
+                    </td>
+                    <td>
+                        <div class="flex gap-1">
+                            <button
+                                pButton
+                                type="button"
+                                icon="pi pi-eye"
+                                class="p-button-rounded p-button-text p-button-sm"
+                                (click)="onView(ship)"
+                                pTooltip="Voir les détails"
+                                tooltipPosition="top"
+                            ></button>
+                            <button
+                                pButton
+                                type="button"
+                                icon="pi pi-pencil"
+                                class="p-button-rounded p-button-text p-button-sm"
+                                (click)="onEdit(ship)"
+                                pTooltip="Modifier"
+                                tooltipPosition="top"
+                                style="color: var(--svs-accent)"
+                            ></button>
+                            <button
+                                pButton
+                                type="button"
+                                [icon]="ship.active ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                                class="p-button-rounded p-button-text p-button-sm"
+                                (click)="onToggleStatus(ship)"
+                                [pTooltip]="ship.active ? 'Désactiver' : 'Activer'"
+                                tooltipPosition="top"
+                                style="color: var(--svs-primary-light)"
+                            ></button>
+                            <button
+                                pButton
+                                type="button"
+                                icon="pi pi-trash"
+                                class="p-button-rounded p-button-text p-button-sm p-button-danger"
+                                (click)="onDelete(ship)"
+                                pTooltip="Supprimer"
+                                tooltipPosition="top"
+                            ></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="9" class="text-center">
+                        <div class="empty-state">
+                            <i class="pi pi-send empty-icon"></i>
+                            <h4>Aucun navire trouvé</h4>
+                            <p>{{ getEmptyMessage() }}</p>
+                            <button
+                                *ngIf="hasActiveFilters()"
+                                pButton
+                                type="button"
+                                label="Effacer les filtres"
+                                icon="pi pi-filter-slash"
+                                class="p-button-text"
+                                (click)="clearFilters()"
+                            ></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

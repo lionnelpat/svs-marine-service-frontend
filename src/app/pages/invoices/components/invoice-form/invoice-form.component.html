@@ -1,0 +1,330 @@
+<div class="invoice-form">
+    <form [formGroup]="invoiceForm" (ngSubmit)="onSubmit()">
+
+        <!-- En-tête du formulaire -->
+        <div class="form-header mb-6">
+            <h2 class="text-2xl font-semibold text-900 mb-2">
+                {{ editMode ? 'Modifier la facture' : 'Créer une facture' }}
+            </h2>
+        </div>
+
+        <!-- Informations générales -->
+        <div class="form-section mb-6">
+            <div class="section-header mb-4">
+                <i class="pi pi-cog text-primary mr-2"></i>
+                <h3 class="text-lg font-medium text-primary m-0">Informations générales</h3>
+            </div>
+
+            <div class="grid">
+                <div class="col-12 md:col-4">
+                    <div class="field">
+                        <label class="field-label">N° Facture <span class="text-red-500">*</span></label>
+                        <input
+                            type="text"
+                            pInputText
+                            formControlName="numero"
+                            placeholder="Numéro automatique"
+                            [readonly]="true"
+                            class="field-input"
+                        />
+                    </div>
+                </div>
+
+                <div class="flex justify-between gap-3">
+                    <div class="col-12 md:col-3">
+                        <div class="field">
+                            <label class="field-label" for="dateFacture" >Date de facture <span class="text-red-500">*</span></label>
+                            <p-calendar
+                                id="dateFacture"
+                                formControlName="dateFacture"
+                                dateFormat="dd/mm/yy"
+                                [showIcon]="true"
+                                placeholder="Sélectionner la date"
+                                class="field-input">
+                            </p-calendar>
+                        </div>
+                    </div>
+
+                    <div class="col-12 md:col-3">
+                        <div class="field">
+                            <label class="field-label">Date d'échéance <span class="text-red-500">*</span></label>
+                            <p-calendar
+                                formControlName="dateEcheance"
+                                dateFormat="dd/mm/yy"
+                                [showIcon]="true"
+                                placeholder="Date d'échéance"
+                                class="field-input">
+                            </p-calendar>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- Client et navire -->
+        <div class="form-section mb-6">
+            <div class="section-header mb-4">
+                <i class="pi pi-building text-primary mr-2"></i>
+                <h3 class="text-lg font-medium text-primary m-0">Client et navire</h3>
+            </div>
+
+            <div class="grid">
+                <div class="col-12 md:col-6">
+                    <div class="field">
+                        <label class="field-label">Compagnie maritime <span class="text-red-500">*</span></label>
+                        <p-dropdown
+                            formControlName="compagnieId"
+                            [options]="companyOptions"
+                            placeholder="Sélectionner une compagnie"
+                            optionLabel="label"
+                            optionValue="value"
+                            [filter]="true"
+                            filterBy="label"
+                            (onChange)="onCompanyChange($event)"
+                            class="field-input">
+                        </p-dropdown>
+
+                        <div *ngIf="selectedCompany" class="company-info">
+                            <div class="text-sm text-600">
+                                <div class="font-medium text-900">{{ selectedCompany.nom }}</div>
+                                <div>{{ selectedCompany.raisonSociale }}</div>
+                                <div>{{ selectedCompany.adresse }}</div>
+                                <div *ngIf="selectedCompany.telephone">Tél: {{ selectedCompany.telephone }}</div>
+                                <div *ngIf="selectedCompany.ninea" class="text-500">NINEA: {{ selectedCompany.ninea }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 md:col-6">
+                    <div class="field">
+                        <label class="field-label">Navire <span class="text-red-500">*</span></label>
+                        <p-dropdown
+                            formControlName="navireId"
+                            [options]="shipOptions"
+                            placeholder="Sélectionner un navire"
+                            optionLabel="label"
+                            optionValue="value"
+                            [filter]="true"
+                            filterBy="label"
+                            (onChange)="onShipChange($event)"
+                            class="field-input">
+                        </p-dropdown>
+
+                        <div *ngIf="selectedShip" class="ship-info">
+                            <div class="text-sm text-600">
+                                <div class="font-medium text-900">{{ selectedShip.nom }}</div>
+                                <div>IMO: {{ selectedShip.numeroIMO }}</div>
+                                <div>Type: {{ selectedShip.typeNavire }} | Pavillon: {{ selectedShip.pavillon }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prestations -->
+        <div class="form-section mb-6">
+            <div class="section-header mb-4">
+                <i class="pi pi-list text-primary mr-2"></i>
+                <h3 class="text-lg font-medium text-primary m-0">Prestations facturées</h3>
+                <div class="ml-auto">
+                    <p-button
+                        type="button"
+                        icon="pi pi-plus"
+                        label="Ajouter"
+                        size="small"
+                        (onClick)="addPrestation()"
+                        class="add-button">
+                    </p-button>
+                </div>
+            </div>
+
+            <div formArrayName="prestations">
+                <div *ngIf="prestationsArray.length === 0" class="empty-state">
+                    <i class="pi pi-info-circle text-4xl text-400 mb-3"></i>
+                    <p class="text-600 mb-3">Aucune prestation ajoutée</p>
+                    <p-button
+                        type="button"
+                        label="Ajouter une prestation"
+                        icon="pi pi-plus"
+                        (onClick)="addPrestation()">
+                    </p-button>
+                </div>
+
+                <div *ngFor="let prestation of prestationsArray.controls; let i = index"
+                     [formGroupName]="i"
+                     class="prestation-card mb-4">
+
+                    <div class="prestation-header">
+                        <h4 class="prestation-title">Prestation {{ i + 1 }}</h4>
+                        <p-button
+                            type="button"
+                            icon="pi pi-trash"
+                            severity="danger"
+                            [text]="true"
+                            size="small"
+                            (onClick)="removePrestation(i)"
+                            pTooltip="Supprimer cette prestation">
+                        </p-button>
+                    </div>
+
+                    <div class="grid">
+                        <div class="col-12 md:col-4">
+                            <div class="field">
+                                <label class="field-label">Opération <span class="text-red-500">*</span></label>
+                                <p-dropdown
+                                    formControlName="operationId"
+                                    [options]="operationOptions"
+                                    placeholder="Sélectionner"
+                                    optionLabel="label"
+                                    optionValue="value"
+                                    (onChange)="onOperationChange(i, $event)"
+                                    class="field-input">
+                                </p-dropdown>
+                            </div>
+                        </div>
+
+                        <div class="col-12 md:col-2">
+                            <div class="field">
+                                <label class="field-label">Quantité <span class="text-red-500">*</span></label>
+                                <p-inputNumber
+                                    formControlName="quantite"
+                                    [min]="0.01"
+                                    [step]="0.01"
+                                    placeholder="0"
+                                    (onInput)="calculatePrestationTotal(i)"
+                                    class="field-input">
+                                </p-inputNumber>
+                            </div>
+                        </div>
+
+                        <div class="col-12 md:col-3">
+                            <div class="field">
+                                <label class="field-label">Prix en XOF <span class="text-red-500">*</span></label>
+                                <p-inputNumber
+                                    formControlName="prixUnitaireXOF"
+                                    suffix=" F CFA"
+                                    [min]="0"
+                                    (onInput)="calculatePrestationTotal(i)"
+                                    class="field-input">
+                                </p-inputNumber>
+                            </div>
+                        </div>
+
+                        <div class="col-12 md:col-3">
+                            <div class="field">
+                                <label class="field-label">Prix en EURO <span class="text-red-500">*</span></label>
+                                <p-inputNumber
+                                    formControlName="prixUnitaireEURO"
+                                    suffix=" €"
+                                    [min]="0"
+                                    (onInput)="calculatePrestationTotal(i)"
+                                    class="field-input">
+                                </p-inputNumber>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="field">
+                                <label class="field-label">Description</label>
+                                <textarea
+                                    pInputTextarea
+                                    formControlName="description"
+                                    placeholder="Description détaillée de l'opération..."
+                                    rows="3"
+                                    class="field-textarea">
+                                        </textarea>
+                                <small class="field-message text-red-500" *ngIf="!prestationsArray.at(i).get('description')?.value">
+                                    La description est obligatoire
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Récapitulatif -->
+        <div class="form-section mb-6">
+            <div class="section-header mb-4">
+                <i class="pi pi-calculator text-primary mr-2"></i>
+                <h3 class="text-lg font-medium text-primary m-0">Tarification</h3>
+            </div>
+
+            <div class="grid">
+                <div class="col-12 md:col-6">
+                    <div class="field mb-4">
+                        <label class="field-label">Taux de TVA (%) <span class="text-red-500">*</span></label>
+                        <p-dropdown
+                            formControlName="tauxTva"
+                            [options]="tvaRateOptions"
+                            placeholder="Sélectionner le taux"
+                            optionLabel="label"
+                            optionValue="value"
+                            (onChange)="calculateTotals()"
+                            class="field-input">
+                        </p-dropdown>
+                    </div>
+
+                    <div class="field">
+                        <label class="field-label">Notes</label>
+                        <textarea
+                            pInputTextarea
+                            formControlName="notes"
+                            placeholder="Notes ou commentaires sur la facture"
+                            rows="4"
+                            class="field-textarea">
+                                </textarea>
+                    </div>
+                </div>
+
+                <div class="col-12 md:col-6">
+                    <div class="totals-summary">
+                        <div class="total-line">
+                            <span>Sous-total HT:</span>
+                            <span class="total-amount">{{ formatCurrency(sousTotal) }}</span>
+                        </div>
+
+                        <div class="total-line">
+                            <span>TVA ({{ invoiceForm.get('tauxTva')?.value || 0 }}%):</span>
+                            <span class="total-amount">{{ formatCurrency(tva) }}</span>
+                        </div>
+
+                        <div class="total-divider"></div>
+
+                        <div class="total-line total-final">
+                            <span>Total TTC:</span>
+                            <span class="total-amount-final">{{ formatCurrency(montantTotal) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+            <button
+                type="button"
+                pButton
+                label="Annuler"
+                icon="pi pi-times"
+                class="p-button-text"
+                (click)="onCancelCreation()"
+            ></button>
+            <button
+                type="submit"
+                pButton
+                [label]="editMode ? 'Modifier' : 'Créer'"
+                [icon]="editMode ? 'pi pi-check' : 'pi pi-plus'"
+                [loading]="saving"
+                [disabled]="invoiceForm.invalid || prestationsArray.length === 0"
+                class="ml-2"
+                style="background-color: var(--svs-primary); border-color: var(--svs-primary)"
+            ></button>
+        </div>
+
+    </form>
+</div>
