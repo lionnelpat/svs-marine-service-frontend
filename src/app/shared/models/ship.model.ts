@@ -7,17 +7,10 @@ export interface Ship {
     numeroIMO: string;
     pavillon: string;
     typeNavire: string;
-    longueur: number;
-    largeur: number;
-    tirantEau: number;
-    tonnageBrut: number;
-    tonnageNet: number;
     nombrePassagers?: number;
     compagnieId: number;
     compagnie?: Company; // Relation avec la compagnie
     portAttache: string;
-    anneConstruction: number;
-    chantierConstruction: string;
     numeroAppel: string;
     numeroMMSI: string;
     classification: string;
@@ -31,16 +24,8 @@ export interface CreateShipRequest {
     numeroIMO: string;
     pavillon: string;
     typeNavire: string;
-    longueur: number;
-    largeur: number;
-    tirantEau: number;
-    tonnageBrut: number;
-    tonnageNet: number;
     nombrePassagers?: number;
     compagnieId: number;
-    portAttache: string;
-    anneConstruction: number;
-    chantierConstruction: string;
     numeroAppel: string;
     numeroMMSI: string;
     classification: string;

@@ -1,0 +1,141 @@
+<div class="layout-content">
+    <!-- En-tête avec icône et titre -->
+    <div class="card mb-5">
+        <div class="flex flex-col lg:flex-row lg:justify-between lg:align-middle">
+            <div class="mb-3 lg:mb-0">
+                <div class="flex align-items-center mb-2">
+                    <i class="pi pi-wallet text-orange-600 text-2xl mr-3"></i>
+                    <h1 class="text-2xl font-semibold text-900 m-0">Gestion des Dépenses</h1>
+                </div>
+                <p class="text-600 m-0 line-height-3">
+                    Suivi et gestion des dépenses de l'entreprise
+                </p>
+            </div>
+
+            <!-- Actions principales -->
+            <div class="flex flex-column sm:flex-row gap-2">
+                <p-button
+                    icon="pi pi-plus"
+                    label="Nouvelle dépense"
+                    (onClick)="showNewExpenseForm()"
+                    class="p-button-primary">
+                </p-button>
+
+                <p-button
+                    icon="pi pi-file-excel"
+                    label="Export Excel"
+                    severity="success"
+                    [outlined]="true"
+                    (onClick)="exportToExcel()">
+                </p-button>
+
+                <p-button
+                    icon="pi pi-file-pdf"
+                    label="Export PDF"
+                    severity="danger"
+                    [outlined]="true"
+                    (onClick)="exportToPDF()">
+                </p-button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques rapides -->
+
+    <div class="grid grid-cols-12 gap-8">
+        <div class="col-span-12 lg:col-span-6 xl:col-span-3">
+            <div class="card mb-0">
+                <div class="flex justify-between mb-4">
+                    <div>
+                        <span class="block text-muted-color font-medium mb-4">Total Dépenses</span>
+                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.totalDepenses || 0 }}</div>
+                    </div>
+                    <div class="flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
+                        <i class="pi pi-receipt text-blue-500 !text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-span-12 lg:col-span-6 xl:col-span-3">
+            <div class="card mb-0">
+                <div class="flex justify-between mb-4">
+                    <div>
+                        <span class="block text-muted-color font-medium mb-4">Approuvées</span>
+                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.depensesApprouvees || 0 }}</div>
+                    </div>
+                    <div class="flex items-center justify-center bg-green-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
+                        <i class="pi pi-dollar text-green-500 !text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-span-12 lg:col-span-6 xl:col-span-3">
+            <div class="card mb-0">
+                <div class="flex justify-between mb-4">
+                    <div>
+                        <span class="block text-muted-color font-medium mb-4">En attente</span>
+                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.depensesEnAttente || 0 }}</div>
+                    </div>
+                    <div class="flex items-center justify-center bg-yellow-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
+                        <i class="pi  pi-stopwatch  text-yellow-500 !text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-span-12 lg:col-span-6 xl:col-span-3">
+            <div class="card mb-0">
+                <div class="flex justify-between mb-4">
+                    <div>
+                        <span class="block text-muted-color font-medium mb-4">Montant Total (XOF)</span>
+                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.montantTotalXOF || 0 }}</div>
+                    </div>
+                    <div class="flex items-center justify-center bg-red-100 rounded-border" style="width: 2.5rem; height: 2.5rem">
+                        <i class="pi pi-exclamation-circle text-red-500 !text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulaire de nouvelle dépense (modal) -->
+    <div *ngIf="showFormModal" class="fixed-modal-overlay" (click)="closeFormModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3 class="text-xl font-semibold">{{ editMode ? 'Modifier la dépense' : 'Nouvelle dépense' }}</h3>
+                <p-button
+                    icon="pi pi-times"
+                    [text]="true"
+                    (onClick)="closeFormModal()">
+                </p-button>
+            </div>
+            <div class="modal-body">
+                <app-expense-form
+                    [expense]="selectedExpense"
+                    [editMode]="editMode"
+                    (onSave)="onSaveExpense($event)"
+                    (onCancel)="closeFormModal()">
+                </app-expense-form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des dépenses -->
+    <div class="card mt-3">
+        <app-expense-list
+            [expenses]="expenses"
+            [loading]="loading"
+            [totalRecords]="totalRecords"
+            (onEdit)="onEditExpense($event)"
+            (onDelete)="onDeleteExpense($event)"
+            (onStatusChange)="onStatusChange($event)"
+            (onFilter)="onFilterChange($event)"
+            (onPageChange)="onPageChange($event)">
+        </app-expense-list>
+    </div>
+</div>
+
+<!-- Toast pour les notifications -->
+<p-toast></p-toast>
+
+<!-- Dialog de confirmation -->
+<p-confirmDialog></p-confirmDialog>

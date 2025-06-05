@@ -18,7 +18,7 @@ import { InputIcon } from 'primeng/inputicon';
 import { OPERATION_KEY } from '../../constants/constant';
 
 export interface OperationListEvent {
-    type: 'create' | 'edit' | 'view' | 'delete';
+    type: 'edit' | 'view' | 'delete';
     operation?: Operation;
 }
 
@@ -112,11 +112,11 @@ export class OperationListComponent implements OnInit {
     }
 
 
-    onCreate(): void {
-        console.log('🔄 onCreate() appelé dans OperationListComponent'); // Debug
-        this.operationEvent.emit({ type: 'create' });
-        console.log('📤 Événement create émis'); // Debug
-    }
+    // onCreate(): void {
+    //     console.log('🔄 onCreate() appelé dans OperationListComponent'); // Debug
+    //     this.operationEvent.emit({ type: 'create' });
+    //     console.log('📤 Événement create émis'); // Debug
+    // }
 
     onView(operation: Operation): void {
         console.log('🔄 onView() appelé pour:', operation.nom); // Debug

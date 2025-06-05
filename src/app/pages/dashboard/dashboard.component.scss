@@ -1,0 +1,374 @@
+// Variables pour la cohérence du design
+:host {
+    --dashboard-border-radius: 12px;
+    --dashboard-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --dashboard-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --dashboard-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// En-tête du dashboard
+.dashboard-header {
+    margin-bottom: 2rem;
+
+    .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin: 0;
+        display: flex;
+        align-items: center;
+
+        i {
+            font-size: 2.2rem;
+        }
+    }
+
+    .dashboard-subtitle {
+        font-size: 1.125rem;
+        color: var(--text-color-secondary);
+        margin: 0.5rem 0 0 0;
+        font-weight: 500;
+    }
+}
+
+// Cartes de statistiques
+.stats-card {
+    border: none;
+    box-shadow: var(--dashboard-shadow);
+    border-radius: var(--dashboard-border-radius);
+    transition: var(--dashboard-transition);
+    background: var(--surface-card);
+
+    &:hover {
+        box-shadow: var(--dashboard-shadow-hover);
+        transform: translateY(-2px);
+    }
+
+    .stats-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.5rem;
+    }
+
+    .stats-icon {
+        width: 4rem;
+        height: 4rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        i {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+    }
+
+    .stats-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .stats-value {
+        font-size: 1.875rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+        color: var(--text-color);
+        line-height: 1.2;
+    }
+
+    .stats-label {
+        font-size: 0.875rem;
+        color: var(--text-color-secondary);
+        margin: 0;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+}
+
+// Cartes des graphiques
+.p-card {
+    border: none;
+    box-shadow: var(--dashboard-shadow);
+    border-radius: var(--dashboard-border-radius);
+    background: var(--surface-card);
+
+    .p-card-header {
+        background: transparent;
+        border-bottom: 1px solid var(--surface-border);
+        padding: 1.5rem 1.5rem 1rem 1.5rem;
+    }
+
+    .p-card-body {
+        padding: 1.5rem;
+    }
+
+    .p-card-content {
+        padding: 0;
+    }
+}
+
+// En-têtes des cartes
+.card-header {
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-color);
+        margin: 0;
+        display: flex;
+        align-items: center;
+
+        i {
+            color: var(--primary-color);
+        }
+    }
+
+    .card-subtitle {
+        font-size: 0.875rem;
+        color: var(--text-color-secondary);
+        margin-top: 0.25rem;
+        display: block;
+    }
+}
+
+// Conteneurs des graphiques
+.chart-container {
+    position: relative;
+    width: 100%;
+
+    canvas {
+        border-radius: 8px;
+    }
+}
+
+// Indicateurs de performance
+.performance-indicators {
+    .performance-item {
+        text-align: center;
+        padding: 1.5rem;
+        border-radius: var(--dashboard-border-radius);
+        background: var(--surface-50);
+        border: 1px solid var(--surface-border);
+        transition: var(--dashboard-transition);
+
+        &:hover {
+            background: var(--surface-100);
+            transform: translateY(-1px);
+        }
+    }
+
+    .performance-label {
+        font-size: 0.875rem;
+        color: var(--text-color-secondary);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+
+    .performance-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .performance-percentage {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+
+    .performance-description {
+        font-size: 0.75rem;
+        color: var(--text-color-secondary);
+        margin-top: 0.25rem;
+    }
+}
+
+// Styles pour les skeletons de chargement
+.p-skeleton {
+    border-radius: 8px;
+}
+
+// Spinner de chargement
+.p-progress-spinner {
+    .p-progress-spinner-circle {
+        stroke: var(--primary-color);
+    }
+}
+
+// Tags de statut
+.p-tag {
+    font-weight: 600;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+}
+
+// Bouton d'actualisation
+.p-button {
+    &.p-button-secondary {
+        background-color: var(--surface-100);
+        border-color: var(--surface-300);
+        color: var(--text-color);
+
+        &:hover {
+            background-color: var(--surface-200);
+            border-color: var(--surface-400);
+        }
+    }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+    .dashboard-header {
+        .dashboard-title {
+            font-size: 2rem;
+
+            i {
+                font-size: 1.8rem;
+            }
+        }
+
+        .dashboard-subtitle {
+            font-size: 1rem;
+        }
+    }
+
+    .stats-card {
+        .stats-content {
+            padding: 1rem;
+        }
+
+        .stats-icon {
+            width: 3rem;
+            height: 3rem;
+
+            i {
+                font-size: 1.25rem;
+            }
+        }
+
+        .stats-value {
+            font-size: 1.5rem;
+        }
+    }
+
+    .chart-container {
+        height: 250px !important;
+    }
+
+    .performance-indicators {
+        .performance-item {
+            padding: 1rem;
+        }
+
+        .performance-value {
+            font-size: 1.25rem;
+        }
+    }
+}
+
+@media (max-width: 576px) {
+    .dashboard-header {
+        text-align: center;
+
+        .flex {
+            flex-direction: column;
+            gap: 1rem;
+        }
+    }
+
+    .stats-card {
+        .stats-content {
+            flex-direction: column;
+            text-align: center;
+            gap: 0.75rem;
+        }
+    }
+
+    .card-header {
+        text-align: center;
+    }
+
+    .chart-container {
+        height: 200px !important;
+    }
+}
+
+// Animation d'entrée pour les cartes
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stats-card,
+.p-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+// Délais d'animation échelonnés
+.col-12:nth-child(1) .stats-card { animation-delay: 0.1s; }
+.col-12:nth-child(2) .stats-card { animation-delay: 0.2s; }
+.col-12:nth-child(3) .stats-card { animation-delay: 0.3s; }
+.col-12:nth-child(4) .stats-card { animation-delay: 0.4s; }
+
+// Thème sombre
+@media (prefers-color-scheme: dark) {
+    .stats-card {
+        background: var(--surface-card);
+    }
+
+    .performance-indicators {
+        .performance-item {
+            background: var(--surface-100);
+            border-color: var(--surface-border);
+
+            &:hover {
+                background: var(--surface-200);
+            }
+        }
+    }
+}
+
+// Customisation des couleurs pour le thème SVS
+.text-blue-600 {
+    color: #1e40af !important;
+}
+
+.text-green-600 {
+    color: #059669 !important;
+}
+
+.text-red-600 {
+    color: #dc2626 !important;
+}
+
+.text-orange-600 {
+    color: #d97706 !important;
+}
+
+.bg-blue-100 {
+    background-color: #dbeafe !important;
+}
+
+.bg-green-100 {
+    background-color: #dcfce7 !important;
+}
+
+.bg-red-100 {
+    background-color: #fee2e2 !important;
+}
+
+.bg-orange-100 {
+    background-color: #fed7aa !important;
+}

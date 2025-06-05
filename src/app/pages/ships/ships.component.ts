@@ -9,6 +9,7 @@ import { ShipListComponent, ShipListEvent } from './components/ship-list/ship-li
 import { ShipFormComponent } from './components/ship-form/ship-form.component';
 import { ShipDetailComponent } from './components/ship-detail/ship-detail.component';
 import { LoggerService } from '../../core/services/logger.service';
+import { Button } from 'primeng/button';
 
 @Component({
     selector: 'app-ships',
@@ -20,7 +21,8 @@ import { LoggerService } from '../../core/services/logger.service';
         ConfirmDialogModule,
         ShipListComponent,
         ShipFormComponent,
-        ShipDetailComponent
+        ShipDetailComponent,
+        Button
     ],
     templateUrl: './ships.component.html',
     styleUrl: './ships.component.scss'
@@ -51,9 +53,6 @@ export class ShipsComponent {
         this.logger.debug('Événement navire reçu', event);
 
         switch (event.type) {
-            case 'create':
-                this.openCreateDialog();
-                break;
             case 'edit':
                 this.openEditDialog(event.ship!);
                 break;
@@ -156,5 +155,9 @@ export class ShipsComponent {
     private closeDetailDialog(): void {
         this.showDetailDialog = false;
         this.selectedShip = null;
+    }
+
+    onCreate() {
+        this.openCreateDialog();
     }
 }

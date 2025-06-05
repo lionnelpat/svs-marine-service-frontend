@@ -28,15 +28,16 @@ export class AppMenu {
                 label: 'Gestion Maritime',
                 items: [
                     {
-                        label: 'sociétés',
-                        icon: 'pi pi-building',
-                        routerLink: ['/companies/list']
+                        label: 'Factures',
+                        icon: 'pi pi-receipt',
+                        routerLink: ['/invoices/list']
                     },
                     {
-                        label: 'navires',
-                        icon: 'pi pi-building',
-                        routerLink: ['/ships/list']
+                        label: 'Dépenses',
+                        icon: 'pi pi-wallet',
+                        routerLink: ['/expenses/list']
                     }
+
                 ]
             },
             {
@@ -46,49 +47,16 @@ export class AppMenu {
                         label: 'Types d\'opérations',
                         icon: 'pi pi-cog',
                         routerLink: ['/operations/list']
-                    }
-                ]
-            },
-            {
-                label: 'Pages',
-                icon: 'pi pi-fw pi-briefcase',
-                routerLink: ['/pages'],
-                items: [
-                    {
-                        label: 'Auth',
-                        icon: 'pi pi-fw pi-user',
-                        items: [
-                            {
-                                label: 'Login',
-                                icon: 'pi pi-fw pi-sign-in',
-                                routerLink: ['/auth/login']
-                            },
-                            {
-                                label: 'Error',
-                                icon: 'pi pi-fw pi-times-circle',
-                                routerLink: ['/auth/error']
-                            },
-                            {
-                                label: 'Access Denied',
-                                icon: 'pi pi-fw pi-lock',
-                                routerLink: ['/auth/access']
-                            }
-                        ]
                     },
                     {
-                        label: 'Crud',
-                        icon: 'pi pi-fw pi-pencil',
-                        routerLink: ['/pages/crud']
+                        label: 'sociétés',
+                        icon: 'pi pi-building',
+                        routerLink: ['/companies/list']
                     },
                     {
-                        label: 'Not Found',
-                        icon: 'pi pi-fw pi-exclamation-circle',
-                        routerLink: ['/pages/notfound']
-                    },
-                    {
-                        label: 'Empty',
-                        icon: 'pi pi-fw pi-circle-off',
-                        routerLink: ['/pages/empty']
+                        label: 'navires',
+                        icon: 'pi pi-compass',
+                        routerLink: ['/ships/list']
                     }
                 ]
             }

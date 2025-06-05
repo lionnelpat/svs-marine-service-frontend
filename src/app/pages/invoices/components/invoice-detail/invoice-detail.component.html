@@ -1,0 +1,228 @@
+<div class="invoice-detail">
+
+    <!-- Actions (masquées à l'impression) -->
+    <div class="action-bar print-hidden">
+        <div class="flex gap-2">
+            <p-button
+                icon="pi pi-arrow-left"
+                label="Retour"
+                severity="secondary"
+                [outlined]="true"
+                (onClick)="goBack()"
+                pTooltip="Retour à la liste">
+            </p-button>
+        </div>
+
+        <div class="flex gap-2">
+            <p-button
+                icon="pi pi-pencil"
+                label="Modifier"
+                severity="warn"
+                [outlined]="true"
+                (onClick)="editInvoice()"
+                pTooltip="Modifier cette facture">
+            </p-button>
+
+            <p-button
+                icon="pi pi-print"
+                label="Imprimer"
+                severity="info"
+                (onClick)="printInvoice()"
+                pTooltip="Imprimer la facture">
+            </p-button>
+
+            <p-button
+                icon="pi pi-file-pdf"
+                label="Export PDF"
+                severity="danger"
+                (onClick)="exportToPDF()"
+                pTooltip="Exporter en PDF">
+            </p-button>
+        </div>
+    </div>
+
+    <!-- Facture professionnelle -->
+    <div #invoiceContent class="invoice-document" *ngIf="invoice">
+
+        <!-- En-tête de la facture -->
+        <div class="invoice-header">
+            <div class="company-info">
+                <div class="company-logo">
+                    <img *ngIf="companyConfig.logo" [src]="companyConfig.logo" alt="Logo" class="logo">
+                    <div *ngIf="!companyConfig.logo" class="logo-placeholder">
+                        <i class="pi pi-building text-4xl text-primary"></i>
+                    </div>
+                </div>
+                <div class="company-details">
+                    <h1 class="company-name">{{ companyConfig.nom }}</h1>
+                    <div class="company-address">{{ companyConfig.adresse }}</div>
+                    <div class="company-contact">
+                        <div>Tél: {{ companyConfig.telephone }}</div>
+                        <div>Email: {{ companyConfig.email }}</div>
+                    </div>
+                    <div class="company-legal">
+                        <div>NINEA: {{ companyConfig.ninea }}</div>
+                        <div>RCCM: {{ companyConfig.rccm }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="invoice-info">
+                <h2 class="invoice-title">FACTURE</h2>
+                <div class="invoice-number">N° {{ invoice.numero }}</div>
+                <div class="invoice-status">
+                    <p-tag
+                        [value]="getStatusLabel(invoice.statut)"
+                        [severity]="getStatusSeverity(invoice.statut)"
+                        styleClass="invoice-status-tag">
+                    </p-tag>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informations facture et client -->
+        <div class="invoice-details">
+            <div class="client-info">
+                <h3 class="section-title">Facturé à:</h3>
+                <div class="client-details">
+                    <div class="client-name">{{ invoice.compagnie?.nom }}</div>
+                    <div class="client-company">{{ invoice.compagnie?.raisonSociale }}</div>
+                    <div class="client-address">{{ invoice.compagnie?.adresse }}</div>
+                    <div class="client-location">{{ invoice.compagnie?.ville }}, {{ invoice.compagnie?.pays }}</div>
+                    <div *ngIf="invoice.compagnie?.telephone" class="client-phone">
+                        Tél: {{ invoice.compagnie?.telephone }}
+                    </div>
+                    <div *ngIf="invoice.compagnie?.email" class="client-email">
+                        Email: {{ invoice.compagnie?.email }}
+                    </div>
+                    <div *ngIf="invoice.compagnie?.ninea" class="client-ninea">
+                        NINEA: {{ invoice.compagnie?.ninea }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="ship-info">
+                <h3 class="section-title">Navire concerné:</h3>
+                <div class="ship-details">
+                    <div class="ship-name">{{ invoice.navire?.nom }}</div>
+                    <div class="ship-imo">IMO: {{ invoice.navire?.numeroIMO }}</div>
+                    <div class="ship-type">Type: {{ invoice.navire?.typeNavire }}</div>
+                    <div class="ship-flag">Pavillon: {{ invoice.navire?.pavillon }}</div>
+                    <div *ngIf="invoice.navire?.portAttache" class="ship-port">
+                        Port d'attache: {{ invoice.navire?.portAttache }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="invoice-dates">
+                <h3 class="section-title">Infos de facturation:</h3>
+                <div class="date-info">
+                    <div class="date-row">
+                        <span class="date-label">Date de facture:</span>
+                        <span class="date-value">{{ invoice.dateFacture | date:'dd/MM/yyyy' }}</span>
+                    </div>
+                    <div class="date-row">
+                        <span class="date-label">Date d'échéance:</span>
+                        <span class="date-value" [class.overdue]="isOverdue()">
+                                    {{ invoice.dateEcheance | date:'dd/MM/yyyy' }}
+                                </span>
+                    </div>
+                    <div class="date-row" *ngIf="isOverdue()">
+                        <span class="date-label">Retard:</span>
+                        <span class="date-value overdue">{{ getDaysOverdue() }} jour(s)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tableau des prestations -->
+        <div class="invoice-items">
+            <h3 class="section-title">Détail des prestations</h3>
+
+            <table class="items-table">
+                <thead>
+                <tr>
+                    <th class="item-description">Description</th>
+                    <th class="item-quantity">Qté</th>
+                    <th class="item-price">Prix unitaire</th>
+                    <th class="item-total">Total HT (XOF)</th>
+                    <th class="item-total">Total HT (EUR)</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let prestation of invoice.prestations; let i = index">
+                    <td class="item-description">
+                        <div class="item-name">{{ prestation.operation?.nom }}</div>
+                        <div class="item-desc">{{ prestation.description }}</div>
+                    </td>
+                    <td class="item-quantity">{{ prestation.quantite | number:'1.0-2' }}</td>
+                    <td class="item-price">{{ formatCurrency(prestation.prixUnitaireXOF, 'XOF') }}</td>
+                    <td class="item-total">{{ formatCurrency(prestation.montantXOF, 'XOF') }}</td>
+                    <td class="item-total">
+                        @if(prestation.montantEURO !== undefined ){
+                            {{ formatCurrency(prestation.montantEURO, 'EUR') }}
+                        }
+
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Totaux -->
+        <div class="invoice-totals">
+            <div class="totals-table">
+                <div class="total-row">
+                    <span class="total-label">Sous-total HT:</span>
+                    <span class="total-value">{{ formatCurrency(invoice.sousTotal) }}</span>
+                </div>
+                <div class="total-row">
+                    <span class="total-label">TVA ({{ invoice.tauxTva }}%):</span>
+                    <span class="total-value">{{ formatCurrency(invoice.tva) }}</span>
+                </div>
+                <div class="total-row total-final">
+                    <span class="total-label">Total TTC:</span>
+                    <span class="total-value">{{ formatCurrency(invoice.montantTotal) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes et conditions -->
+        <div class="invoice-footer">
+            <div class="notes-section" *ngIf="invoice.notes">
+                <h4 class="footer-title">Notes:</h4>
+                <p class="notes-content">{{ invoice.notes }}</p>
+            </div>
+
+            <div class="terms-section">
+                <h4 class="footer-title">Conditions de paiement:</h4>
+                <p class="terms-content">
+                    Paiement à 30 jours à compter de la date de facture.
+                    Pénalités de retard : 1.5% par mois.
+                    En cas de retard de paiement, une pénalité forfaitaire sera appliquée.
+                </p>
+            </div>
+
+            <div class="payment-info">
+                <h4 class="footer-title">Informations bancaires:</h4>
+                <div class="bank-details">
+                    <div>Banque: Banque De Dakar</div>
+                    <div>IBAN: SN08 BK00 0000 0000 0000 0000 0000</div>
+                    <div>BIC: BKSNSNDA</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signature et cachet -->
+        <div class="invoice-signature">
+            <div class="signature-section">
+                <div class="signature-title">Signature et cachet de l'entreprise</div>
+                <div class="signature-space"></div>
+                <div class="signature-date">
+                    Dakar, le {{ invoice.dateFacture | date:'dd/MM/yyyy' }}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

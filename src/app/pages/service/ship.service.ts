@@ -139,36 +139,9 @@ export class ShipService {
                 return throwError(() => error);
             }
 
-            // Validation dimensions positives
-            if (request.longueur <= 0 || request.largeur <= 0 || request.tirantEau <= 0) {
-                const error = new Error('Les dimensions du navire doivent être positives');
-                this.errorHandler.handleError(error, 'Création navire');
-                return throwError(() => error);
-            }
-
-            // Validation tonnages positifs
-            if (request.tonnageBrut <= 0 || request.tonnageNet <= 0) {
-                const error = new Error('Les tonnages doivent être positifs');
-                this.errorHandler.handleError(error, 'Création navire');
-                return throwError(() => error);
-            }
-
-            // Validation tonnage net < tonnage brut
-            if (request.tonnageNet >= request.tonnageBrut) {
-                const error = new Error('Le tonnage net doit être inférieur au tonnage brut');
-                this.errorHandler.handleError(error, 'Création navire');
-                return throwError(() => error);
-            }
-
-            // Validation année de construction
-            const currentYear = new Date().getFullYear();
-            if (request.anneConstruction < 1900 || request.anneConstruction > currentYear) {
-                const error = new Error(`L'année de construction doit être entre 1900 et ${currentYear}`);
-                this.errorHandler.handleError(error, 'Création navire');
-                return throwError(() => error);
-            }
 
             const newShip: Ship = {
+                portAttache: '',
                 id: this.nextId++,
                 ...request,
                 created_at: new Date(),
@@ -215,31 +188,6 @@ export class ShipService {
                 return throwError(() => error);
             }
 
-            // Validations identiques à la création
-            if (request.longueur <= 0 || request.largeur <= 0 || request.tirantEau <= 0) {
-                const error = new Error('Les dimensions du navire doivent être positives');
-                this.errorHandler.handleError(error, 'Mise à jour navire');
-                return throwError(() => error);
-            }
-
-            if (request.tonnageBrut <= 0 || request.tonnageNet <= 0) {
-                const error = new Error('Les tonnages doivent être positifs');
-                this.errorHandler.handleError(error, 'Mise à jour navire');
-                return throwError(() => error);
-            }
-
-            if (request.tonnageNet >= request.tonnageBrut) {
-                const error = new Error('Le tonnage net doit être inférieur au tonnage brut');
-                this.errorHandler.handleError(error, 'Mise à jour navire');
-                return throwError(() => error);
-            }
-
-            const currentYear = new Date().getFullYear();
-            if (request.anneConstruction < 1900 || request.anneConstruction > currentYear) {
-                const error = new Error(`L'année de construction doit être entre 1900 et ${currentYear}`);
-                this.errorHandler.handleError(error, 'Mise à jour navire');
-                return throwError(() => error);
-            }
 
             const existingShip = this.ships[index];
             const updatedShip: Ship = {
@@ -339,9 +287,7 @@ export class ShipService {
                 activeShips: activeShips.length,
                 inactiveShips: this.ships.length - activeShips.length,
                 shipsByType: this.getShipsByType(),
-                shipsByFlag: this.getShipsByFlag(),
-                averageAge: this.getAverageAge(),
-                totalTonnage: this.getTotalTonnage()
+                shipsByFlag: this.getShipsByFlag()
             };
 
             return of(stats).pipe(delay(200));
@@ -365,15 +311,5 @@ export class ShipService {
             flagCount[ship.pavillon] = (flagCount[ship.pavillon] || 0) + 1;
         });
         return flagCount;
-    }
-
-    private getAverageAge(): number {
-        const currentYear = new Date().getFullYear();
-        const totalAge = this.ships.reduce((sum, ship) => sum + (currentYear - ship.anneConstruction), 0);
-        return Math.round(totalAge / this.ships.length);
-    }
-
-    private getTotalTonnage(): number {
-        return this.ships.reduce((sum, ship) => sum + ship.tonnageBrut, 0);
     }
 }
