@@ -3,7 +3,7 @@
     "version": 1,
     "newProjectRoot": "projects",
     "projects": {
-        "sakai-ng": {
+        "svs-app": {
             "projectType": "application",
             "schematics": {
                 "@schematics/angular:component": {
@@ -17,7 +17,8 @@
                 "build": {
                     "builder": "@angular-devkit/build-angular:application",
                     "options": {
-                        "outputPath": "dist/sakai-ng",
+                        "outputPath": "dist/svs-app/browser",
+                        "baseHref": "/",
                         "index": "src/index.html",
                         "browser": "src/main.ts",
                         "polyfills": [
@@ -57,7 +58,14 @@
                                     "minify": true,
                                     "inlineCritical": true
                                 }
-                            }
+                            },
+                            "fileReplacements": [
+                                {
+                                    "replace": "src/environments/environment.ts",
+                                    "with": "src/environments/environment.prod.ts"
+                                }
+                            ],
+                            "serviceWorker": false
                         },
                         "development": {
                             "optimization": false,
@@ -71,10 +79,10 @@
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "configurations": {
                         "production": {
-                            "buildTarget": "sakai-ng:build:production"
+                            "buildTarget": "svs-app:build:production"
                         },
                         "development": {
-                            "buildTarget": "sakai-ng:build:development"
+                            "buildTarget": "svs-app:build:development"
                         }
                     },
                     "defaultConfiguration": "development"
