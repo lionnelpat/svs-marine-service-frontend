@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    apiUrl: 'https://api.votre-domaine.com'
+    apiUrl: 'https://yeewu-back.bazila.shop'
 };
