@@ -1,0 +1,271 @@
+<form [formGroup]="shipForm" (ngSubmit)="onSubmit()" class="ship-form">
+    <!-- Informations générales -->
+    <div class="form-section">
+        <h4 class="section-title">
+            <i class="pi pi-send mr-2"></i>
+            Informations générales
+        </h4>
+
+        <div class="grid">
+            <div class="col-12 md:col-6">
+                <label for="nom" class="field-label">
+                    Nom du navire <span class="required">*</span>
+                </label>
+                <input
+                    id="nom"
+                    pInputText
+                    formControlName="nom"
+                    placeholder="Ex: DAKAR EXPRESS"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('nom')"
+                />
+                <small class="field-error" *ngIf="isFieldInvalid('nom')">
+                    Le nom du navire est obligatoire
+                </small>
+            </div>
+
+            <div class="col-12 md:col-6">
+                <label for="compagnieId" class="field-label">
+                    Compagnie propriétaire <span class="required">*</span>
+                </label>
+                <p-dropdown
+                    id="compagnieId"
+                    formControlName="compagnieId"
+                    [options]="companyOptions"
+                    placeholder="Sélectionner une compagnie"
+                    optionLabel="label"
+                    optionValue="value"
+                    [filter]="true"
+                    filterBy="label"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('compagnieId')"
+                ></p-dropdown>
+                <small class="field-error" *ngIf="isFieldInvalid('compagnieId')">
+                    La compagnie est obligatoire
+                </small>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="col-12 md:col-4">
+                <label for="typeNavire" class="field-label">
+                    Type de navire <span class="required">*</span>
+                </label>
+                <p-dropdown
+                    id="typeNavire"
+                    formControlName="typeNavire"
+                    [options]="shipTypeOptions"
+                    placeholder="Sélectionner le type"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('typeNavire')"
+                    (onChange)="onShipTypeChange($event)"
+                ></p-dropdown>
+                <small class="field-error" *ngIf="isFieldInvalid('typeNavire')">
+                    Le type de navire est obligatoire
+                </small>
+            </div>
+
+            <div class="col-12 md:col-4">
+                <label for="pavillon" class="field-label">
+                    Pavillon <span class="required">*</span>
+                </label>
+                <p-dropdown
+                    id="pavillon"
+                    formControlName="pavillon"
+                    [options]="flagOptions"
+                    placeholder="Sélectionner le pavillon"
+                    [filter]="true"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('pavillon')"
+                ></p-dropdown>
+                <small class="field-error" *ngIf="isFieldInvalid('pavillon')">
+                    Le pavillon est obligatoire
+                </small>
+            </div>
+
+            <div class="col-12 md:col-4">
+                <label for="portAttache" class="field-label">
+                    Port d'attache <span class="required">*</span>
+                </label>
+                <input
+                    id="portAttache"
+                    pInputText
+                    formControlName="portAttache"
+                    placeholder="Ex: Dakar"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('portAttache')"
+                />
+                <small class="field-error" *ngIf="isFieldInvalid('portAttache')">
+                    Le port d'attache est obligatoire
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Identification -->
+    <div class="form-section">
+        <h4 class="section-title">
+            <i class="pi pi-id-card mr-2"></i>
+            Identification
+        </h4>
+
+        <div class="grid">
+            <div class="col-12 md:col-4">
+                <label for="numeroIMO" class="field-label">
+                    Numéro IMO <span class="required">*</span>
+                </label>
+                <input
+                    id="numeroIMO"
+                    pInputText
+                    formControlName="numeroIMO"
+                    placeholder="Ex: 9876543"
+                    class="w-full imo-input"
+                    [class.ng-invalid]="isFieldInvalid('numeroIMO')"
+                    maxlength="7"
+                />
+                <small class="field-error" *ngIf="isFieldInvalid('numeroIMO')">
+              <span *ngIf="shipForm.get('numeroIMO')?.hasError('required')">
+                Le numéro IMO est obligatoire
+              </span>
+                    <span *ngIf="shipForm.get('numeroIMO')?.hasError('pattern')">
+                Format invalide (7 chiffres)
+              </span>
+                </small>
+            </div>
+
+            <div class="col-12 md:col-4">
+                <label for="numeroMMSI" class="field-label">
+                    Numéro MMSI <span class="required">*</span>
+                </label>
+                <input
+                    id="numeroMMSI"
+                    pInputText
+                    formControlName="numeroMMSI"
+                    placeholder="Ex: 663001234"
+                    class="w-full mmsi-input"
+                    [class.ng-invalid]="isFieldInvalid('numeroMMSI')"
+                    maxlength="9"
+                />
+                <small class="field-error" *ngIf="isFieldInvalid('numeroMMSI')">
+              <span *ngIf="shipForm.get('numeroMMSI')?.hasError('required')">
+                Le numéro MMSI est obligatoire
+              </span>
+                    <span *ngIf="shipForm.get('numeroMMSI')?.hasError('pattern')">
+                Format invalide (9 chiffres)
+              </span>
+                </small>
+            </div>
+
+            <div class="col-12 md:col-4">
+                <label for="numeroAppel" class="field-label">
+                    Indicatif d'appel <span class="required">*</span>
+                </label>
+                <input
+                    id="numeroAppel"
+                    pInputText
+                    formControlName="numeroAppel"
+                    placeholder="Ex: DAEX"
+                    class="w-full call-sign-input"
+                    [class.ng-invalid]="isFieldInvalid('numeroAppel')"
+                    (input)="onCallSignChange($event)"
+                    maxlength="8"
+                />
+                <small class="field-error" *ngIf="isFieldInvalid('numeroAppel')">
+                    L'indicatif d'appel est obligatoire
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Construction et classification -->
+    <div class="form-section">
+        <h4 class="section-title">
+            <i class="pi pi-wrench mr-2"></i>
+            Construction et classification
+        </h4>
+
+        <div class="grid">
+            <div class="col-12 md:col-6">
+                <label for="anneConstruction" class="field-label">
+                    Année de construction <span class="required">*</span>
+                </label>
+                <p-inputNumber
+                    id="anneConstruction"
+                    formControlName="anneConstruction"
+                    [useGrouping]="false"
+                    [min]="1900"
+                    [max]="currentYear"
+                    placeholder="YYYY"
+                    styleClass="w-full"
+                    [class.ng-invalid]="isFieldInvalid('anneConstruction')"
+                ></p-inputNumber>
+                <small class="field-error" *ngIf="isFieldInvalid('anneConstruction')">
+                    Année invalide (1900 - {{ currentYear }})
+                </small>
+            </div>
+
+            <div class="col-12 md:col-6">
+                <label for="classification" class="field-label">
+                    Société de classification <span class="required">*</span>
+                </label>
+                <p-dropdown
+                    id="classification"
+                    formControlName="classification"
+                    [options]="classificationOptions"
+                    placeholder="Sélectionner la classification"
+                    [filter]="true"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('classification')"
+                ></p-dropdown>
+                <small class="field-error" *ngIf="isFieldInvalid('classification')">
+                    La société de classification est obligatoire
+                </small>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="col-12">
+                <label for="chantierConstruction" class="field-label">
+                    Chantier de construction <span class="required">*</span>
+                </label>
+                <input
+                    id="chantierConstruction"
+                    pInputText
+                    formControlName="chantierConstruction"
+                    placeholder="Ex: Chantiers Navals de Dakar"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('chantierConstruction')"
+                />
+                <small class="field-error" *ngIf="isFieldInvalid('chantierConstruction')">
+                    Le chantier de construction est obligatoire
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-actions">
+        <button
+            type="button"
+            pButton
+            label="Annuler"
+            icon="pi pi-times"
+            class="p-button-text"
+            (click)="onCancel()"
+        ></button>
+        <button
+            type="submit"
+            pButton
+            [label]="isEditMode ? 'Modifier' : 'Créer'"
+            [icon]="isEditMode ? 'pi pi-check' : 'pi pi-plus'"
+            [loading]="loading"
+            [disabled]="shipForm.invalid"
+            class="ml-2"
+            style="background-color: var(--svs-primary); border-color: var(--svs-primary)"
+        ></button>
+    </div>
+</form>

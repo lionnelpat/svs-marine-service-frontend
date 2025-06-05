@@ -356,7 +356,7 @@ export class NodeService {
                     {
                         key: '6-1',
                         data: {
-                            name: 'logo.png',
+                            name: 'logos.png',
                             size: '2kb',
                             type: 'Picture'
                         }
@@ -702,7 +702,7 @@ export class NodeService {
                     },
                     {
                         data: {
-                            name: 'logo.png',
+                            name: 'logos.png',
                             size: '2mb',
                             type: 'Picture'
                         }

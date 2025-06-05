@@ -1,0 +1,76 @@
+<div class="ships-page">
+    <!-- En-tête de page -->
+    <div class="card mb-5">
+        <div class="flex flex-col lg:flex-row lg:justify-between lg:align-middle">
+            <div class="mb-3 lg:mb-0">
+                <div class="flex align-items-center mb-2">
+                    <i class="pi pi-compass text-blue-600 text-2xl mr-3"></i>
+                    <h1 class="text-2xl font-semibold text-blue-900 m-0">Gestion des Navires</h1>
+                </div>
+                <p class="text-600 m-0 line-height-3">
+                    Suivi et gestion des Navires
+                </p>
+            </div>
+
+            <!-- Actions principales -->
+            <div class="flex flex-column sm:flex-row gap-2">
+                <p-button
+                    icon="pi pi-plus"
+                    label="Nouveau navire"
+                    (click)="onCreate()"
+                    class="p-button-primary">
+                </p-button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des navires -->
+    <app-ship-list
+        (shipEvent)="onShipEvent($event)"
+    ></app-ship-list>
+
+    <!-- Dialog pour le formulaire -->
+    <p-dialog
+        [(visible)]="showFormDialog"
+        [modal]="true"
+        [draggable]="false"
+        [resizable]="false"
+        [closable]="true"
+        [header]="formDialogTitle"
+        styleClass="ship-dialog"
+        [style]="{ width: '95vw', maxWidth: '900px' }"
+        (onHide)="onFormDialogHide()"
+    >
+        <app-ship-form
+            [ship]="selectedShip"
+            [visible]="showFormDialog"
+            (formSubmit)="onFormSubmit($event)"
+            (formCancel)="onFormCancel()"
+        ></app-ship-form>
+    </p-dialog>
+
+    <!-- Dialog pour les détails -->
+    <p-dialog
+        [(visible)]="showDetailDialog"
+        [modal]="true"
+        [draggable]="false"
+        [resizable]="false"
+        [closable]="true"
+        header="Détails du navire"
+        styleClass="ship-dialog"
+        [style]="{ width: '95vw', maxWidth: '800px' }"
+        (onHide)="onDetailDialogHide()"
+    >
+        <app-ship-detail
+            [ship]="selectedShip"
+            (editClick)="onDetailEditClick($event)"
+            (closeClick)="onDetailCloseClick()"
+        ></app-ship-detail>
+    </p-dialog>
+
+    <!-- Messages toast -->
+    <p-toast></p-toast>
+
+    <!-- Dialog de confirmation -->
+    <p-confirmDialog></p-confirmDialog>
+</div>

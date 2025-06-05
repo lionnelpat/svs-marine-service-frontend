@@ -1,0 +1,294 @@
+<!-- En-tête du Dashboard -->
+<div class="dashboard-header">
+    <div class="flex justify-between align-middle mb-4">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="pi pi-chart-line mr-2"></i>
+                Tableau de Bord
+            </h1>
+            <p class="dashboard-subtitle">
+                Suivi des factures et dépenses - Salane Vision Sarl
+            </p>
+        </div>
+        <p-button
+            icon="pi pi-refresh"
+            label="Actualiser"
+            (onClick)="refreshDashboard()"
+            [loading]="isLoadingStats || isLoadingCharts"
+            severity="primary"
+            size="small">
+        </p-button>
+    </div>
+</div>
+
+<!-- Cartes de statistiques principales -->
+<div class="grid grid-cols-12 gap-8 mb-5">
+    <div class="col-span-12 lg:col-span-6 xl:col-span-3">
+        <div class="card mb-0">
+            <div class="flex justify-between mb-4">
+                <ng-container *ngIf="!isLoadingStats && stats; else loadingSkeleton">
+                <div>
+                    <span class="block text-muted-color font-medium mb-4">Total Factures</span>
+                    <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ formatNumber(stats.totalFactures) }}</div>
+                </div>
+                <div class="flex items-center justify-center bg-green-100 dark:bg-orange-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
+                    <i class="pi pi-receipt text-green-500 !text-xl"></i>
+                </div>
+                </ng-container>
+                <ng-template #loadingSkeleton>
+                    <p-skeleton height="2rem" class="mb-2"></p-skeleton>
+                    <p-skeleton height="1rem" width="60%"></p-skeleton>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+    <div class="col-span-12 lg:col-span-6 xl:col-span-3">
+        <div class="card mb-0">
+            <div class="flex justify-between mb-4">
+                <ng-container *ngIf="!isLoadingStats && stats; else loadingSkeleton">
+                    <div>
+                        <span class="block text-muted-color font-medium mb-4">Chiffre d'Affaires</span>
+                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ formatNumber(stats.montantTotalFactures) }}</div>
+                    </div>
+                    <div class="flex items-center justify-center bg-blue-100 dark:bg-orange-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
+                        <i class="pi pi-dollar text-blue-500 !text-xl"></i>
+                    </div>
+                </ng-container>
+                <ng-template #loadingSkeleton>
+                    <p-skeleton height="2rem" class="mb-2"></p-skeleton>
+                    <p-skeleton height="1rem" width="60%"></p-skeleton>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+    <div class="col-span-12 lg:col-span-6 xl:col-span-3">
+        <div class="card mb-0">
+            <div class="flex justify-between mb-4">
+                <ng-container *ngIf="!isLoadingStats && stats; else loadingSkeleton">
+                    <div>
+                        <span class="block text-muted-color font-medium mb-4">Total Dépenses</span>
+                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ formatNumber(stats.totalDepenses) }}</div>
+                    </div>
+                    <div class="flex items-center justify-center bg-red-100 dark:bg-orange-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
+                        <i class="pi pi-wallet text-red-500 !text-xl"></i>
+                    </div>
+                </ng-container>
+                <ng-template #loadingSkeleton>
+                    <p-skeleton height="2rem" class="mb-2"></p-skeleton>
+                    <p-skeleton height="1rem" width="60%"></p-skeleton>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+    <div class="col-span-12 lg:col-span-6 xl:col-span-3">
+        <div class="card mb-0">
+            <div class="flex justify-between mb-4">
+                <ng-container *ngIf="!isLoadingStats && stats; else loadingSkeleton">
+                    <div>
+                        <span class="block text-muted-color font-medium mb-4">Coût Total</span>
+                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ formatNumber(stats.montantTotalDepenses) }}</div>
+                    </div>
+                    <div class="flex items-center justify-center bg-orange-100 dark:bg-orange-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
+                        <i class="pi pi-dollar text-orange-500 !text-xl"></i>
+                    </div>
+                </ng-container>
+                <ng-template #loadingSkeleton>
+                    <p-skeleton height="2rem" class="mb-2"></p-skeleton>
+                    <p-skeleton height="1rem" width="60%"></p-skeleton>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Graphique d'évolution -->
+<div class="mt-10">
+    <div class="grid grid-cols-2 gap-4 mt-4">
+        <div class="card p-4 surface-card border-round shadow-2">
+            <div class="card-header mb-5">
+                <h3 class="card-title">
+                    <i class="pi pi-chart-line mr-2"></i>
+                    Évolution Mensuelle du nombre des Factures et Dépenses
+                </h3>
+                <span class="card-subtitle">Tendances sur les 12 derniers mois</span>
+            </div>
+            <p-chart type="bar" [data]="evolutionChart" [options]="lineChartOptions"></p-chart>
+        </div>
+
+        <div class="card p-4 surface-card border-round shadow-2">
+            <div class="card-header mb-5">
+                <h3 class="card-title">
+                    <i class="pi pi-chart-line mr-2"></i>
+                    Évolution Mensuelle du Montant Factures et Dépenses
+                </h3>
+                <span class="card-subtitle">Tendances sur les 12 derniers mois</span>
+            </div>
+            <p-chart type="bar" [data]="evolutionChart" [options]="lineChartOptions"></p-chart>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Graphiques de répartition -->
+<div class="grid grid-cols-2 gap-4 mt-4">
+    <!-- Répartition par sociétés -->
+    <div class="p-4 surface-card border-round shadow-2">
+        <p-card styleClass="h-full">
+            <ng-template pTemplate="header">
+                <div class="card-header p-5">
+                    <h3 class="card-title">
+                        <i class="pi pi-building mr-2"></i>
+                        Répartition par Sociétés
+                    </h3>
+                    <span class="card-subtitle">Montant des factures</span>
+                </div>
+            </ng-template>
+
+            <div class="chart-container" style="height: 300px;">
+                <ng-container *ngIf="!isLoadingCharts && societesChart; else pieChartSkeleton">
+                    <p-chart
+                        type="doughnut"
+                        [data]="societesChart"
+                        [options]="pieChartOptions"
+                        width="100%"
+                        height="300px">
+                    </p-chart>
+                </ng-container>
+                <ng-template #pieChartSkeleton>
+                    <div class="flex justify-content-center align-items-center" style="height: 300px;">
+                        <p-progressSpinner strokeWidth="3" fill="transparent" [style]="{'width': '3rem', 'height': '3rem'}"></p-progressSpinner>
+                    </div>
+                </ng-template>
+            </div>
+        </p-card>
+    </div>
+
+    <!-- Répartition par prestations -->
+    <div class="p-4 surface-card border-round shadow-2">
+        <p-card styleClass="h-full">
+            <ng-template pTemplate="header">
+                <div class="card-header p-5">
+                    <h3 class="card-title">
+                        <i class="pi pi-cog mr-2"></i>
+                        Répartition par Prestations
+                    </h3>
+                    <span class="card-subtitle">Types de services</span>
+                </div>
+            </ng-template>
+
+            <div class="chart-container" style="height: 300px;">
+                <ng-container *ngIf="!isLoadingCharts && prestationsChart; else pieChartSkeleton">
+                    <p-chart
+                        type="doughnut"
+                        [data]="prestationsChart"
+                        [options]="pieChartOptions"
+                        width="100%"
+                        height="300px">
+                    </p-chart>
+                </ng-container>
+                <ng-template #pieChartSkeleton>
+                    <div class="flex justify-content-center align-items-center" style="height: 300px;">
+                        <p-progressSpinner strokeWidth="3" fill="transparent" [style]="{'width': '3rem', 'height': '3rem'}"></p-progressSpinner>
+                    </div>
+                </ng-template>
+            </div>
+        </p-card>
+    </div>
+
+    <!-- Répartition des dépenses -->
+    <div class="p-4 surface-card border-round shadow-2">
+        <p-card styleClass="h-full">
+            <ng-template pTemplate="header">
+                <div class="card-header p-5">
+                    <h3 class="card-title">
+                        <i class="pi pi-shopping-cart mr-2"></i>
+                        Répartition des Dépenses
+                    </h3>
+                    <span class="card-subtitle">Par catégories</span>
+                </div>
+            </ng-template>
+
+            <div class="chart-container" style="height: 300px;">
+                <ng-container *ngIf="!isLoadingCharts && depensesChart; else pieChartSkeleton">
+                    <p-chart
+                        type="doughnut"
+                        [data]="depensesChart"
+                        [options]="pieChartOptions"
+                        width="100%"
+                        height="300px">
+                    </p-chart>
+                </ng-container>
+                <ng-template #pieChartSkeleton>
+                    <div class="flex justify-content-center align-items-center" style="height: 300px;">
+                        <p-progressSpinner strokeWidth="3" fill="transparent" [style]="{'width': '3rem', 'height': '3rem'}"></p-progressSpinner>
+                    </div>
+                </ng-template>
+            </div>
+        </p-card>
+    </div>
+
+    <!-- Indicateurs de performance -->
+    <div class="p-4 surface-card border-round shadow-2" *ngIf="!isLoadingStats && stats">
+        <div class="col-12">
+            <p-card>
+                <ng-template pTemplate="header">
+                    <div class="card-header p-5">
+                        <h3 class="card-title">
+                            <i class="pi pi-info-circle mr-2"></i>
+                            Indicateurs de Performance
+                        </h3>
+                    </div>
+                </ng-template>
+
+                <div class="performance-indicators">
+                    <div class="grid">
+                        <div class="col-12 md:col-6 lg:col-3">
+                            <div class="performance-item">
+                                <div class="performance-label">Marge Brute</div>
+                                <div class="performance-value text-green-600">
+                                    {{ formatCurrency(stats.montantTotalFactures - stats.montantTotalDepenses) }}
+                                </div>
+                                <div class="performance-percentage">
+                                    {{ calculatePercentage(stats.montantTotalFactures - stats.montantTotalDepenses, stats.montantTotalFactures) }}%
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 md:col-6 lg:col-3">
+                            <div class="performance-item">
+                                <div class="performance-label">Ratio Dépenses</div>
+                                <div class="performance-value text-red-600">
+                                    {{ calculatePercentage(stats.montantTotalDepenses, stats.montantTotalFactures) }}%
+                                </div>
+                                <div class="performance-description">du chiffre d'affaires</div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 md:col-6 lg:col-3">
+                            <div class="performance-item">
+                                <div class="performance-label">Facture Moyenne</div>
+                                <div class="performance-value text-blue-600">
+                                    {{ formatCurrency(stats.montantTotalFactures / stats.totalFactures) }}
+                                </div>
+                                <div class="performance-description">par facture</div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 md:col-6 lg:col-3">
+                            <div class="performance-item">
+                                <div class="performance-label">Dépense Moyenne</div>
+                                <div class="performance-value text-orange-600">
+                                    {{ formatCurrency(stats.montantTotalDepenses / stats.totalDepenses) }}
+                                </div>
+                                <div class="performance-description">par opération</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </p-card>
+        </div>
+    </div>
+</div>
+
+

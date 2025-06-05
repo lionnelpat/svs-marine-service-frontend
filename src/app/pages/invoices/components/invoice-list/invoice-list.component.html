@@ -1,0 +1,288 @@
+<div class="invoice-list">
+    <!-- Barre de recherche et filtres - Style conforme à votre design -->
+    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-4">
+        <div class="flex flex-column md:flex-row gap-3 flex-1">
+            <!-- Recherche -->
+            <div class="relative">
+                <p-iconfield iconPosition="left">
+                    <input pInputText type="text" [(ngModel)]="searchTerm"
+                           (input)="onSearchInputChange()"
+                           placeholder="Rechercher par numéro, société ou navire..."
+                           class="w-full" />
+                    <p-inputicon class="pi pi-search" />
+                </p-iconfield>
+            </div>
+
+            <!-- Filtres -->
+            <div class="flex flex-wrap gap-2">
+                <p-dropdown
+                    [(ngModel)]="selectedCompany"
+                    [options]="companyOptions"
+                    placeholder="Toutes les compagnies"
+                    optionLabel="label"
+                    optionValue="value"
+                    [showClear]="true"
+                    (onChange)="applyFilters()"
+                    class="w-12rem">
+                </p-dropdown>
+
+                <p-dropdown
+                    [(ngModel)]="selectedStatus"
+                    [options]="statusOptions"
+                    placeholder="Tous les statuts"
+                    optionLabel="label"
+                    optionValue="value"
+                    [showClear]="true"
+                    (onChange)="applyFilters()"
+                    class="w-10rem">
+                </p-dropdown>
+
+                <!-- Filtre par période -->
+                <p-dropdown
+                    [(ngModel)]="selectedPeriodType"
+                    [options]="periodTypeOptions"
+                    placeholder="Filtrer par"
+                    optionLabel="label"
+                    optionValue="value"
+                    (onChange)="onPeriodTypeChange()"
+                    class="w-8rem">
+                </p-dropdown>
+
+                <!-- Filtre par date spécifique -->
+                <p-calendar
+                    *ngIf="selectedPeriodType === 'day'"
+                    [(ngModel)]="selectedDate"
+                    dateFormat="dd/mm/yy"
+                    placeholder="Sélectionner un jour"
+                    [showIcon]="true"
+                    (onSelect)="applyFilters()"
+                    (onClearClick)="applyFilters()"
+                    class="w-12rem">
+                </p-calendar>
+
+                <!-- Filtre par mois -->
+                <div *ngIf="selectedPeriodType === 'month'" class="flex gap-1">
+                    <p-dropdown
+                        [(ngModel)]="selectedMonth"
+                        [options]="monthOptions"
+                        placeholder="Mois"
+                        optionLabel="label"
+                        optionValue="value"
+                        [showClear]="true"
+                        (onChange)="applyFilters()"
+                        class="w-8rem">
+                    </p-dropdown>
+                    <p-dropdown
+                        [(ngModel)]="selectedYear"
+                        [options]="yearOptions"
+                        placeholder="Année"
+                        optionLabel="label"
+                        optionValue="value"
+                        [showClear]="true"
+                        (onChange)="applyFilters()"
+                        class="w-6rem">
+                    </p-dropdown>
+                </div>
+
+                <!-- Filtre par année -->
+                <p-dropdown
+                    *ngIf="selectedPeriodType === 'year'"
+                    [(ngModel)]="selectedYear"
+                    [options]="yearOptions"
+                    placeholder="Année"
+                    optionLabel="label"
+                    optionValue="value"
+                    [showClear]="true"
+                    (onChange)="applyFilters()"
+                    class="w-6rem">
+                </p-dropdown>
+
+                <!-- Filtre par période personnalisée -->
+                <div *ngIf="selectedPeriodType === 'range'" class="flex gap-1">
+                    <p-calendar
+                        [(ngModel)]="dateRange"
+                        selectionMode="range"
+                        [readonlyInput]="true"
+                        placeholder="Période"
+                        dateFormat="dd/mm/yy"
+                        [showIcon]="true"
+                        (onSelect)="applyFilters()"
+                        (onClearClick)="applyFilters()"
+                        class="w-14rem">
+                    </p-calendar>
+                </div>
+
+                <!-- Bouton reset filtres -->
+                <p-button
+                    icon="pi pi-filter-slash"
+                    severity="secondary"
+                    [text]="true"
+                    size="small"
+                    (onClick)="resetDateFilters()"
+                    pTooltip="Réinitialiser les filtres de date"
+                    class="ml-2">
+                </p-button>
+            </div>
+        </div>
+
+        <!-- Actions d'export -->
+        <div class="flex gap-2 mt-3 md:mt-0">
+            <p-button
+                icon="pi pi-file-excel"
+                label="Excel"
+                severity="success"
+                [outlined]="true"
+                size="small"
+                (onClick)="exportToExcel()"
+                pTooltip="Exporter vers Excel">
+            </p-button>
+
+            <p-button
+                icon="pi pi-file-pdf"
+                label="PDF"
+                severity="danger"
+                [outlined]="true"
+                size="small"
+                (onClick)="exportToPDF()"
+                pTooltip="Exporter vers PDF">
+            </p-button>
+        </div>
+    </div>
+
+    <!-- Tableau des factures - Style conforme à votre design -->
+    <p-table
+        #dt
+        [value]="invoices"
+        [loading]="loading"
+        [lazy]="true"
+        [paginator]="true"
+        [rows]="pageSize"
+        [totalRecords]="totalRecords"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [sortField]="'dateFacture'"
+        [sortOrder]="-1"
+        responsiveLayout="scroll"
+        (onLazyLoad)="onLazyLoadChange($event)"
+        styleClass="p-datatable-sm">
+
+        <!-- En-tête du tableau -->
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 3rem">#</th>
+                <th pSortableColumn="numero" style="min-width: 10rem">
+                    Nom
+                    <p-sortIcon field="numero"></p-sortIcon>
+                </th>
+                <th style="min-width: 12rem">Raison sociale</th>
+                <th style="min-width: 10rem">Montant</th>
+                <th pSortableColumn="created_at" style="min-width: 8rem">
+                    Date
+                    <p-sortIcon field="created_at"></p-sortIcon>
+                </th>
+                <th pSortableColumn="statut" style="min-width: 8rem">
+                    Statut
+                    <p-sortIcon field="statut"></p-sortIcon>
+                </th>
+                <th style="width: 8rem">Actions</th>
+            </tr>
+        </ng-template>
+
+        <!-- Corps du tableau -->
+        <ng-template pTemplate="body" let-invoice let-rowIndex="rowIndex">
+            <tr>
+                <td>{{ getDisplayIndex(rowIndex) }}</td>
+
+                <td>
+                    <div class="font-medium text-primary cursor-pointer" (click)="viewInvoice(invoice)">
+                        {{ invoice.numero }}
+                    </div>
+                    <div class="text-sm text-color-secondary">{{ invoice.compagnie?.nom }}</div>
+                </td>
+
+                <td>
+                    <div class="font-medium">{{ invoice.compagnie?.raisonSociale }}</div>
+                    <div class="text-sm text-color-secondary">{{ invoice.navire?.nom }}</div>
+                </td>
+
+                <td>
+                    <div>{{ formatCurrency(invoice.montantTotal) }}</div>
+                </td>
+
+                <td>
+                    <div> {{ invoice.dateFacture | date:'dd/MM/yyyy' }}</div>
+
+                </td>
+
+                <td>
+                    <p-tag
+                        [value]="getStatusLabel(invoice.statut)"
+                        [severity]="getStatusSeverity(invoice.statut)"
+                        [ngClass]="getStatusClass(invoice.statut)">
+                    </p-tag>
+                </td>
+
+                <td>
+                    <div class="flex gap-1">
+                        <p-button
+                            icon="pi pi-eye"
+                            severity="info"
+                            [text]="true"
+                            size="small"
+                            (onClick)="viewInvoice(invoice)"
+                            pTooltip="Voir les détails">
+                        </p-button>
+
+                        <p-button
+                            icon="pi pi-pencil"
+                            severity="warn"
+                            [text]="true"
+                            size="small"
+                            (onClick)="editInvoice(invoice)"
+                            pTooltip="Modifier">
+                        </p-button>
+
+                        <p-button
+                            #menuButton
+                            icon="pi pi-ellipsis-v"
+                            severity="secondary"
+                            [text]="true"
+                            size="small"
+                            (onClick)="showMenu($event, invoice, menu)"
+                            pTooltip="Plus d'actions">
+                        </p-button>
+
+                        <p-menu #menu [popup]="true" [model]="getMenuItems(invoice)"></p-menu>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+
+        <!-- Loading -->
+        <ng-template pTemplate="loading">
+            <div class="flex align-items-center justify-content-center h-10rem">
+                <p-progressSpinner></p-progressSpinner>
+            </div>
+        </ng-template>
+
+        <!-- Message si aucun résultat -->
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="8" class="text-center">
+                    <div class="empty-state">
+                        <i class="pi pi-info-circle empty-icon"></i>
+                        <h4>Aucune facture trouvée</h4>
+                        <p>Ajustez vos filtres ou créez une nouvelle facture</p>
+                        <button
+                            pButton
+                            type="button"
+                            label="Effacer les filtres"
+                            icon="pi pi-filter-slash"
+                            class="p-button-text"
+                            (click)="resetAllFilters()"
+                        ></button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>

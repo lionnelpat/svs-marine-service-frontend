@@ -1,0 +1,89 @@
+.ships-page {
+    .page-header {
+        margin-bottom: 2rem;
+
+        .page-title {
+            h1 {
+                color: var(--svs-primary);
+                font-size: 2rem;
+                font-weight: 700;
+                margin: 0 0 0.5rem 0;
+                display: flex;
+                align-items: center;
+            }
+
+            .page-description {
+                color: var(--svs-text);
+                font-size: 1rem;
+                margin: 0;
+                opacity: 0.8;
+            }
+        }
+    }
+
+    ::ng-deep {
+        .ship-dialog {
+            .p-dialog-header {
+                background: var(--svs-surface);
+                border-bottom: 1px solid var(--svs-surface-dark);
+
+                .p-dialog-title {
+                    color: var(--svs-primary);
+                    font-weight: 600;
+                }
+            }
+
+            .p-dialog-content {
+                background: var(--svs-surface);
+                padding: 1.5rem;
+                max-height: 80vh;
+                overflow-y: auto;
+            }
+
+            .p-dialog-footer {
+                background: var(--svs-surface);
+                border-top: 1px solid var(--svs-surface-dark);
+            }
+        }
+
+        .p-toast {
+            .p-toast-message {
+                &.p-toast-message-success {
+                    background-color: #10b981;
+                    border-color: #059669;
+                    color: white;
+                }
+
+                &.p-toast-message-error {
+                    background-color: #ef4444;
+                    border-color: #dc2626;
+                    color: white;
+                }
+
+                &.p-toast-message-warn {
+                    background-color: #f59e0b;
+                    border-color: #d97706;
+                    color: white;
+                }
+            }
+        }
+
+        .p-confirm-dialog {
+            .p-dialog-header {
+                background: var(--svs-surface);
+
+                .p-dialog-title {
+                    color: var(--svs-primary);
+                }
+            }
+
+            .p-dialog-content {
+                background: var(--svs-surface);
+            }
+
+            .p-confirm-dialog-message {
+                color: var(--svs-text);
+            }
+        }
+    }
+}
