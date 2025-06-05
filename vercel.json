@@ -6,19 +6,20 @@
             "src": "package.json",
             "use": "@vercel/static-build",
             "config": {
-                "distDir": "dist/svs-marine-angular"
+                "distDir": "dist/svs-marine-angular/browser",
+                "cleanUrls": true,
+                "trailingSlash": false
             }
         }
     ],
-    "rewrites": [
-        { "source": "/old-path", "destination": "/new-path" }
-    ],
-    "redirects": [
-        { "source": "/temp", "destination": "/permanent", "permanent": true }
-    ],
-    "headers": [
-        { "source": "/(.*)", "headers": [{ "key": "X-Custom-Header", "value": "value" }] }
-    ],
-    "cleanUrls": true,
-    "trailingSlash": false
+    "routes": [
+        {
+            "src": "^/(.*)",
+            "dest": "/index.html",
+            "headers": {
+                "Cache-Control": "public, max-age=0, must-revalidate",
+                "X-Frame-Options": "DENY"
+            }
+        }
+    ]
 }
