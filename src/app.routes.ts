@@ -9,7 +9,6 @@ export const appRoutes: Routes = [
         component: AppLayout,
         children: [
             { path: '', component: Dashboard },
-            { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') },
             {
                 path: 'companies',
                 loadChildren: () => import('./app/pages/companies/companies.routes')
@@ -25,10 +24,13 @@ export const appRoutes: Routes = [
             {
                 path: 'ships',
                 loadChildren: () => import('./app/pages/ships/ships.routes')
+            },
+            {
+                path: 'expenses',
+                loadChildren: () => import('./app/pages/expenses/expenses.routes')
             }
         ]
     },
     { path: 'notfound', component: Notfound },
-    { path: 'auth', loadChildren: () => import('./app/pages/auth/auth.routes') },
     { path: '**', redirectTo: '/notfound' }
 ];

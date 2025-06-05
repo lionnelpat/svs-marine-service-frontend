@@ -8,6 +8,7 @@ import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { LoggerService } from '../../core/services/logger.service';
+import { Button } from 'primeng/button';
 
 @Component({
     selector: 'app-operations',
@@ -19,7 +20,8 @@ import { LoggerService } from '../../core/services/logger.service';
         OperationDetailComponent,
         DialogModule,
         ToastModule,
-        ConfirmDialogModule
+        ConfirmDialogModule,
+        Button
     ],
     templateUrl: './operations.component.html',
     styleUrls: ['./operations.component.scss']
@@ -37,6 +39,12 @@ export class OperationsComponent {
     ) {
     }
 
+    onCreate(){
+        this.selectedOperation = null;
+        this.formDialogTitle = 'Créer une opération';
+        this.showFormDialog = true;
+    }
+
     /**
      * Gère les événements provenant du composant enfant OperationListComponent
      */
@@ -44,11 +52,6 @@ export class OperationsComponent {
         console.log('📥 Event reçu dans OperationsComponent', event);
 
         switch (event.type) {
-            case 'create':
-                this.selectedOperation = null;
-                this.formDialogTitle = 'Créer une opération';
-                this.showFormDialog = true;
-                break;
 
             case 'edit':
                 this.selectedOperation = event.operation ?? null;

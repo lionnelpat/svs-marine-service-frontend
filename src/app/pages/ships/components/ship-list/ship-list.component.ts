@@ -20,7 +20,7 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 
 export interface ShipListEvent {
-    type: 'create' | 'edit' | 'view' | 'delete';
+    type: 'edit' | 'view' | 'delete';
     ship?: Ship;
 }
 
@@ -159,10 +159,6 @@ export class ShipListComponent implements OnInit {
     onFilter(): void {
         this.currentPage = 0;
         this.loadShips();
-    }
-
-    onCreate(): void {
-        this.shipEvent.emit({ type: 'create' });
     }
 
     onView(ship: Ship): void {

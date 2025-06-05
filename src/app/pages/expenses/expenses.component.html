@@ -1,14 +1,14 @@
 <div class="layout-content">
-    <!-- En-tête avec icône et titre comme dans votre capture -->
-    <div class="card mb-0">
-        <div class="flex flex-column lg:flex-row justify-between align-bottom">
+    <!-- En-tête avec icône et titre -->
+    <div class="card mb-5">
+        <div class="flex flex-col lg:flex-row lg:justify-between lg:align-middle">
             <div class="mb-3 lg:mb-0">
-                <div class="flex align-baseline justify-items-start mb-2">
-                    <i class="pi pi-receipt text-blue-600 text-2xl mr-3"></i>
-                    <h1 class="text-2xl font-semibold text-blue-900 m-0">Gestion des Factures</h1>
+                <div class="flex align-items-center mb-2">
+                    <i class="pi pi-wallet text-orange-600 text-2xl mr-3"></i>
+                    <h1 class="text-2xl font-semibold text-900 m-0">Gestion des Dépenses</h1>
                 </div>
                 <p class="text-600 m-0 line-height-3">
-                    Gestion des factures de prestations maritimes et de leurs informations
+                    Suivi et gestion des dépenses de l'entreprise
                 </p>
             </div>
 
@@ -16,29 +16,39 @@
             <div class="flex flex-column sm:flex-row gap-2">
                 <p-button
                     icon="pi pi-plus"
-                    label="Nouvelle facture"
-                    (onClick)="showNewInvoiceForm()"
+                    label="Nouvelle dépense"
+                    (onClick)="showNewExpenseForm()"
                     class="p-button-primary">
                 </p-button>
 
                 <p-button
-                    icon="pi pi-download"
-                    label="Exporter"
-                    severity="warn"
+                    icon="pi pi-file-excel"
+                    label="Export Excel"
+                    severity="success"
                     [outlined]="true"
-                    (onClick)="exportInvoices()">
+                    (onClick)="exportToExcel()">
+                </p-button>
+
+                <p-button
+                    icon="pi pi-file-pdf"
+                    label="Export PDF"
+                    severity="danger"
+                    [outlined]="true"
+                    (onClick)="exportToPDF()">
                 </p-button>
             </div>
         </div>
     </div>
+
+    <!-- Statistiques rapides -->
 
     <div class="grid grid-cols-12 gap-8">
         <div class="col-span-12 lg:col-span-6 xl:col-span-3">
             <div class="card mb-0">
                 <div class="flex justify-between mb-4">
                     <div>
-                        <span class="block text-muted-color font-medium mb-4">Total Factures</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.totalFactures || 0 }}</div>
+                        <span class="block text-muted-color font-medium mb-4">Total Dépenses</span>
+                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.totalDepenses || 0 }}</div>
                     </div>
                     <div class="flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
                         <i class="pi pi-receipt text-blue-500 !text-xl"></i>
@@ -50,8 +60,8 @@
             <div class="card mb-0">
                 <div class="flex justify-between mb-4">
                     <div>
-                        <span class="block text-muted-color font-medium mb-4">Payés</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.facturesPayees || 0 }}</div>
+                        <span class="block text-muted-color font-medium mb-4">Approuvées</span>
+                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.depensesApprouvees || 0 }}</div>
                     </div>
                     <div class="flex items-center justify-center bg-green-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
                         <i class="pi pi-dollar text-green-500 !text-xl"></i>
@@ -64,7 +74,7 @@
                 <div class="flex justify-between mb-4">
                     <div>
                         <span class="block text-muted-color font-medium mb-4">En attente</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.facturesEnAttente || 0 }}</div>
+                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.depensesEnAttente || 0 }}</div>
                     </div>
                     <div class="flex items-center justify-center bg-yellow-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
                         <i class="pi  pi-stopwatch  text-yellow-500 !text-xl"></i>
@@ -76,8 +86,8 @@
             <div class="card mb-0">
                 <div class="flex justify-between mb-4">
                     <div>
-                        <span class="block text-muted-color font-medium mb-4">En retard</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.facturesEnRetard || 0 }}</div>
+                        <span class="block text-muted-color font-medium mb-4">Montant Total (XOF)</span>
+                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.montantTotalXOF || 0 }}</div>
                     </div>
                     <div class="flex items-center justify-center bg-red-100 rounded-border" style="width: 2.5rem; height: 2.5rem">
                         <i class="pi pi-exclamation-circle text-red-500 !text-xl"></i>
@@ -87,12 +97,11 @@
         </div>
     </div>
 
-
-    <!-- Formulaire de nouvelle facture (modal) -->
+    <!-- Formulaire de nouvelle dépense (modal) -->
     <div *ngIf="showFormModal" class="fixed-modal-overlay" (click)="closeFormModal()">
         <div class="modal-content" (click)="$event.stopPropagation()">
             <div class="modal-header">
-                <h3 class="text-xl font-semibold">{{ editMode ? 'Modifier la facture' : 'Nouvelle facture' }}</h3>
+                <h3 class="text-xl font-semibold">{{ editMode ? 'Modifier la dépense' : 'Nouvelle dépense' }}</h3>
                 <p-button
                     icon="pi pi-times"
                     [text]="true"
@@ -100,51 +109,28 @@
                 </p-button>
             </div>
             <div class="modal-body">
-                <app-invoice-form
-                    [invoice]="selectedInvoice"
+                <app-expense-form
+                    [expense]="selectedExpense"
                     [editMode]="editMode"
-                    (onSave)="onSaveInvoice($event)"
+                    (onSave)="onSaveExpense($event)"
                     (onCancel)="closeFormModal()">
-                </app-invoice-form>
+                </app-expense-form>
             </div>
         </div>
     </div>
 
-    <!-- Détail de facture (modal) -->
-    <div *ngIf="showDetailModal" class="fixed-modal-overlay" (click)="closeDetailModal()">
-        <div class="modal-content large-modal" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h3 class="text-xl font-semibold">Détail de la facture</h3>
-                <p-button
-                    icon="pi pi-times"
-                    [text]="true"
-                    (onClick)="closeDetailModal()">
-                </p-button>
-            </div>
-            <div class="modal-body">
-                <app-invoice-detail
-                    [invoice]="selectedInvoice"
-                    (onEdit)="onEditFromDetail($event)"
-                    (onPrint)="onPrintInvoice($event)">
-                </app-invoice-detail>
-            </div>
-        </div>
-    </div>
-
-    <!-- Liste des factures -->
+    <!-- Liste des dépenses -->
     <div class="card mt-3">
-        <app-invoice-list
-            [invoices]="invoices"
+        <app-expense-list
+            [expenses]="expenses"
             [loading]="loading"
             [totalRecords]="totalRecords"
-            (onView)="onViewInvoice($event)"
-            (onEdit)="onEditInvoice($event)"
-            (onDelete)="onDeleteInvoice($event)"
+            (onEdit)="onEditExpense($event)"
+            (onDelete)="onDeleteExpense($event)"
             (onStatusChange)="onStatusChange($event)"
             (onFilter)="onFilterChange($event)"
-            (onExport)="onExportInvoices($event)"
             (onPageChange)="onPageChange($event)">
-        </app-invoice-list>
+        </app-expense-list>
     </div>
 </div>
 

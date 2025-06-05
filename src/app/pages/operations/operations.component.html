@@ -1,16 +1,28 @@
 <div class="operations-page">
       <!-- En-tête de page -->
-      <div class="page-header">
-        <div class="page-title">
-          <h1>
-            <i class="pi pi-cog mr-3"></i>
-            Types d'Opérations
-          </h1>
-          <p class="page-description">
-            Gestion des types d'opérations et prestations portuaires
-          </p>
+    <div class="card mb-5">
+        <div class="flex flex-col lg:flex-row lg:justify-between lg:align-middle">
+            <div class="mb-3 lg:mb-0">
+                <div class="flex align-items-center mb-2">
+                    <i class="pi pi-cog text-blue-600 text-2xl mr-3"></i>
+                    <h1 class="text-2xl font-semibold text-blue-900 m-0">Gestion des Types d'opération</h1>
+                </div>
+                <p class="text-600 m-0 line-height-3">
+                    Suivi et gestion des types d'opération
+                </p>
+            </div>
+
+            <!-- Actions principales -->
+            <div class="flex flex-col sm:flex-row">
+                <p-button
+                    label="Nouvelle opération"
+                    icon="pi pi-plus"
+                    class="p-button-primary"
+                    (click)="onCreate()"
+                ></p-button>
+            </div>
         </div>
-      </div>
+    </div>
 
       <!-- Liste des opérations -->
       <app-operation-list

@@ -10,18 +10,20 @@ import { CompanyDetailComponent } from './components/company-detail/company-deta
 import { LoggerService } from '../../core/services/logger.service';
 import { CompanyListEvent } from '../../shared/interfaces/commons.interfaces';
 import { Company } from '../../shared/models';
+import { Button } from 'primeng/button';
 
 @Component({
   selector: 'app-companies',
-  imports: [
-      CommonModule,
-      DialogModule,
-      ToastModule,
-      ConfirmDialogModule,
-      CompanyListComponent,
-      CompanyFormComponent,
-      CompanyDetailComponent
-  ],
+    imports: [
+        CommonModule,
+        DialogModule,
+        ToastModule,
+        ConfirmDialogModule,
+        CompanyListComponent,
+        CompanyFormComponent,
+        CompanyDetailComponent,
+        Button
+    ],
     providers: [ConfirmationService, MessageService],
     standalone: true,
   templateUrl: './companies.component.html',
@@ -158,5 +160,9 @@ export class CompaniesComponent {// État des dialogs
     private closeDetailDialog(): void {
         this.showDetailDialog = false;
         this.selectedCompany = null;
+    }
+
+    onCreate() {
+        this.openCreateDialog();
     }
 }

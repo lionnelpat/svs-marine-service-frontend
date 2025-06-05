@@ -1,14 +1,26 @@
 <div class="ships-page">
     <!-- En-tête de page -->
-    <div class="page-header">
-        <div class="page-title">
-            <h1>
-                <i class="pi pi-send mr-3"></i>
-                Gestion des Navires
-            </h1>
-            <p class="page-description">
-                Gestion de la flotte et des navires des compagnies maritimes
-            </p>
+    <div class="card mb-5">
+        <div class="flex flex-col lg:flex-row lg:justify-between lg:align-middle">
+            <div class="mb-3 lg:mb-0">
+                <div class="flex align-items-center mb-2">
+                    <i class="pi pi-compass text-blue-600 text-2xl mr-3"></i>
+                    <h1 class="text-2xl font-semibold text-blue-900 m-0">Gestion des Navires</h1>
+                </div>
+                <p class="text-600 m-0 line-height-3">
+                    Suivi et gestion des Navires
+                </p>
+            </div>
+
+            <!-- Actions principales -->
+            <div class="flex flex-column sm:flex-row gap-2">
+                <p-button
+                    icon="pi pi-plus"
+                    label="Nouveau navire"
+                    (click)="onCreate()"
+                    class="p-button-primary">
+                </p-button>
+            </div>
         </div>
     </div>
 
