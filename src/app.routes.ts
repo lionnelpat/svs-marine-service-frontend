@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { AppLayout } from './app/layout/component/app.layout';
-import { Dashboard } from './app/pages/dashboard/dashboard';
+import { DashboardComponent } from './app/pages/dashboard/dashboard.component';
 import { Notfound } from './app/pages/notfound/notfound';
 
 export const appRoutes: Routes = [
@@ -8,7 +8,14 @@ export const appRoutes: Routes = [
         path: '',
         component: AppLayout,
         children: [
-            { path: '', component: Dashboard },
+            { path: '', component: DashboardComponent },
+            {
+                path: 'dashboard',
+                loadChildren: () => import('./app/pages/dashboard/dashboard.module').then(m => m.DashboardModule),
+                data: {
+                    breadcrumb: 'Tableau de Bord'
+                }
+            },
             {
                 path: 'companies',
                 loadChildren: () => import('./app/pages/companies/companies.routes')

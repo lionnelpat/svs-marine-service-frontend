@@ -28,15 +28,16 @@ export class AppMenu {
                 label: 'Gestion Maritime',
                 items: [
                     {
-                        label: 'sociétés',
-                        icon: 'pi pi-building',
-                        routerLink: ['/companies/list']
+                        label: 'Factures',
+                        icon: 'pi pi-receipt',
+                        routerLink: ['/invoices/list']
                     },
                     {
-                        label: 'navires',
-                        icon: 'pi pi-compass',
-                        routerLink: ['/ships/list']
+                        label: 'Dépenses',
+                        icon: 'pi pi-wallet',
+                        routerLink: ['/expenses/list']
                     }
+
                 ]
             },
             {
@@ -48,14 +49,14 @@ export class AppMenu {
                         routerLink: ['/operations/list']
                     },
                     {
-                        label: 'Factures',
-                        icon: 'pi pi-receipt',
-                        routerLink: ['/invoices/list']
+                        label: 'sociétés',
+                        icon: 'pi pi-building',
+                        routerLink: ['/companies/list']
                     },
                     {
-                        label: 'Dépenses',
-                        icon: 'pi pi-wallet',
-                        routerLink: ['/expenses/list']
+                        label: 'navires',
+                        icon: 'pi pi-compass',
+                        routerLink: ['/ships/list']
                     }
                 ]
             }
