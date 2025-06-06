@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
@@ -11,6 +11,7 @@ import { LoggerService } from '../../core/services/logger.service';
 import { CompanyListEvent } from '../../shared/interfaces/commons.interfaces';
 import { Company } from '../../shared/models';
 import { Button } from 'primeng/button';
+import { COMPANY_KEY } from './constants/constants';
 
 @Component({
   selector: 'app-companies',
@@ -32,6 +33,8 @@ import { Button } from 'primeng/button';
 export class CompaniesComponent {// État des dialogs
     showFormDialog = false;
     showDetailDialog = false;
+
+    @ViewChild(CompanyListComponent) companyListComponent: CompanyListComponent | undefined;
 
     // Données
     selectedCompany: Company | null = null;
@@ -105,6 +108,7 @@ export class CompaniesComponent {// État des dialogs
         this.logger.info('Formulaire soumis avec succès', { companyId: company.id, nom: company.nom });
         this.closeFormDialog();
         // Le rafraîchissement de la liste est géré par le composant CompanyListComponent
+        this.companyListComponent?.loadCompanies()
     }
 
     /**
@@ -165,4 +169,6 @@ export class CompaniesComponent {// État des dialogs
     onCreate() {
         this.openCreateDialog();
     }
+
+    protected readonly COMPANY_KEY = COMPANY_KEY;
 }

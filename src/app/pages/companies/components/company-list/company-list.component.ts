@@ -58,6 +58,7 @@ export class CompanyListComponent implements OnInit {
 
     // Options pour les dropdowns
     countryOptions = [
+        { label: 'Sénégal', value: 'Sénégal' },
         { label: 'France', value: 'France' },
         { label: 'Danemark', value: 'Danemark' },
         { label: 'Suisse', value: 'Suisse' },

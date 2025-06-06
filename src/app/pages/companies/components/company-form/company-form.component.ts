@@ -18,6 +18,8 @@ import { CompanyService } from '../../../service/company.service';
 import { LoggerService } from '../../../../core/services/logger.service';
 import { Company, CreateCompanyRequest, UpdateCompanyRequest } from '../../../../shared/models';
 import { Textarea } from 'primeng/textarea';
+import { getErrorMessage } from '../../../../core/utilities/error';
+import { COMPANY_KEY } from '../../constants/constants';
 
 @Component({
   selector: 'app-company-form',
@@ -46,6 +48,7 @@ export class CompanyFormComponent implements OnInit, OnChanges {
     isEditMode = false;
 
     countryOptions = [
+        { label: 'Sénégal', value: 'Sénégal' },
         { label: 'France', value: 'France' },
         { label: 'Allemagne', value: 'Allemagne' },
         { label: 'Belgique', value: 'Belgique' },
@@ -85,7 +88,6 @@ export class CompanyFormComponent implements OnInit, OnChanges {
             adresse: ['', [Validators.required]],
             ville: ['', [Validators.required]],
             pays: ['', [Validators.required]],
-            codePostal: ['', [Validators.required]],
             telephone: ['', [Validators.required]],
             email: ['', [Validators.required, Validators.email]],
             contactPrincipal: ['', [Validators.required]],
@@ -142,6 +144,7 @@ export class CompanyFormComponent implements OnInit, OnChanges {
                 this.companyService.updateCompany(updateRequest).subscribe({
                     next: (updatedCompany) => {
                         this.messageService.add({
+                            key: COMPANY_KEY,
                             severity: 'success',
                             summary: 'Succès',
                             detail: `Compagnie "${updatedCompany.nom}" modifiée avec succès`
@@ -153,6 +156,7 @@ export class CompanyFormComponent implements OnInit, OnChanges {
                     error: (error) => {
                         this.loading = false;
                         this.logger.error('Erreur lors de la modification', error);
+                        this.messageService.add({ key: COMPANY_KEY, severity: 'error', detail: `${getErrorMessage(error)}` })
                     }
                 });
             } else {
