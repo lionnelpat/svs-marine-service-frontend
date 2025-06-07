@@ -190,25 +190,6 @@
 
         <div class="grid">
             <div class="col-12 md:col-6">
-                <label for="anneConstruction" class="field-label">
-                    Année de construction <span class="required">*</span>
-                </label>
-                <p-inputNumber
-                    id="anneConstruction"
-                    formControlName="anneConstruction"
-                    [useGrouping]="false"
-                    [min]="1900"
-                    [max]="currentYear"
-                    placeholder="YYYY"
-                    styleClass="w-full"
-                    [class.ng-invalid]="isFieldInvalid('anneConstruction')"
-                ></p-inputNumber>
-                <small class="field-error" *ngIf="isFieldInvalid('anneConstruction')">
-                    Année invalide (1900 - {{ currentYear }})
-                </small>
-            </div>
-
-            <div class="col-12 md:col-6">
                 <label for="classification" class="field-label">
                     Société de classification <span class="required">*</span>
                 </label>
@@ -223,25 +204,6 @@
                 ></p-dropdown>
                 <small class="field-error" *ngIf="isFieldInvalid('classification')">
                     La société de classification est obligatoire
-                </small>
-            </div>
-        </div>
-
-        <div class="grid">
-            <div class="col-12">
-                <label for="chantierConstruction" class="field-label">
-                    Chantier de construction <span class="required">*</span>
-                </label>
-                <input
-                    id="chantierConstruction"
-                    pInputText
-                    formControlName="chantierConstruction"
-                    placeholder="Ex: Chantiers Navals de Dakar"
-                    class="w-full"
-                    [class.ng-invalid]="isFieldInvalid('chantierConstruction')"
-                />
-                <small class="field-error" *ngIf="isFieldInvalid('chantierConstruction')">
-                    Le chantier de construction est obligatoire
                 </small>
             </div>
         </div>

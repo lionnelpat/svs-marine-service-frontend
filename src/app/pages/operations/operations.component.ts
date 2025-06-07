@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Operation } from '../../shared/models/operation.model';
 import { OperationListComponent, OperationListEvent } from './components/operation-list/operation-list.component';
@@ -33,6 +33,8 @@ export class OperationsComponent {
     showDetailDialog = false;
 
     formDialogTitle = '';
+
+    @ViewChild(OperationListComponent, { static: true }) operationListComponent: OperationListComponent | undefined;
 
     constructor(
         private readonly logger: LoggerService
@@ -82,7 +84,7 @@ export class OperationsComponent {
      */
     onFormSubmit(updatedOperation: Operation): void {
         this.showFormDialog = false;
-        // Optionnel : rafraîchir la liste via un service ou événement global
+        this.operationListComponent?.loadOperations()
     }
 
     /**

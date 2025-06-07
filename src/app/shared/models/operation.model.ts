@@ -6,8 +6,8 @@ export interface Operation {
     code: string;
     prixXOF: number;
     prixEURO?: number;
-    created_at: Date;
-    updated_at: Date;
+    createdAt: Date;
+    updatedAt: Date;
     active: boolean;
 }
 

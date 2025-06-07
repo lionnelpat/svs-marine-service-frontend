@@ -131,18 +131,20 @@ export class ShipListComponent implements OnInit {
             size: this.pageSize
         };
 
-        this.shipService.getShips(filter).subscribe({
-            next: (response) => {
-                this.ships = response.ships;
-                this.totalRecords = response.total;
-                this.loading = false;
-                this.logger.debug(`${response.ships.length} navires chargés`);
-            },
-            error: (error) => {
-                this.loading = false;
-                this.logger.error('Erreur lors du chargement des navires', error);
-            }
-        });
+            this.shipService.getShips(filter).subscribe({
+                next: (response) => {
+                    this.ships = response.ships;
+                    this.totalRecords = response.total;
+                    this.loading = false;
+                    this.logger.debug(`${response.ships.length} navires chargés`);
+                },
+                error: (error) => {
+                    this.loading = false;
+                    this.logger.error('Erreur lors du chargement des navires', error);
+                }
+            });
+
+
     }
 
     onLazyLoad(event: any): void {

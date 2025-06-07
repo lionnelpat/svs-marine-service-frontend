@@ -141,8 +141,8 @@ export const MOCK_OPERATIONS: Operation[] = [
         code: 'PIL-ENT',
         prixXOF: 125000,
         prixEURO: 190.50,
-        created_at: new Date('2023-01-01'),
-        updated_at: new Date('2025-06-01'),
+        createdAt: new Date('2023-01-01'),
+        updatedAt: new Date('2025-06-01'),
         active: true
     },
     {
@@ -152,8 +152,8 @@ export const MOCK_OPERATIONS: Operation[] = [
         code: 'REM-001',
         prixXOF: 75000,
         prixEURO: 114.30,
-        created_at: new Date('2023-01-01'),
-        updated_at: new Date('2025-06-01'),
+        createdAt: new Date('2023-01-01'),
+        updatedAt: new Date('2025-06-01'),
         active: true
     },
     {
@@ -163,8 +163,8 @@ export const MOCK_OPERATIONS: Operation[] = [
         code: 'MAN-001',
         prixXOF: 8500,
         prixEURO: 12.95,
-        created_at: new Date('2023-01-01'),
-        updated_at: new Date('2025-06-01'),
+        createdAt: new Date('2023-01-01'),
+        updatedAt: new Date('2025-06-01'),
         active: true
     },
     {
@@ -174,8 +174,8 @@ export const MOCK_OPERATIONS: Operation[] = [
         code: 'GAR-001',
         prixXOF: 15000,
         prixEURO: 22.85,
-        created_at: new Date('2023-01-01'),
-        updated_at: new Date('2025-06-01'),
+        createdAt: new Date('2023-01-01'),
+        updatedAt: new Date('2025-06-01'),
         active: true
     },
     {
@@ -185,8 +185,8 @@ export const MOCK_OPERATIONS: Operation[] = [
         code: 'AMA-001',
         prixXOF: 45000,
         prixEURO: 68.55,
-        created_at: new Date('2023-01-01'),
-        updated_at: new Date('2025-06-01'),
+        createdAt: new Date('2023-01-01'),
+        updatedAt: new Date('2025-06-01'),
         active: true
     }
 ];

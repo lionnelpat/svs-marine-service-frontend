@@ -45,6 +45,11 @@ export interface ShipListFilter {
     size?: number;
 }
 
+export interface DropdownListResponse {
+    label: string;
+    value: string;
+}
+
 export interface ShipListResponse {
     ships: Ship[];
     total: number;

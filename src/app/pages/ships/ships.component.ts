@@ -1,5 +1,5 @@
 // pages/ships/ships.component.ts
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
@@ -37,6 +37,8 @@ export class ShipsComponent {
 
     // Mode du formulaire
     isEditMode = false;
+
+    @ViewChild(ShipListComponent, { static: true }) shipListComponent: ShipListComponent | undefined;
 
     constructor(
         private readonly logger: LoggerService
@@ -99,6 +101,7 @@ export class ShipsComponent {
     onFormSubmit(ship: Ship): void {
         this.logger.info('Formulaire soumis avec succès', { shipId: ship.id, nom: ship.nom });
         this.closeFormDialog();
+        this.shipListComponent?.loadShips()
         // Le rafraîchissement de la liste est géré par le composant ShipListComponent
     }
 

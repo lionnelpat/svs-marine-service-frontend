@@ -55,7 +55,7 @@ import { Textarea } from 'primeng/textarea';
                 <!-- En-tête du formulaire -->
                 <div class="form-header mb-6">
                     <h2 class="text-2xl font-semibold text-900 mb-2">
-                        {{ editMode ? 'Modifier la dépense' : 'Créer une dépense' }}
+                        {{ editMode ? 'Modifier la dépense' : 'Ajouter une dépense' }}
                     </h2>
                 </div>
 
@@ -267,23 +267,27 @@ import { Textarea } from 'primeng/textarea';
                 </div>
 
                 <!-- Actions -->
-                <div class="form-actions">
-                    <p-button
-                        type="button"
-                        label="Annuler"
-                        severity="secondary"
-                        [outlined]="true"
-                        (onClick)="onCancelView()"
-                        class="mr-2">
-                    </p-button>
+               
 
-                    <p-button
+                <div class="form-actions">
+                    <button
+                        type="button"
+                        pButton
+                        label="Annuler"
+                        icon="pi pi-times"
+                        class="p-button-text"
+                        (click)="onCancelView()"
+                    ></button>
+                    <button
                         type="submit"
-                        [label]="editMode ? 'Mettre à jour' : 'Créer'"
-                        [disabled]="expenseForm.invalid"
+                        pButton
+                        [label]="editMode ? 'Modifier' : 'Créer'"
+                        [icon]="editMode ? 'pi pi-check' : 'pi pi-plus'"
                         [loading]="saving"
-                        class="create-button">
-                    </p-button>
+                        [disabled]="expenseForm.invalid"
+                        class="ml-2"
+                        style="background-color: var(--svs-primary); border-color: var(--svs-primary)"
+                    ></button>
                 </div>
 
             </form>

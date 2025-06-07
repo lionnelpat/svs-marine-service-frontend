@@ -1,6 +1,6 @@
 // pages/service/company.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import {
@@ -20,6 +20,11 @@ import { environment } from '../../../environments/environment';
 export class CompanyService {
     // private readonly baseUrl = 'companies';
     private readonly apiBaseUrl = `${environment.apiBaseUrl}`;
+
+    private readonly  headers = new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    });
 
     constructor(
         private readonly http: HttpClient,
@@ -48,7 +53,11 @@ export class CompanyService {
             params = params.set('active', filter.active.toString());
         }
 
-        return this.http.get<any>(`${this.apiBaseUrl}/companies`, { params }).pipe(
+        return this.http.get<any>(`${this.apiBaseUrl}/companies`, {
+            headers: this.headers,
+            withCredentials: true,
+            params
+        }).pipe(
             map(response => ({
                 companies: response.companies,
                 total: response.total,

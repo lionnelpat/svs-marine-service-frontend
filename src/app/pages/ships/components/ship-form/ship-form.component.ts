@@ -1,5 +1,5 @@
 // pages/ships/components/ship-form/ship-form.component.ts - VERSION COMPLÈTE
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -63,6 +63,7 @@ export class ShipFormComponent implements OnInit, OnChanges {
 
     ngOnInit(): void {
         this.initForm();
+
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -81,7 +82,6 @@ export class ShipFormComponent implements OnInit, OnChanges {
             numeroIMO: ['', [Validators.required, Validators.pattern(/^\d{7}$/)]],
             numeroMMSI: ['', [Validators.required, Validators.pattern(/^\d{9}$/)]],
             numeroAppel: ['', [Validators.required, Validators.minLength(2)]],
-            nombrePassagers: [null],
             classification: ['', [Validators.required]]
         });
 
@@ -102,12 +102,18 @@ export class ShipFormComponent implements OnInit, OnChanges {
         return null;
     };
 
-    private initializeOptions(): void {
+    private  initializeOptions(): void {
+
         // Options types de navires
-        this.shipTypeOptions = SHIP_TYPES.map(type => ({
-            label: type,
-            value: type
-        }));
+        // this.shipTypeOptions = SHIP_TYPES.map(type => ({
+        //     label: type,
+        //     value: type
+        // }));
+        this.shipService.getShipTypes().subscribe({
+            next: data => {
+                this.shipTypeOptions = data;
+            }
+        })
 
         // Options pavillons
         this.flagOptions = SHIP_FLAGS.map(flag => ({
@@ -115,11 +121,23 @@ export class ShipFormComponent implements OnInit, OnChanges {
             value: flag
         }));
 
+        this.shipService.getFlag().subscribe({
+            next: data => {
+                this.flagOptions = data;
+            }
+        })
+
         // Options classifications
-        this.classificationOptions = SHIP_CLASSIFICATIONS.map(classification => ({
-            label: classification,
-            value: classification
-        }));
+        // this.classificationOptions = SHIP_CLASSIFICATIONS.map(classification => ({
+        //     label: classification,
+        //     value: classification
+        // }));
+
+        this.shipService.getClassifications().subscribe({
+            next: data => {
+                this.classificationOptions = data;
+            }
+        })
 
         // Charger les compagnies
         this.companyService.getCompanies().subscribe({
@@ -149,10 +167,8 @@ export class ShipFormComponent implements OnInit, OnChanges {
                 numeroIMO: this.ship.numeroIMO,
                 numeroMMSI: this.ship.numeroMMSI,
                 numeroAppel: this.ship.numeroAppel,
-                nombrePassagers: this.ship.nombrePassagers || null,
                 classification: this.ship.classification
             });
-            this.checkPassengerShip(this.ship.typeNavire);
         } else {
             this.isEditMode = false;
             this.shipForm.reset();
@@ -172,19 +188,6 @@ export class ShipFormComponent implements OnInit, OnChanges {
 
     onShipTypeChange(event: any): void {
         const shipType = event.value;
-        this.checkPassengerShip(shipType);
-    }
-
-    private checkPassengerShip(shipType: string): void {
-        this.isPassengerShip = ['Passagers', 'Ro-Ro'].includes(shipType);
-
-        const nombrePassagersControl = this.shipForm.get('nombrePassagers');
-        if (this.isPassengerShip) {
-            nombrePassagersControl?.setValidators([Validators.required, Validators.min(1)]);
-        } else {
-            nombrePassagersControl?.setValidators([Validators.min(0)]);
-        }
-        nombrePassagersControl?.updateValueAndValidity();
     }
 
     onSubmit(): void {
