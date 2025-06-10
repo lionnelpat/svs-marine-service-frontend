@@ -17,14 +17,11 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { LoggerService } from '../../../../core/services/logger.service';
 import { Textarea } from 'primeng/textarea';
 import { getErrorMessage } from '../../../../core/utilities/error';
-import {
-    ExpenseCategory,
-    ExpenseCategoryCreate
-} from '../../../../shared/models/expense-category.model';
-import { ExpenseCategoryService } from '../../service/expense-category.service';
-import { EXPENSE_CATEGORY_KEY } from '../../constants/constants';
 import { FormErrorUtils } from '../../../../core/utilities/form-error.utils';
 import { Toast } from 'primeng/toast';
+import { ExpenseSupplier, ExpenseSupplierCreate } from '../../interfaces/expense-supplier.interface';
+import { ExpenseSupplierService } from '../../service/expense-supplier.service';
+import { EXPENSE_SUPPLIER_KEY } from '../../constants/constants';
 
 interface IconOption {
     label: string;
@@ -33,7 +30,7 @@ interface IconOption {
 }
 
 @Component({
-    selector: 'app-expense-category-form',
+    selector: 'app-expense-supplier-form',
     imports: [
         CommonModule,
         ReactiveFormsModule,
@@ -46,23 +43,23 @@ interface IconOption {
     ],
     standalone: true,
     providers: [ConfirmationService, MessageService],
-    templateUrl: './expense-category-form.component.html',
-    styleUrl: './expense-category-form.component.scss'
+    templateUrl: './expense-supplier-form.component.html',
+    styleUrl: './expense-supplier-form.component.scss'
 })
-export class ExpenseCategoryFormComponent implements OnInit, OnChanges {
-    @Input() expenseCategory: ExpenseCategory | null = null;
+export class ExpenseSupplierFormComponent implements OnInit, OnChanges {
+    @Input() expenseSupplier: ExpenseSupplier | null = null;
     @Input() visible = false;
-    @Output() formSubmit = new EventEmitter<ExpenseCategory>();
+    @Output() formSubmit = new EventEmitter<ExpenseSupplier>();
     @Output() formCancel = new EventEmitter<void>();
 
-    expenseCategoryForm!: FormGroup;
+    expenseSupplierForm!: FormGroup;
     loading = false;
     isEditMode = false;
 
 
     constructor(
         private readonly fb: FormBuilder,
-        private readonly expenseCategoryService: ExpenseCategoryService,
+        private readonly expenseSupplierService: ExpenseSupplierService,
         private readonly messageService: MessageService,
         private readonly logger: LoggerService
     ) {
@@ -74,54 +71,60 @@ export class ExpenseCategoryFormComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['expenseCategory'] && this.expenseCategory) {
+        if (changes['expenseSupplier'] && this.expenseSupplier) {
             this.updateForm();
         }
     }
 
     private initForm(): void {
-        this.expenseCategoryForm = this.fb.group({
+        this.expenseSupplierForm = this.fb.group({
             nom: ['', [Validators.required, Validators.minLength(2)]],
-            code: ['', [Validators.required, Validators.minLength(2)]],
-            description: ['']
+            adresse: ['', [Validators.required, Validators.minLength(2)]],
+            telephone: ['', [Validators.required]],
+            email: ['', [Validators.required, Validators.email]],
+            ninea: [''],
+            rccm: ['']
         });
 
         this.updateForm();
     }
 
     private updateForm(): void {
-        if (this.expenseCategory) {
+        if (this.expenseSupplier) {
             this.isEditMode = true;
-            this.expenseCategoryForm.patchValue({
-                nom: this.expenseCategory.nom,
-                code: this.expenseCategory.code,
-                description: this.expenseCategory.description,
+            this.expenseSupplierForm.patchValue({
+                nom: this.expenseSupplier.nom,
+                adresse: this.expenseSupplier.adresse,
+                telephone: this.expenseSupplier.telephone,
+                email: this.expenseSupplier.email,
+                ninea: this.expenseSupplier.ninea,
+                rccm: this.expenseSupplier.rccm,
             });
         } else {
             this.isEditMode = false;
-            this.expenseCategoryForm.reset();
+            this.expenseSupplierForm.reset();
         }
     }
 
     isFieldInvalid(fieldName: string): boolean {
-        const field = this.expenseCategoryForm.get(fieldName);
+        const field = this.expenseSupplierForm.get(fieldName);
         return !!(field && field.invalid && (field.dirty || field.touched));
     }
 
     onSubmit(): void {
-        if (this.expenseCategoryForm.valid) {
+        if (this.expenseSupplierForm.valid) {
             this.loading = true;
-            const formValue = this.expenseCategoryForm.value;
+            const formValue = this.expenseSupplierForm.value;
 
-            if (this.isEditMode && this.expenseCategory) {
+            if (this.isEditMode && this.expenseSupplier) {
 
-                this.expenseCategoryService.updateCategory(this.expenseCategory.id, this.expenseCategory).subscribe({
+                this.expenseSupplierService.updateSupplier(this.expenseSupplier.id, this.expenseSupplier).subscribe({
                     next: (updatedCompany) => {
                         this.messageService.add({
-                            key: EXPENSE_CATEGORY_KEY,
+                            key: EXPENSE_SUPPLIER_KEY,
                             severity: 'success',
                             summary: 'Succès',
-                            detail: `Catégorie "${updatedCompany.nom}" modifiée avec succès`
+                            detail: `Fournisseur "${updatedCompany.nom}" modifiée avec succès`
                         });
                         this.formSubmit.emit(updatedCompany);
                         this.loading = false;
@@ -131,11 +134,11 @@ export class ExpenseCategoryFormComponent implements OnInit, OnChanges {
                         this.loading = false;
                         this.logger.error('Erreur lors de la modification', error);
                         if (error?.error?.details) {
-                            FormErrorUtils.applyServerErrors(this.expenseCategoryForm, error.error.details);
+                            FormErrorUtils.applyServerErrors(this.expenseSupplierForm, error.error.details);
                         }
 
                         this.messageService.add({
-                            key: EXPENSE_CATEGORY_KEY,
+                            key: EXPENSE_SUPPLIER_KEY,
                             severity: 'error',
                             summary: 'Erreur',
                             detail: getErrorMessage(error)
@@ -143,17 +146,17 @@ export class ExpenseCategoryFormComponent implements OnInit, OnChanges {
                     }
                 });
             } else {
-                const createRequest: ExpenseCategoryCreate = formValue;
+                const createRequest: ExpenseSupplierCreate = formValue;
 
-                this.expenseCategoryService.createCategory(createRequest).subscribe({
-                    next: (newCompany) => {
+                this.expenseSupplierService.createSupplier(createRequest).subscribe({
+                    next: (newSupplier) => {
                         this.messageService.add({
-                            key: EXPENSE_CATEGORY_KEY,
+                            key: EXPENSE_SUPPLIER_KEY,
                             severity: 'success',
                             summary: 'Succès',
-                            detail: `Catégorie "${newCompany.nom}" créée avec succès`
+                            detail: `Fournisseur "${newSupplier.nom}" créée avec succès`
                         });
-                        this.formSubmit.emit(newCompany);
+                        this.formSubmit.emit(newSupplier);
                         this.loading = false;
                         this.resetForm();
                     },
@@ -161,11 +164,11 @@ export class ExpenseCategoryFormComponent implements OnInit, OnChanges {
                         this.loading = false;
                         this.logger.error('Erreur lors de la création', error);
                         if (error?.error?.details) {
-                            FormErrorUtils.applyServerErrors(this.expenseCategoryForm, error.error.details);
+                            FormErrorUtils.applyServerErrors(this.expenseSupplierForm, error.error.details);
                         }
 
                         this.messageService.add({
-                            key: EXPENSE_CATEGORY_KEY,
+                            key: EXPENSE_SUPPLIER_KEY,
                             severity: 'error',
                             summary: 'Erreur',
                             detail: getErrorMessage(error)
@@ -175,8 +178,8 @@ export class ExpenseCategoryFormComponent implements OnInit, OnChanges {
             }
         } else {
             // Marquer tous les champs comme touchés pour afficher les erreurs
-            Object.keys(this.expenseCategoryForm.controls).forEach(key => {
-                this.expenseCategoryForm.get(key)?.markAsTouched();
+            Object.keys(this.expenseSupplierForm.controls).forEach(key => {
+                this.expenseSupplierForm.get(key)?.markAsTouched();
             });
 
             this.messageService.add({
@@ -189,7 +192,7 @@ export class ExpenseCategoryFormComponent implements OnInit, OnChanges {
 
     onCodeChange(event: any): void {
         const value = event.target.value.toUpperCase();
-        this.expenseCategoryForm.patchValue({ code: value }, { emitEvent: false });
+        this.expenseSupplierForm.patchValue({ code: value }, { emitEvent: false });
     }
 
 
@@ -200,10 +203,10 @@ export class ExpenseCategoryFormComponent implements OnInit, OnChanges {
     }
 
     private resetForm(): void {
-        this.expenseCategoryForm.reset();
+        this.expenseSupplierForm.reset();
         this.isEditMode = false;
-        this.expenseCategory = null;
+        this.expenseSupplier = null;
     }
 
-    protected readonly EXPENSE_CATEGORY_KEY = EXPENSE_CATEGORY_KEY;
+    protected readonly EXPENSE_SUPPLIER_KEY = EXPENSE_SUPPLIER_KEY;
 }

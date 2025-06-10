@@ -1,0 +1,152 @@
+
+<form [formGroup]="expenseSupplierForm" (ngSubmit)="onSubmit()" class="operation-form">
+    <!-- Informations générales -->
+    <div class="form-section">
+        <h4 class="section-title">
+            <i class="pi pi-cog mr-2"></i>
+            Informations générales
+        </h4>
+
+        <div class="grid">
+            <div class="col-12 md:col-6 mb-3 ">
+                <label for="nom" class="field-label">
+                    Nom : <span class="required">*</span>
+                </label>
+                <input
+                    id="nom"
+                    pInputText
+                    formControlName="nom"
+                    placeholder="Ex: Transport"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('nom')"
+                />
+                <small class="field-error" *ngIf="expenseSupplierForm.get('nom')?.hasError('serverError')">
+                    {{ expenseSupplierForm.get('nom')?.getError('serverError') }}
+                </small>
+            </div>
+
+            <div class="col-12 md:col-6 mb-3">
+                <label for="telephone" class="field-label">
+                    Téléphone principal <span class="required">*</span>
+                </label>
+                <input
+                    id="telephone"
+                    pInputText
+                    formControlName="telephone"
+                    placeholder="Ex: +33 4 88 91 90 00"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('telephone')"
+                />
+                <small class="field-error" *ngIf="expenseSupplierForm.get('telephone')?.hasError('serverError')">
+                    {{ expenseSupplierForm.get('telephone')?.getError('serverError') }}
+                </small>
+            </div>
+
+            <div class="col-12 md:col-6 mb-3">
+                <label for="email" class="field-label">
+                    Email principal <span class="required">*</span>
+                </label>
+                <input
+                    id="email"
+                    pInputText
+                    type="email"
+                    formControlName="email"
+                    placeholder="Ex: contact@company.com"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('email')"
+                />
+                <small class="field-error" *ngIf="expenseSupplierForm.get('email')?.hasError('serverError')">
+                    {{ expenseSupplierForm.get('email')?.getError('serverError') }}
+                </small>
+            </div>
+
+        </div>
+
+        <div class="grid">
+            <div class="col-12 mb-3">
+                <label for="adresse" class="field-label">
+                    adresse <span class="required">*</span>
+                </label>
+                <textarea
+                    id="adresse"
+                    pInputTextarea
+                    formControlName="adresse"
+                    placeholder="Adresse du fournisseur ..."
+                    class="w-full"
+                    rows="3"
+                    [class.ng-invalid]="isFieldInvalid('adresse')"
+                ></textarea>
+                <small class="field-error" *ngIf="expenseSupplierForm.get('adresse')?.hasError('serverError')">
+                    {{ expenseSupplierForm.get('adresse')?.getError('serverError') }}
+                </small>
+            </div>
+        </div>
+
+        <p-divider></p-divider>
+
+        <!-- Informations légales -->
+        <div class="form-section">
+            <h4 class="section-title">
+                <i class="pi pi-file mr-2"></i>
+                Informations légales
+            </h4>
+
+            <div class="grid">
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="rccm" class="field-label">
+                        Numéro de registre de commerce
+                    </label>
+                    <input
+                        id="rccm"
+                        pInputText
+                        formControlName="rccm"
+                        placeholder="Ex: RCS Marseille 954 503 474"
+                        class="w-full"
+                    />
+                    <small class="field-error" *ngIf="expenseSupplierForm.get('rccm')?.hasError('serverError')">
+                        {{ expenseSupplierForm.get('rccm')?.getError('serverError') }}
+                    </small>
+                </div>
+
+                <div class="col-12 md:col-6 mb-3">
+                    <label for="ninea" class="field-label">NINEA</label>
+                    <input
+                        id="ninea"
+                        pInputText
+                        formControlName="ninea"
+                        placeholder="Ex: FR 12 954503474"
+                        class="w-full"
+                    />
+                    <small class="field-error" *ngIf="expenseSupplierForm.get('ninea')?.hasError('serverError')">
+                        {{ expenseSupplierForm.get('ninea')?.getError('serverError') }}
+                    </small>
+                </div>
+            </div>
+    </div>
+
+        <!-- Actions -->
+        <div class="form-actions mt-3 flex flex-row justify-end">
+            <button
+                type="button"
+                pButton
+                label="Annuler"
+                icon="pi pi-times"
+                class="p-button-text"
+                (click)="onCancel()"
+            ></button>
+            <button
+                type="submit"
+                pButton
+                [label]="isEditMode ? 'Modifier' : 'Créer'"
+                [icon]="isEditMode ? 'pi pi-check' : 'pi pi-plus'"
+                [loading]="loading"
+                [disabled]="expenseSupplierForm.invalid"
+                class="ml-2"
+                style="background-color: var(--svs-primary); border-color: var(--svs-primary)"
+            ></button>
+        </div>
+    </div>
+</form>
+
+<!-- Messages toast -->
+<p-toast key="{{EXPENSE_SUPPLIER_KEY}}"></p-toast>

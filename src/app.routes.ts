@@ -3,6 +3,7 @@ import { AppLayout } from './app/layout/component/app.layout';
 import { DashboardComponent } from './app/pages/dashboard/dashboard.component';
 import { Notfound } from './app/pages/notfound/notfound';
 import { expenseCategoryRoutes } from './app/pages/expense-category/expense-category.routes';
+import { expenseSupplierRoutes } from './app/pages/expense-supplier/expense-supplier.routes';
 
 export const appRoutes: Routes = [
     {
@@ -40,7 +41,11 @@ export const appRoutes: Routes = [
             {
                 path: 'categories',
                 loadChildren: () => expenseCategoryRoutes
-            }
+            },
+            {
+                path: 'suppliers',
+                loadChildren: () => expenseSupplierRoutes
+            },
         ]
     },
     { path: 'notfound', component: Notfound },

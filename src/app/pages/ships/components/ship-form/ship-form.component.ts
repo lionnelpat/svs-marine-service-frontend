@@ -104,11 +104,6 @@ export class ShipFormComponent implements OnInit, OnChanges {
 
     private  initializeOptions(): void {
 
-        // Options types de navires
-        // this.shipTypeOptions = SHIP_TYPES.map(type => ({
-        //     label: type,
-        //     value: type
-        // }));
         this.shipService.getShipTypes().subscribe({
             next: data => {
                 this.shipTypeOptions = data;
@@ -126,12 +121,6 @@ export class ShipFormComponent implements OnInit, OnChanges {
                 this.flagOptions = data;
             }
         })
-
-        // Options classifications
-        // this.classificationOptions = SHIP_CLASSIFICATIONS.map(classification => ({
-        //     label: classification,
-        //     value: classification
-        // }));
 
         this.shipService.getClassifications().subscribe({
             next: data => {

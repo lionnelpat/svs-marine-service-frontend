@@ -62,6 +62,11 @@ export class AppMenu {
                         label: 'type de dépenses',
                         icon: 'pi pi-cog',
                         routerLink: ['/categories/list']
+                    },
+                    {
+                        label: 'Fournisseurs',
+                        icon: 'pi pi-cog',
+                        routerLink: ['/suppliers/list']
                     }
                 ]
             }
