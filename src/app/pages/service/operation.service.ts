@@ -14,19 +14,14 @@ import {
 import { LoggerService } from '../../core/services/logger.service';
 import { ErrorHandlerService } from '../../core/services/error-handler.service';
 import { environment } from '../../../environments/environment';
+import { ApiResponse } from '../../core/interfaces/api-response.interface';
 
-interface ApiResponse<T> {
-    success: boolean;
-    message: string;
-    data: T;
-    timestamp: string;
-}
 
 @Injectable({
     providedIn: 'root'
 })
 export class OperationService {
-    private readonly apiUrl = `${environment.apiBaseUrl}/operations`;
+    private readonly apiUrl = `${environment.apiBaseUrl}/${environment.apiVersion}/operations`;
     private readonly DEFAULT_EXCHANGE_RATE = 656;
 
     constructor(

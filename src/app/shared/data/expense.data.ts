@@ -2,12 +2,12 @@
 
 import {
     Expense,
-    ExpenseCategory,
     ExpenseSupplier,
     ExpenseStatus,
     PaymentMethod,
     Currency
 } from '../models/expense.model';
+import { ExpenseCategory } from '../models/expense-category.model';
 
 // Catégories de dépenses simplifiées
 export const MOCK_EXPENSE_CATEGORIES: ExpenseCategory[] = [

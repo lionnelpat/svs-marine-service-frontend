@@ -19,7 +19,7 @@ import { handleHttpError } from '../../core/utilities/error';
     providedIn: 'root'
 })
 export class ShipService {
-    private readonly apiBaseUrl = `${environment.apiBaseUrl}/ships`;
+    private readonly apiBaseUrl = `${environment.apiBaseUrl}/${environment.apiVersion}/ships`;
 
     constructor(
         private readonly http: HttpClient,

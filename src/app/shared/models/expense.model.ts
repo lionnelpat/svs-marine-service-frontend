@@ -1,5 +1,8 @@
 // src/app/shared/models/expense.model.ts
 
+import { Company } from './company.model';
+import { ExpenseCategory } from './expense-category.model';
+
 export interface Expense {
     id: number;
     numero: string;
@@ -18,14 +21,6 @@ export interface Expense {
     statut: ExpenseStatus;
     created_at: Date;
     updated_at: Date;
-}
-
-export interface ExpenseCategory {
-    id: number;
-    nom: string;
-    code: string;
-    description?: string;
-    icone: string;
 }
 
 export interface ExpenseSupplier {
@@ -133,6 +128,11 @@ export interface ExpenseExportData {
     montantEURO: number;
     modePaiement: string;
     statut: string;
+}
+
+export interface ExpenseCategoryListEvent {
+    type: 'create' | 'edit' | 'view' | 'delete';
+    expenseCategory?: ExpenseCategory;
 }
 
 export enum ExpenseStatus {

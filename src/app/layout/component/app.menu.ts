@@ -57,6 +57,11 @@ export class AppMenu {
                         label: 'navires',
                         icon: 'pi pi-compass',
                         routerLink: ['/ships/list']
+                    },
+                    {
+                        label: 'type de dépenses',
+                        icon: 'pi pi-cog',
+                        routerLink: ['/categories/list']
                     }
                 ]
             }

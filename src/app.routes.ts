@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { AppLayout } from './app/layout/component/app.layout';
 import { DashboardComponent } from './app/pages/dashboard/dashboard.component';
 import { Notfound } from './app/pages/notfound/notfound';
+import { expenseCategoryRoutes } from './app/pages/expense-category/expense-category.routes';
 
 export const appRoutes: Routes = [
     {
@@ -35,6 +36,10 @@ export const appRoutes: Routes = [
             {
                 path: 'expenses',
                 loadChildren: () => import('./app/pages/expenses/expenses.routes')
+            },
+            {
+                path: 'categories',
+                loadChildren: () => expenseCategoryRoutes
             }
         ]
     },

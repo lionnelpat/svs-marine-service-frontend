@@ -19,7 +19,7 @@ import { environment } from '../../../environments/environment';
 })
 export class CompanyService {
     // private readonly baseUrl = 'companies';
-    private readonly apiBaseUrl = `${environment.apiBaseUrl}`;
+    private readonly apiBaseUrl = `${environment.apiBaseUrl}/${environment.apiVersion}`;
 
     private readonly  headers = new HttpHeaders({
         'Content-Type': 'application/json',
