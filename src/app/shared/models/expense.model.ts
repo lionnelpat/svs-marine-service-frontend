@@ -1,67 +1,143 @@
-// src/app/shared/models/expense.model.ts
 
-import { Company } from './company.model';
-import { ExpenseCategory } from './expense-category.model';
 
+// Interface principale Expense (mise à jour pour correspondre à l'API)
 export interface Expense {
     id: number;
     numero: string;
     titre: string;
     description: string;
     categorieId: number;
-    categorie?: ExpenseCategory;
+    categorieNom?: string;
     fournisseurId?: number;
-    fournisseur?: ExpenseSupplier;
+    fournisseurNom?: string;
     dateDepense: Date;
     montantXOF: number;
     montantEURO?: number;
     tauxChange?: number;
     devise: Currency;
-    modePaiement: PaymentMethod;
+    paymentMethodId: number;
+    paymentMethodNom?: string;
     statut: ExpenseStatus;
-    created_at: Date;
-    updated_at: Date;
+    statutLabel?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    active: boolean;
 }
 
-export interface ExpenseSupplier {
-    id: number;
-    nom: string;
-    raisonSociale?: string;
-    adresse?: string;
-    telephone?: string;
-    email?: string;
-}
-
-export interface ExpenseDocument {
-    id: number;
-    nom: string;
-    type: DocumentType;
-    url: string;
-    taille: number;
-    uploaded_at: Date;
-}
-
-export interface CreateExpenseRequest {
+// DTOs pour correspondre au backend
+export interface ExpenseCreateRequest {
+    numero?: string;
     titre: string;
-    description: string;
+    description?: string;
     categorieId: number;
     fournisseurId?: number;
-    dateDepense: Date;
+    dateDepense: string;
     montantXOF: number;
     montantEURO?: number;
-    modePaiement: PaymentMethod;
+    tauxChange?: number;
+    devise: Currency;
+    paymentMethodId: number;
+    statut?: ExpenseStatus;
 }
 
-export interface UpdateExpenseRequest extends CreateExpenseRequest {
-    id: number;
+export interface ExpenseUpdateRequest {
+    numero?: string;
+    titre?: string;
+    description?: string;
+    categorieId?: number;
+    fournisseurId?: number;
+    dateDepense?: string;
+    montantXOF?: number;
+    montantEURO?: number;
+    tauxChange?: number;
+    devise?: Currency;
+    paymentMethodId?: number;
+    statut?: ExpenseStatus;
+    active?: boolean;
 }
 
+export interface ExpenseSearchFilter {
+    search?: string;
+    categorieId?: number;
+    fournisseurId?: number;
+    statut?: ExpenseStatus;
+    paymentMethodId?: number;
+    devise?: Currency;
+    minAmount?: number;
+    maxAmount?: number;
+    startDate?: Date;
+    endDate?: Date;
+    year?: number;
+    month?: number;
+    day?: number;
+    active?: boolean;
+    page?: number;
+    size?: number;
+    sortBy?: string;
+    sortDirection?: string;
+}
+
+export interface ExpensePageResponse {
+    expenses: Expense[];
+    total: number;
+    page: number;
+    size: number;
+    totalPages: number;
+    first: boolean;
+    last: boolean;
+    hasNext: boolean;
+    hasPrevious: boolean;
+}
+
+export interface ExpenseStatusChangeRequest {
+    statut: ExpenseStatus;
+    commentaire?: string;
+}
+
+export interface ExpenseStatsResponse {
+    totalExpenses: number;
+    totalAmountXOF: number;
+    totalAmountEUR: number;
+    statutRepartition: StatutCount[];
+    categorieRepartition: CategorieCount[];
+    evolutionMensuelle: MonthlyExpense[];
+}
+
+export interface StatutCount {
+    statut: ExpenseStatus;
+    label: string;
+    count: number;
+    totalAmount: number;
+}
+
+export interface CategorieCount {
+    categorieId: number;
+    categorieNom: string;
+    count: number;
+    totalAmount: number;
+}
+
+export interface MonthlyExpense {
+    year: number;
+    month: number;
+    monthLabel: string;
+    count: number;
+    totalAmount: number;
+}
+
+// Interface pour les options de dropdown
+export interface DropdownOption {
+    label: string;
+    value: any;
+}
+
+// Interface pour la gestion des filtres dans le composant
 export interface ExpenseListFilter {
     search?: string;
     categorieId?: number;
     fournisseurId?: number;
     statut?: ExpenseStatus;
-    modePaiement?: PaymentMethod;
+    paymentMethodId?: number;
     dateDebut?: Date;
     dateFin?: Date;
     mois?: number;
@@ -79,67 +155,38 @@ export interface ExpenseListResponse {
     size: number;
 }
 
-export interface ExpenseStatistics {
-    totalDepenses: number;
-    montantTotalXOF: number;
-    montantTotalEURO: number;
-    depensesEnAttente: number;
-    depensesApprouvees: number;
-    depensesRejetees: number;
-    depensesRemboursables: number;
-    depensesRemboursees: number;
-    depensesParCategorie: CategoryExpenseStats[];
-    depensesParMois: MonthlyExpenseStats[];
-    topFournisseurs: SupplierExpenseStats[];
+// Interfaces existantes conservées
+export interface ExpenseSupplier {
+    id: number;
+    nom: string;
+    raisonSociale?: string;
+    adresse?: string;
+    telephone?: string;
+    email?: string;
+    active?: boolean;
 }
 
-export interface CategoryExpenseStats {
-    categorieId: number;
-    categorieNom: string;
-    nombreDepenses: number;
-    montantTotalXOF: number;
-    montantTotalEURO: number;
-    pourcentage: number;
+export interface PaymentMethodOption {
+    id: number;
+    nom: string;
+    code: string;
+    description?: string;
+    iconUrl?: string;
+    actif: boolean;
+    ordreAffichage?: number;
 }
 
-export interface MonthlyExpenseStats {
-    mois: number;
-    annee: number;
-    nombreDepenses: number;
-    montantTotalXOF: number;
-    montantTotalEURO: number;
-}
-
-export interface SupplierExpenseStats {
-    fournisseurId: number;
-    fournisseurNom: string;
-    nombreDepenses: number;
-    montantTotalXOF: number;
-    montantTotalEURO: number;
-}
-
-export interface ExpenseExportData {
-    numero: string;
-    titre: string;
-    categorie: string;
-    fournisseur: string;
-    dateDepense: string;
-    montantXOF: number;
-    montantEURO: number;
-    modePaiement: string;
-    statut: string;
-}
-
-export interface ExpenseCategoryListEvent {
-    type: 'create' | 'edit' | 'view' | 'delete';
-    expenseCategory?: ExpenseCategory;
-}
-
+// Enums existants conservés
 export enum ExpenseStatus {
     EN_ATTENTE = 'EN_ATTENTE',
     APPROUVEE = 'APPROUVEE',
     REJETEE = 'REJETEE',
     PAYEE = 'PAYEE'
+}
+
+export enum Currency {
+    XOF = 'XOF',
+    EUR = 'EUR'
 }
 
 export enum PaymentMethod {
@@ -151,11 +198,6 @@ export enum PaymentMethod {
     AUTRE = 'AUTRE'
 }
 
-export enum Currency {
-    XOF = 'XOF',
-    EUR = 'EUR',
-}
-
 export enum DocumentType {
     FACTURE = 'FACTURE',
     RECU = 'RECU',
@@ -163,6 +205,7 @@ export enum DocumentType {
     AUTRE = 'AUTRE'
 }
 
+// Labels et configurations existants conservés
 export const EXPENSE_STATUS_LABELS = {
     [ExpenseStatus.EN_ATTENTE]: 'En attente',
     [ExpenseStatus.APPROUVEE]: 'Approuvée',
@@ -171,11 +214,11 @@ export const EXPENSE_STATUS_LABELS = {
 };
 
 export const EXPENSE_STATUS_SEVERITIES = {
-    [ExpenseStatus.EN_ATTENTE]: 'warning',
+    [ExpenseStatus.EN_ATTENTE]: 'warn',
     [ExpenseStatus.APPROUVEE]: 'success',
     [ExpenseStatus.REJETEE]: 'danger',
     [ExpenseStatus.PAYEE]: 'info'
-};
+} as const;
 
 export const PAYMENT_METHOD_LABELS = {
     [PaymentMethod.ESPECES]: 'Espèces',
@@ -188,7 +231,7 @@ export const PAYMENT_METHOD_LABELS = {
 
 export const CURRENCY_LABELS = {
     [Currency.XOF]: 'Franc CFA (XOF)',
-    [Currency.EUR]: 'Euro (EUR)',
+    [Currency.EUR]: 'Euro (EUR)'
 };
 
 export const DOCUMENT_TYPE_LABELS = {

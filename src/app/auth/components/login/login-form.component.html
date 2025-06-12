@@ -1,0 +1,30 @@
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="icon-wrapper">
+            <img ngSrc="assets/images/logo.jpeg" class="logo" alt="logo svs" height="374" width="329">
+        </div>
+        <h2 class="title">SVS Platform</h2>
+        <p class="subtitle">Connectez-vous à votre espace de gestion</p>
+
+        <form [formGroup]="form" (ngSubmit)="login()">
+            <div class="field mb-3">
+                <label for="email">Email</label>
+                <input pInputText id="email" type="email" formControlName="email" class="w-full" />
+            </div>
+
+            <div class="field mb-3">
+                <label for="password">Mot de passe</label>
+                <input pInputText id="password" type="password" formControlName="password" class="w-full" />
+            </div>
+
+            <button pButton type="submit" label="Se connecter" icon="pi pi-sign-in" class="login-button"></button>
+        </form>
+        <div class="demo-accounts">
+                    <p>Comptes de démonstration :</p>
+                    <p><strong>Manager:</strong> managermaritime.com</p>
+                    <p><strong>User:</strong> usermaritime.com</p>
+                    <p><a href="#">Mot de passe: maritime123</a></p>
+                </div>
+    </div>
+</div>

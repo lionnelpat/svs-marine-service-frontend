@@ -1,5 +1,5 @@
 // pages/ships/components/ship-list/ship-list.component.ts
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
@@ -12,7 +12,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { BadgeModule } from 'primeng/badge';
 import { ChipModule } from 'primeng/chip';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { Ship, ShipListFilter, SHIP_TYPES, SHIP_FLAGS } from '../../../../shared/models/ship.model';
+import { Ship, SHIP_FLAGS, SHIP_TYPES, ShipListFilter } from '../../../../shared/models/ship.model';
 import { ShipService } from '../../../service/ship.service';
 import { CompanyService } from '../../../service/company.service';
 import { LoggerService } from '../../../../core/services/logger.service';

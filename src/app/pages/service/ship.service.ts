@@ -4,16 +4,16 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import {
-    Ship,
     CreateShipRequest,
-    UpdateShipRequest,
+    DropdownListResponse,
+    Ship,
     ShipListFilter,
-    ShipListResponse, DropdownListResponse
+    ShipListResponse,
+    UpdateShipRequest
 } from '../../shared/models/ship.model';
 import { LoggerService } from '../../core/services/logger.service';
 import { ErrorHandlerService } from '../../core/services/error-handler.service';
 import { environment } from '../../../environments/environment';
-import { handleHttpError } from '../../core/utilities/error';
 
 @Injectable({
     providedIn: 'root'

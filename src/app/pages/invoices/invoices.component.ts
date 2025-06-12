@@ -1,6 +1,6 @@
 // src/app/pages/invoices/invoices.component.ts
 
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -11,7 +11,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { MessageService, ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 
 // Services
@@ -19,7 +19,7 @@ import { InvoiceService } from '../service/invoice.service';
 import { LoggerService } from '../../core/services/logger.service';
 
 // Models
-import { Invoice, InvoiceListFilter, InvoiceStatus, INVOICE_STATUS_LABELS, INVOICE_STATUS_SEVERITIES } from '../../shared/models/invoice.model';
+import { Invoice, InvoiceListFilter, InvoiceStatus } from '../../shared/models/invoice.model';
 
 // Components
 import { InvoiceListComponent } from './components/invoice-list/invoice-list.component';

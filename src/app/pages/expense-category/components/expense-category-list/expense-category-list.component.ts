@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
@@ -17,7 +17,6 @@ import {
     ExpenseCategoryEvent,
     ExpenseCategoryListFilter
 } from '../../../../shared/models/expense-category.model';
-import { ExpenseCategoryListEvent } from '../../../../shared/models/expense.model';
 import { ExpenseCategoryService } from '../../service/expense-category.service';
 
 

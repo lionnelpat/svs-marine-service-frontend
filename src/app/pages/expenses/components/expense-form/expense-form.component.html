@@ -1,1 +1,389 @@
-<p>expense-form works!</p>
+<div class="expense-form">
+    <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()">
+
+        <!-- En-tête du formulaire -->
+        <div class="form-header mb-6">
+            <h2 class="text-2xl font-semibold text-900 mb-2">
+                <i class="pi pi-receipt mr-2 text-primary"></i>
+                {{ editMode ? 'Modifier la dépense' : 'Nouvelle dépense' }}
+            </h2>
+            <p class="text-color-secondary">
+                {{ editMode ? 'Modifiez les informations de la dépense' : 'Remplissez les informations de la nouvelle dépense' }}
+            </p>
+        </div>
+
+        <!-- Informations générales -->
+        <div class="form-section mb-6">
+            <div class="section-header mb-4">
+                <i class="pi pi-info-circle text-primary mr-2"></i>
+                <h3 class="text-lg font-medium text-primary m-0">Informations générales</h3>
+            </div>
+
+            <div class="grid">
+                <div class="col-12 md:col-4" *ngIf="editMode">
+                    <div class="field">
+                        <label class="field-label">
+                            N° Dépense <span class="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            pInputText
+                            formControlName="numero"
+                            placeholder="Numéro automatique"
+                            [readonly]="editMode"
+                            (blur)="onNumeroBlur()"
+                            [class.p-invalid]="isFieldInvalid('numero')"
+                            class="field-input"
+                        />
+                        <small class="field-error" *ngIf="isFieldInvalid('numero')">
+                            {{ getFieldError('numero') }}
+                        </small>
+                    </div>
+                </div>
+
+                <div class="col-12 md:col-4">
+                    <div class="field">
+                        <label class="field-label">
+                            Date de dépense <span class="text-red-500">*</span>
+                        </label>
+                        <p-calendar
+                            formControlName="dateDepense"
+                            dateFormat="dd/mm/yy"
+                            [showIcon]="true"
+                            placeholder="Sélectionner la date"
+                            [class.p-invalid]="isFieldInvalid('dateDepense')"
+                            class="field-input w-full">
+                        </p-calendar>
+                        <small class="field-error" *ngIf="isFieldInvalid('dateDepense')">
+                            {{ getFieldError('dateDepense') }}
+                        </small>
+                    </div>
+                </div>
+
+                <div class="col-12 md:col-4">
+                    <div class="field">
+                        <label class="field-label">
+                            Catégorie <span class="text-red-500">*</span>
+                        </label>
+                        <p-dropdown
+                            formControlName="categorieId"
+                            [options]="categoryOptions"
+                            placeholder="Sélectionner une catégorie"
+                            optionLabel="label"
+                            optionValue="value"
+                            [filter]="true"
+                            filterBy="label"
+                            [loading]="loadingOptions"
+                            (onChange)="onCategoryChange($event)"
+                            [class.p-invalid]="isFieldInvalid('categorieId')"
+                            class="field-input w-full">
+                        </p-dropdown>
+                        <small class="field-error" *ngIf="isFieldInvalid('categorieId')">
+                            {{ getFieldError('categorieId') }}
+                        </small>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="field">
+                        <label class="field-label">
+                            Titre <span class="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            pInputText
+                            formControlName="titre"
+                            placeholder="Ex: Achat carburant pour mission"
+                            [class.p-invalid]="isFieldInvalid('titre')"
+                            class="field-input"
+                        />
+                        <small class="field-error" *ngIf="isFieldInvalid('titre')">
+                            {{ getFieldError('titre') }}
+                        </small>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="field">
+                        <label class="field-label">Description</label>
+                        <textarea
+                            pInputTextarea
+                            formControlName="description"
+                            placeholder="Description détaillée de la dépense..."
+                            rows="3"
+                            [maxlength]="MAX_DESCRIPTION_LENGTH"
+                            [class.p-invalid]="isFieldInvalid('description')"
+                            class="field-textarea">
+                        </textarea>
+                        <div class="flex justify-content-between mt-1">
+                            <small class="field-error" *ngIf="isFieldInvalid('description')">
+                                {{ getFieldError('description') }}
+                            </small>
+                            <small class="text-color-secondary">
+                                {{ expenseForm.get('description')?.value || 0 }}/{{ MAX_DESCRIPTION_LENGTH }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fournisseur -->
+        <div class="form-section mb-6">
+            <div class="section-header mb-4">
+                <i class="pi pi-users text-primary mr-2"></i>
+                <h3 class="text-lg font-medium text-primary m-0">Fournisseur</h3>
+            </div>
+
+            <div class="grid">
+                <div class="col-12">
+                    <div class="field">
+                        <label class="field-label">Fournisseur</label>
+                        <p-dropdown
+                            formControlName="fournisseurId"
+                            [options]="supplierOptions"
+                            placeholder="Sélectionner un fournisseur (optionnel)"
+                            optionLabel="label"
+                            optionValue="value"
+                            [filter]="true"
+                            filterBy="label"
+                            [showClear]="true"
+                            [loading]="loadingOptions"
+                            (onChange)="onSupplierChange($event)"
+                            class="field-input w-full">
+                        </p-dropdown>
+                    </div>
+                </div>
+
+                <!-- Informations du fournisseur sélectionné -->
+                <div class="col-12" *ngIf="selectedSupplier">
+                    <div class="supplier-info">
+                        <div class="text-sm text-600">
+                            <div class="font-medium text-900 mb-1">{{ selectedSupplier.nom }}</div>
+                            <div *ngIf="selectedSupplier.raisonSociale" class="mb-1">{{ selectedSupplier.raisonSociale }}</div>
+                            <div *ngIf="selectedSupplier.adresse" class="mb-1">
+                                <i class="pi pi-map-marker mr-1"></i>{{ selectedSupplier.adresse }}
+                            </div>
+                            <div class="flex gap-3">
+                                <span *ngIf="selectedSupplier.telephone">
+                                    <i class="pi pi-phone mr-1"></i>{{ selectedSupplier.telephone }}
+                                </span>
+                                <span *ngIf="selectedSupplier.email">
+                                    <i class="pi pi-envelope mr-1"></i>{{ selectedSupplier.email }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Montant et devise -->
+        <div class="form-section mb-6">
+            <div class="section-header mb-4">
+                <i class="pi pi-dollar text-primary mr-2"></i>
+                <h3 class="text-lg font-medium text-primary m-0">Montant et devise</h3>
+            </div>
+
+            <div class="grid">
+                <div class="col-12 md:col-6">
+                    <div class="field">
+                        <label class="field-label">
+                            Devise <span class="text-red-500">*</span>
+                        </label>
+                        <p-dropdown
+                            formControlName="devise"
+                            [options]="currencyOptions"
+                            placeholder="Sélectionner la devise"
+                            optionLabel="label"
+                            optionValue="value"
+                            class="field-input w-full">
+                        </p-dropdown>
+                    </div>
+                </div>
+
+                <div class="col-12 md:col-6" *ngIf="showEuroFields">
+                    <div class="field">
+                        <label class="field-label">
+                            Taux de change (1 EUR = X XOF)
+                        </label>
+                        <p-inputNumber
+                            formControlName="tauxChange"
+                            placeholder="Taux de change"
+                            [min]="0.01"
+                            [maxFractionDigits]="6"
+                            (onInput)="onExchangeRateChange()"
+                            class="field-input w-full">
+                        </p-inputNumber>
+                        <small class="text-color-secondary">
+                            Taux de change approximatif : 1 EUR = {{ DEFAULT_EXCHANGE_RATE }} XOF
+                        </small>
+                    </div>
+                </div>
+
+                <div class="col-12 md:col-6">
+                    <div class="field">
+                        <label class="field-label">
+                            Montant en XOF <span class="text-red-500">*</span>
+                        </label>
+                        <p-inputNumber
+                            formControlName="montantXOF"
+                            mode="currency"
+                            currency="XOF"
+                            locale="fr-SN"
+                            [min]="MIN_AMOUNT"
+                            (onInput)="onAmountChange()"
+                            [class.p-invalid]="isFieldInvalid('montantXOF')"
+                            class="field-input w-full">
+                        </p-inputNumber>
+                        <small class="field-error" *ngIf="isFieldInvalid('montantXOF')">
+                            {{ getFieldError('montantXOF') }}
+                        </small>
+                    </div>
+                </div>
+
+                <div class="col-12 md:col-6" *ngIf="showEuroFields">
+                    <div class="field">
+                        <label class="field-label">
+                            Montant en EUR
+                            <span class="text-red-500" *ngIf="expenseForm.get('devise')?.value === 'EUR'">*</span>
+                        </label>
+                        <p-inputNumber
+                            formControlName="montantEURO"
+                            mode="currency"
+                            currency="EUR"
+                            locale="fr-FR"
+                            [min]="MIN_AMOUNT"
+                            (onInput)="onEuroAmountChange()"
+                            [class.p-invalid]="isFieldInvalid('montantEURO')"
+                            class="field-input w-full">
+                        </p-inputNumber>
+                        <small class="field-error" *ngIf="isFieldInvalid('montantEURO')">
+                            {{ getFieldError('montantEURO') }}
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Affichage des conversions -->
+                <div class="col-12" *ngIf="showEuroFields && expenseForm.get('montantXOF')?.value && expenseForm.get('montantEURO')?.value">
+                    <div class="conversion-info">
+                        <div class="text-sm text-color-secondary">
+                            <i class="pi pi-info-circle mr-2"></i>
+                            <strong>Conversion :</strong>
+                            {{ formatCurrency(expenseForm.get('montantXOF')?.value, Currency.XOF) }}
+                            ⇄
+                            {{ formatCurrency(expenseForm.get('montantEURO')?.value, Currency.EUR) }}
+                            <span *ngIf="expenseForm.get('tauxChange')?.value">
+                                (Taux : {{ expenseForm.get('tauxChange')?.value }})
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mode de paiement -->
+        <div class="form-section mb-6">
+            <div class="section-header mb-4">
+                <i class="pi pi-credit-card text-primary mr-2"></i>
+                <h3 class="text-lg font-medium text-primary m-0">Mode de paiement</h3>
+            </div>
+
+            <div class="grid">
+                <div class="col-12">
+                    <div class="field">
+                        <label class="field-label">
+                            Mode de paiement <span class="text-red-500">*</span>
+                        </label>
+                        <p-dropdown
+                            formControlName="paymentMethodId"
+                            [options]="paymentMethodOptions"
+                            placeholder="Sélectionner le mode de paiement"
+                            optionLabel="label"
+                            optionValue="value"
+                            [loading]="loadingOptions"
+                            (onChange)="onPaymentMethodChange($event)"
+                            [class.p-invalid]="isFieldInvalid('paymentMethodId')"
+                            class="field-input w-full">
+                        </p-dropdown>
+                        <small class="field-error" *ngIf="isFieldInvalid('paymentMethodId')">
+                            {{ getFieldError('paymentMethodId') }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions du formulaire -->
+        <div class="form-actions">
+            <button
+                type="button"
+                pButton
+                label="Annuler"
+                icon="pi pi-times"
+                severity="secondary"
+                [outlined]="true"
+                (click)="onCancelClick()"
+                [disabled]="saving">
+            </button>
+
+            <button
+                type="button"
+                pButton
+                label="Réinitialiser"
+                icon="pi pi-refresh"
+                severity="secondary"
+                [outlined]="true"
+                (click)="onResetClick()"
+                [disabled]="saving"
+                class="ml-2">
+            </button>
+
+            <button
+                type="submit"
+                pButton
+                [label]="editMode ? 'Mettre à jour' : 'Créer la dépense'"
+                [icon]="editMode ? 'pi pi-check' : 'pi pi-plus'"
+                severity="primary"
+                [loading]="saving"
+                [disabled]="!isFormValid"
+                class="ml-2">
+            </button>
+        </div>
+
+        <!-- Informations de validation -->
+        <div class="form-validation-info mt-4" *ngIf="!isFormValid">
+            <div class="p-message p-message-warn">
+                <div class="p-message-wrapper">
+                    <span class="p-message-icon pi pi-exclamation-triangle"></span>
+                    <div class="p-message-text">
+                        <div class="font-medium">Formulaire incomplet</div>
+                        <div class="text-sm">Veuillez remplir tous les champs obligatoires marqués d'un astérisque (*)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informations sur la dépense (mode édition) -->
+        <div class="expense-meta-info mt-6" *ngIf="editMode && expense">
+            <div class="p-message p-message-info">
+                <div class="p-message-wrapper">
+                    <span class="p-message-icon pi pi-info-circle"></span>
+                    <div class="p-message-text">
+                        <div class="font-medium">Informations de la dépense</div>
+                        <div class="text-sm mt-1">
+                            <div>Statut actuel :
+                                <span class="font-medium">{{ expense.statutLabel || expense.statut }}</span>
+                            </div>
+                            <div>Créée le : {{ expense.createdAt | date:'dd/MM/yyyy à HH:mm' }}</div>
+                            <div *ngIf="expense.updatedAt !== expense.createdAt">
+                                Modifiée le : {{ expense.updatedAt | date:'dd/MM/yyyy à HH:mm' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </form>
+</div>

@@ -1,14 +1,14 @@
 // pages/ships/components/ship-form/ship-form.component.ts - VERSION COMPLÈTE
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DropdownModule } from 'primeng/dropdown';
 import { DividerModule } from 'primeng/divider';
 import { CalendarModule } from 'primeng/calendar';
-import { Ship, CreateShipRequest, UpdateShipRequest, SHIP_TYPES, SHIP_FLAGS, SHIP_CLASSIFICATIONS } from '../../../../shared/models/ship.model';
+import { CreateShipRequest, Ship, SHIP_FLAGS, UpdateShipRequest } from '../../../../shared/models/ship.model';
 import { ShipService } from '../../../service/ship.service';
 import { CompanyService } from '../../../service/company.service';
 import { LoggerService } from '../../../../core/services/logger.service';

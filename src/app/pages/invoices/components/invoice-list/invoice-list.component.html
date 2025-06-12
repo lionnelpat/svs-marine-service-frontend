@@ -251,7 +251,14 @@
                             pTooltip="Plus d'actions">
                         </p-button>
 
-                        <p-menu #menu [popup]="true" [model]="getMenuItems(invoice)"></p-menu>
+                        <p-menu
+                            #menu
+                            [model]="getMenuItems(invoice)"
+                            [popup]="true"
+                            appendTo="body"
+                            [baseZIndex]="9999"
+                            [autoZIndex]="false">
+                        </p-menu>
                     </div>
                 </td>
             </tr>

@@ -65,8 +65,13 @@ export class AppMenu {
                     },
                     {
                         label: 'Fournisseurs',
-                        icon: 'pi pi-cog',
+                        icon: 'pi pi-briefcase',
                         routerLink: ['/suppliers/list']
+                    },
+                    {
+                        label: 'Méthodes de paiement',
+                        icon: 'pi pi-dollar',
+                        routerLink: ['/payment-methods/list']
                     }
                 ]
             }

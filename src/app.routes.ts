@@ -4,6 +4,8 @@ import { DashboardComponent } from './app/pages/dashboard/dashboard.component';
 import { Notfound } from './app/pages/notfound/notfound';
 import { expenseCategoryRoutes } from './app/pages/expense-category/expense-category.routes';
 import { expenseSupplierRoutes } from './app/pages/expense-supplier/expense-supplier.routes';
+import { paymentMethodRoutes } from './app/pages/payment-methods/payment-method.routes';
+import { LoginFormComponent } from './app/auth/components/login/login-form.component';
 
 export const appRoutes: Routes = [
     {
@@ -46,7 +48,16 @@ export const appRoutes: Routes = [
                 path: 'suppliers',
                 loadChildren: () => expenseSupplierRoutes
             },
+            {
+                path: 'payment-methods',
+                loadChildren: () => paymentMethodRoutes
+            },
+
         ]
+    },
+    {
+        path: 'login',
+        component: LoginFormComponent
     },
     { path: 'notfound', component: Notfound },
     { path: '**', redirectTo: '/notfound' }

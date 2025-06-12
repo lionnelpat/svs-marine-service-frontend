@@ -1,8 +1,9 @@
 // src/app/pages/expenses/components/expense-list/expense-list.component.ts
 
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 
 // PrimeNG Imports
 import { TableModule } from 'primeng/table';
@@ -16,21 +17,23 @@ import { MenuModule } from 'primeng/menu';
 import { TooltipModule } from 'primeng/tooltip';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { CheckboxModule } from 'primeng/checkbox';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 
-// Models
+// Models et Services
 import {
-    Expense,
-    ExpenseListFilter,
-    ExpenseStatus,
-    PaymentMethod,
     Currency,
+    DropdownOption,
+    Expense,
     EXPENSE_STATUS_LABELS,
-    EXPENSE_STATUS_SEVERITIES,
-    PAYMENT_METHOD_LABELS,
-    CURRENCY_LABELS
+    ExpenseListFilter,
+    ExpenseStatus
 } from '../../../../shared/models/expense.model';
-import { MOCK_EXPENSE_CATEGORIES, MOCK_EXPENSE_SUPPLIERS } from '../../../../shared/data/expense.data';
+import { ExpenseService } from '../../../service/expense.service';
+import { ExpenseCategoryService } from '../../../expense-category/service/expense-category.service';
+import { ExpenseSupplierService } from '../../../expense-supplier/service/expense-supplier.service';
+import { PaymentMethodService } from '../../../payment-methods/service/payment-method.service';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
     selector: 'app-expense-list',
@@ -48,27 +51,44 @@ import { MOCK_EXPENSE_CATEGORIES, MOCK_EXPENSE_SUPPLIERS } from '../../../../sha
         MenuModule,
         TooltipModule,
         ProgressSpinnerModule,
-        CheckboxModule
+        CheckboxModule,
+        IconField,
+        InputIcon
     ],
     templateUrl: './expense-list.component.html',
     styleUrls: ['./expense-list.component.scss']
 })
-export class ExpenseListComponent implements OnInit {
-    @Input() expenses: Expense[] = [];
-    @Input() loading = false;
-    @Input() totalRecords = 0;
+export class ExpenseListComponent implements OnInit, OnDestroy {
+    @Input() showFilters = true;
+    @Input() showActions = true;
+    @Input() selectionMode = false;
 
     @Output() onEdit = new EventEmitter<Expense>();
     @Output() onDelete = new EventEmitter<Expense>();
     @Output() onStatusChange = new EventEmitter<{ expense: Expense; status: ExpenseStatus }>();
-    @Output() onFilter = new EventEmitter<ExpenseListFilter>();
-    @Output() onPageChange = new EventEmitter<any>();
+    @Output() onSelectionChange = new EventEmitter<Expense[]>();
+
+    // Services injectés
+    private readonly expenseService = inject(ExpenseService);
+    private readonly expenseCategoryService = inject(ExpenseCategoryService);
+    private readonly expenseSupplierService = inject(ExpenseSupplierService);
+    private readonly paymentMethodService = inject(PaymentMethodService);
+    private readonly messageService = inject(MessageService);
+
+    // Données du composant
+    expenses: Expense[] = [];
+    selectedExpenses: Expense[] = [];
+    loading = false;
+    totalRecords = 0;
 
     // Variables de recherche et filtres
     searchTerm = '';
+    private searchSubject = new Subject<string>();
+
     selectedCategory: number | null = null;
+    selectedSupplier: number | null = null;
     selectedStatus: ExpenseStatus | null = null;
-    selectedPaymentMethod: PaymentMethod | null = null;
+    selectedPaymentMethod: number | null = null;
 
     // Variables de filtres par date
     selectedPeriodType: 'day' | 'month' | 'year' | 'range' | null = null;
@@ -80,26 +100,28 @@ export class ExpenseListComponent implements OnInit {
     // Variables de filtres par montant
     minAmount: number | null = null;
     maxAmount: number | null = null;
+    private amountFilterSubject = new Subject<void>();
 
     // Variables de pagination
     currentPage = 0;
-    pageSize = 10;
+    pageSize = 20;
+    first = 0;
 
     // Options pour les dropdowns
-    categoryOptions: { label: string; value: number }[] = [];
-    statusOptions: { label: string; value: ExpenseStatus }[] = [];
-    paymentMethodOptions: { label: string; value: PaymentMethod }[] = [];
-    supplierOptions: { label: string; value: number }[] = [];
+    categoryOptions: DropdownOption[] = [];
+    supplierOptions: DropdownOption[] = [];
+    statusOptions: DropdownOption[] = [];
+    paymentMethodOptions: DropdownOption[] = [];
 
     // Options pour les filtres de date
-    periodTypeOptions = [
+    periodTypeOptions: DropdownOption[] = [
         { label: 'Jour', value: 'day' },
         { label: 'Mois', value: 'month' },
         { label: 'Année', value: 'year' },
         { label: 'Période', value: 'range' }
     ];
 
-    monthOptions = [
+    monthOptions: DropdownOption[] = [
         { label: 'Janvier', value: 1 },
         { label: 'Février', value: 2 },
         { label: 'Mars', value: 3 },
@@ -114,22 +136,68 @@ export class ExpenseListComponent implements OnInit {
         { label: 'Décembre', value: 12 }
     ];
 
-    yearOptions: { label: string; value: number }[] = [];
+    yearOptions: DropdownOption[] = [];
 
-    // Timeout pour la recherche
-    private searchTimeout: any = null;
-    private amountFilterTimeout: any = null;
+    // Subject pour la gestion de la destruction du composant
+    private destroy$ = new Subject<void>();
 
     ngOnInit(): void {
         this.initializeOptions();
+        this.setupSearchDebounce();
+        this.setupAmountFilterDebounce();
+        this.loadExpenses();
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     private initializeOptions(): void {
         // Options des catégories
-        this.categoryOptions = MOCK_EXPENSE_CATEGORIES.map(category => ({
-            label: category.nom,
-            value: category.id
-        }));
+        this.expenseCategoryService.getCategories()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (resp) => {
+                    this.categoryOptions = resp.data.categories.map(category => ({
+                        label: category.nom,
+                        value: category.id
+                    }));
+                },
+                error: (error) => {
+                    console.error('Erreur lors du chargement des catégories', error);
+                }
+            });
+
+        // Options des fournisseurs
+        this.expenseSupplierService.getSuppliers()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (suppliers) => {
+                    this.supplierOptions = suppliers.data.suppliers.map(supplier => ({
+                        label: supplier.nom,
+                        value: supplier.id
+                    }));
+                },
+                error: (error) => {
+                    console.error('Erreur lors du chargement des fournisseurs', error);
+                }
+            });
+
+        // Options des modes de paiement
+        this.paymentMethodService.getPaymentMethods()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (methods) => {
+                    this.paymentMethodOptions = methods.data.paymentMethods.map(method => ({
+                        label: method.nom,
+                        value: method.id
+                    }));
+                },
+                error: (error) => {
+                    console.error('Erreur lors du chargement des modes de paiement', error);
+                }
+            });
 
         // Options des statuts
         this.statusOptions = Object.values(ExpenseStatus).map(status => ({
@@ -137,19 +205,11 @@ export class ExpenseListComponent implements OnInit {
             value: status
         }));
 
-        // Options des modes de paiement
-        this.paymentMethodOptions = Object.values(PaymentMethod).map(method => ({
-            label: PAYMENT_METHOD_LABELS[method],
-            value: method
-        }));
-
-        // Options des fournisseurs
-        this.supplierOptions = MOCK_EXPENSE_SUPPLIERS.map(supplier => ({
-            label: supplier.nom,
-            value: supplier.id
-        }));
-
         // Options des années
+        this.initializeYearOptions();
+    }
+
+    private initializeYearOptions(): void {
         const currentYear = new Date().getFullYear();
         this.yearOptions = [];
         for (let year = currentYear - 5; year <= currentYear + 2; year++) {
@@ -160,30 +220,98 @@ export class ExpenseListComponent implements OnInit {
         }
     }
 
-    // Gestion de la recherche et des filtres
-    onSearchInputChange(): void {
-        if (this.searchTimeout) {
-            clearTimeout(this.searchTimeout);
-        }
-
-        this.searchTimeout = setTimeout(() => {
+    private setupSearchDebounce(): void {
+        this.searchSubject.pipe(
+            debounceTime(300),
+            distinctUntilChanged(),
+            takeUntil(this.destroy$)
+        ).subscribe(() => {
             this.applyFilters();
-        }, 300);
+        });
+    }
+
+    private setupAmountFilterDebounce(): void {
+        this.amountFilterSubject.pipe(
+            debounceTime(500),
+            takeUntil(this.destroy$)
+        ).subscribe(() => {
+            this.applyFilters();
+        });
+    }
+
+    // ========== Gestion de la recherche et des filtres ==========
+
+    onSearchInputChange(): void {
+        this.searchSubject.next(this.searchTerm);
     }
 
     onAmountFilterChange(): void {
-        if (this.amountFilterTimeout) {
-            clearTimeout(this.amountFilterTimeout);
-        }
-
-        this.amountFilterTimeout = setTimeout(() => {
-            this.applyFilters();
-        }, 500);
+        this.amountFilterSubject.next();
     }
 
     applyFilters(): void {
+        this.currentPage = 0;
+        this.first = 0;
+        this.loadExpenses();
+    }
+
+    onPeriodTypeChange(): void {
+        // Réinitialiser les champs de date lors du changement de type
+        this.selectedDate = null;
+        this.selectedMonth = null;
+        this.selectedYear = null;
+        this.dateRange = null;
+        this.applyFilters();
+    }
+
+    resetAllFilters(): void {
+        this.searchTerm = '';
+        this.selectedCategory = null;
+        this.selectedSupplier = null;
+        this.selectedStatus = null;
+        this.selectedPaymentMethod = null;
+        this.selectedPeriodType = null;
+        this.selectedDate = null;
+        this.selectedMonth = null;
+        this.selectedYear = null;
+        this.dateRange = null;
+        this.minAmount = null;
+        this.maxAmount = null;
+        this.currentPage = 0;
+        this.first = 0;
+
+        this.loadExpenses();
+    }
+
+    // ========== Chargement des données ==========
+
+    private loadExpenses(): void {
+        this.loading = true;
+        const filter = this.buildFilter();
+
+        this.expenseService.getExpenses(filter)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (response) => {
+                    this.expenses = response.expenses;
+                    this.totalRecords = response.total;
+                    this.loading = false;
+                },
+                error: (error) => {
+                    console.error('Erreur lors du chargement des dépenses', error);
+                    this.loading = false;
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Erreur',
+                        detail: 'Impossible de charger les dépenses'
+                    });
+                }
+            });
+    }
+
+    private buildFilter(): ExpenseListFilter {
         const filter: ExpenseListFilter = {
-            page: 0,
+            page: this.currentPage,
             size: this.pageSize
         };
 
@@ -195,12 +323,16 @@ export class ExpenseListComponent implements OnInit {
             filter.categorieId = this.selectedCategory;
         }
 
+        if (this.selectedSupplier) {
+            filter.fournisseurId = this.selectedSupplier;
+        }
+
         if (this.selectedStatus) {
             filter.statut = this.selectedStatus;
         }
 
         if (this.selectedPaymentMethod) {
-            filter.modePaiement = this.selectedPaymentMethod;
+            filter.paymentMethodId = this.selectedPaymentMethod;
         }
 
         if (this.minAmount) {
@@ -212,109 +344,77 @@ export class ExpenseListComponent implements OnInit {
         }
 
         // Gestion des filtres de date
-        if (this.selectedPeriodType) {
-            switch (this.selectedPeriodType) {
-                case 'day':
-                    if (this.selectedDate) {
-                        const startOfDay = new Date(this.selectedDate);
-                        startOfDay.setHours(0, 0, 0, 0);
-                        const endOfDay = new Date(this.selectedDate);
-                        endOfDay.setHours(23, 59, 59, 999);
+        this.applyDateFilters(filter);
 
-                        filter.dateDebut = startOfDay;
-                        filter.dateFin = endOfDay;
-                    }
-                    break;
-
-                case 'month':
-                    if (this.selectedMonth && this.selectedYear) {
-                        const startOfMonth = new Date(this.selectedYear, this.selectedMonth - 1, 1);
-                        const endOfMonth = new Date(this.selectedYear, this.selectedMonth, 0, 23, 59, 59, 999);
-
-                        filter.dateDebut = startOfMonth;
-                        filter.dateFin = endOfMonth;
-                        filter.mois = this.selectedMonth;
-                        filter.annee = this.selectedYear;
-                    } else if (this.selectedMonth) {
-                        filter.mois = this.selectedMonth;
-                    } else if (this.selectedYear) {
-                        filter.annee = this.selectedYear;
-                    }
-                    break;
-
-                case 'year':
-                    if (this.selectedYear) {
-                        const startOfYear = new Date(this.selectedYear, 0, 1);
-                        const endOfYear = new Date(this.selectedYear, 11, 31, 23, 59, 59, 999);
-
-                        filter.dateDebut = startOfYear;
-                        filter.dateFin = endOfYear;
-                        filter.annee = this.selectedYear;
-                    }
-                    break;
-
-                case 'range':
-                    if (this.dateRange && this.dateRange.length === 2) {
-                        const startDate = new Date(this.dateRange[0]);
-                        startDate.setHours(0, 0, 0, 0);
-                        const endDate = new Date(this.dateRange[1]);
-                        endDate.setHours(23, 59, 59, 999);
-
-                        filter.dateDebut = startDate;
-                        filter.dateFin = endDate;
-                    }
-                    break;
-            }
-        }
-
-        this.currentPage = 0;
-        this.onFilter.emit(filter);
+        return filter;
     }
 
-    onPeriodTypeChange(): void {
-        this.selectedDate = null;
-        this.selectedMonth = null;
-        this.selectedYear = null;
-        this.dateRange = null;
-        this.applyFilters();
+    private applyDateFilters(filter: ExpenseListFilter): void {
+        if (!this.selectedPeriodType) return;
+
+        switch (this.selectedPeriodType) {
+            case 'day':
+                if (this.selectedDate) {
+                    const startOfDay = new Date(this.selectedDate);
+                    startOfDay.setHours(0, 0, 0, 0);
+                    const endOfDay = new Date(this.selectedDate);
+                    endOfDay.setHours(23, 59, 59, 999);
+
+                    filter.dateDebut = startOfDay;
+                    filter.dateFin = endOfDay;
+                }
+                break;
+
+            case 'month':
+                if (this.selectedMonth) {
+                    filter.mois = this.selectedMonth;
+                }
+                if (this.selectedYear) {
+                    filter.annee = this.selectedYear;
+                }
+                if (this.selectedMonth && this.selectedYear) {
+                    const startOfMonth = new Date(this.selectedYear, this.selectedMonth - 1, 1);
+                    const endOfMonth = new Date(this.selectedYear, this.selectedMonth, 0, 23, 59, 59, 999);
+                    filter.dateDebut = startOfMonth;
+                    filter.dateFin = endOfMonth;
+                }
+                break;
+
+            case 'year':
+                if (this.selectedYear) {
+                    filter.annee = this.selectedYear;
+                    const startOfYear = new Date(this.selectedYear, 0, 1);
+                    const endOfYear = new Date(this.selectedYear, 11, 31, 23, 59, 59, 999);
+                    filter.dateDebut = startOfYear;
+                    filter.dateFin = endOfYear;
+                }
+                break;
+
+            case 'range':
+                if (this.dateRange && this.dateRange.length === 2) {
+                    const startDate = new Date(this.dateRange[0]);
+                    startDate.setHours(0, 0, 0, 0);
+                    const endDate = new Date(this.dateRange[1]);
+                    endDate.setHours(23, 59, 59, 999);
+
+                    filter.dateDebut = startDate;
+                    filter.dateFin = endDate;
+                }
+                break;
+        }
     }
 
-    resetAllFilters(): void {
-        this.searchTerm = '';
-        this.selectedCategory = null;
-        this.selectedStatus = null;
-        this.selectedPaymentMethod = null;
-        this.selectedPeriodType = null;
-        this.selectedDate = null;
-        this.selectedMonth = null;
-        this.selectedYear = null;
-        this.dateRange = null;
-        this.minAmount = null;
-        this.maxAmount = null;
-        this.currentPage = 0;
-        this.pageSize = 10;
+    // ========== Gestion de la pagination ==========
 
-        if (this.searchTimeout) {
-            clearTimeout(this.searchTimeout);
-            this.searchTimeout = null;
-        }
-
-        if (this.amountFilterTimeout) {
-            clearTimeout(this.amountFilterTimeout);
-            this.amountFilterTimeout = null;
-        }
-
-        this.applyFilters();
-    }
-
-    // Gestion de la pagination
     onLazyLoadChange(event: any): void {
-        this.currentPage = event.first / event.rows;
+        this.currentPage = Math.floor(event.first / event.rows);
         this.pageSize = event.rows;
-        this.onPageChange.emit(event);
+        this.first = event.first;
+        this.loadExpenses();
     }
 
-    // Actions sur les dépenses
+    // ========== Actions sur les dépenses ==========
+
     editExpense(expense: Expense): void {
         this.onEdit.emit(expense);
     }
@@ -323,29 +423,58 @@ export class ExpenseListComponent implements OnInit {
         this.onDelete.emit(expense);
     }
 
-    // Menu contextuel
-    showMenu(event: Event, expense: Expense, menu: any): void {
-        menu.toggle(event);
+    changeStatus(expense: Expense, status: ExpenseStatus): void {
+        this.onStatusChange.emit({ expense, status });
     }
 
+    duplicateExpense(expense: Expense): void {
+        const duplicatedExpense: Expense = {
+            ...expense,
+            id: 0,
+            numero: '',
+            statut: ExpenseStatus.EN_ATTENTE,
+            dateDepense: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
+
+        this.onEdit.emit(duplicatedExpense);
+    }
+
+    // ========== Menu contextuel ==========
+
     getMenuItems(expense: Expense): MenuItem[] {
+        const canEdit = this.canEditExpense(expense);
+        const canApprove = this.canApproveExpense(expense);
+        const canReject = this.canRejectExpense(expense);
+        const canMarkPaid = this.canMarkAsPaid(expense);
+
         return [
             {
-                label: 'Marquer comme approuvée',
+                label: 'Modifier',
+                icon: 'pi pi-pencil',
+                disabled: !canEdit,
+                command: () => this.editExpense(expense)
+            },
+            {
+                separator: true
+            },
+            {
+                label: 'Approuver',
                 icon: 'pi pi-check',
-                disabled: expense.statut === ExpenseStatus.APPROUVEE || expense.statut === ExpenseStatus.PAYEE,
+                disabled: !canApprove,
                 command: () => this.changeStatus(expense, ExpenseStatus.APPROUVEE)
             },
             {
                 label: 'Marquer comme payée',
                 icon: 'pi pi-dollar',
-                disabled: expense.statut === ExpenseStatus.PAYEE,
+                disabled: !canMarkPaid,
                 command: () => this.changeStatus(expense, ExpenseStatus.PAYEE)
             },
             {
                 label: 'Rejeter',
                 icon: 'pi pi-times',
-                disabled: expense.statut === ExpenseStatus.REJETEE || expense.statut === ExpenseStatus.PAYEE,
+                disabled: !canReject,
                 command: () => this.changeStatus(expense, ExpenseStatus.REJETEE)
             },
             {
@@ -363,44 +492,106 @@ export class ExpenseListComponent implements OnInit {
                 label: 'Supprimer',
                 icon: 'pi pi-trash',
                 styleClass: 'text-red-500',
+                disabled: !canEdit,
                 command: () => this.deleteExpense(expense)
             }
         ];
     }
 
-    changeStatus(expense: Expense, status: ExpenseStatus): void {
-        this.onStatusChange.emit({ expense, status });
+    // ========== Gestion de la sélection ==========
+
+    onExpenseSelectionChange(selectedExpenses: Expense[]): void {
+        this.selectedExpenses = selectedExpenses;
+        this.onSelectionChange.emit(selectedExpenses);
     }
 
-    duplicateExpense(expense: Expense): void {
-        const duplicatedExpense = {
-            ...expense,
-            id: 0,
-            numero: '',
-            statut: ExpenseStatus.EN_ATTENTE,
-            dateDepense: new Date()
-        };
+    // ========== Actions en lot ==========
 
-        this.onEdit.emit(duplicatedExpense);
+    approveSelectedExpenses(): void {
+        if (this.selectedExpenses.length === 0) return;
+
+        // Filtrer les dépenses qui peuvent être approuvées
+        const approvableExpenses = this.selectedExpenses.filter(expense =>
+            this.canApproveExpense(expense)
+        );
+
+        if (approvableExpenses.length === 0) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Attention',
+                detail: 'Aucune dépense sélectionnée ne peut être approuvée'
+            });
+            return;
+        }
+
+        // Émettre l'événement pour chaque dépense
+        approvableExpenses.forEach(expense => {
+            this.changeStatus(expense, ExpenseStatus.APPROUVEE);
+        });
+
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Succès',
+            detail: `${approvableExpenses.length} dépense(s) approuvée(s)`
+        });
     }
 
-    // Méthodes utilitaires
+    rejectSelectedExpenses(): void {
+        if (this.selectedExpenses.length === 0) return;
+
+        // Filtrer les dépenses qui peuvent être rejetées
+        const rejectableExpenses = this.selectedExpenses.filter(expense =>
+            this.canRejectExpense(expense)
+        );
+
+        if (rejectableExpenses.length === 0) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Attention',
+                detail: 'Aucune dépense sélectionnée ne peut être rejetée'
+            });
+            return;
+        }
+
+        // Émettre l'événement pour chaque dépense
+        rejectableExpenses.forEach(expense => {
+            this.changeStatus(expense, ExpenseStatus.REJETEE);
+        });
+
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Succès',
+            detail: `${rejectableExpenses.length} dépense(s) rejetée(s)`
+        });
+    }
+
+    // ========== Méthodes utilitaires ==========
+
     getDisplayIndex(rowIndex: number): number {
-        return this.currentPage * this.pageSize + rowIndex + 1;
+        return this.first + rowIndex + 1;
     }
 
     getDisplayRange(): string {
-        const start = this.currentPage * this.pageSize + 1;
-        const end = Math.min((this.currentPage + 1) * this.pageSize, this.totalRecords);
+        if (this.totalRecords === 0) return '0';
+        const start = this.first + 1;
+        const end = Math.min(this.first + this.pageSize, this.totalRecords);
         return `${start} à ${end}`;
     }
 
-    formatCurrency(amount: number): string {
-        return new Intl.NumberFormat('fr-SN', {
-            style: 'currency',
-            currency: 'XOF',
-            minimumFractionDigits: 0
-        }).format(amount);
+    formatCurrency(amount: number, currency: Currency = Currency.XOF): string {
+        if (currency === Currency.XOF) {
+            return new Intl.NumberFormat('fr-SN', {
+                style: 'currency',
+                currency: 'XOF',
+                minimumFractionDigits: 0
+            }).format(amount);
+        } else {
+            return new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: 'EUR',
+                minimumFractionDigits: 2
+            }).format(amount);
+        }
     }
 
     getStatusLabel(status: ExpenseStatus): string {
@@ -414,10 +605,94 @@ export class ExpenseListComponent implements OnInit {
             [ExpenseStatus.REJETEE]: 'danger',
             [ExpenseStatus.PAYEE]: 'info'
         };
-        return severityMap[status];
+        return severityMap[status] || 'secondary';
     }
 
-    getPaymentMethodLabel(method: PaymentMethod): string {
-        return PAYMENT_METHOD_LABELS[method];
+    // ========== Méthodes de vérification des permissions (publiques pour le template) ==========
+
+    canEditExpense(expense: Expense): boolean {
+        return expense.statut === ExpenseStatus.EN_ATTENTE || expense.statut === ExpenseStatus.REJETEE;
+    }
+
+    canApproveExpense(expense: Expense): boolean {
+        return expense.statut === ExpenseStatus.EN_ATTENTE;
+    }
+
+    canRejectExpense(expense: Expense): boolean {
+        return expense.statut === ExpenseStatus.EN_ATTENTE || expense.statut === ExpenseStatus.APPROUVEE;
+    }
+
+    canMarkAsPaid(expense: Expense): boolean {
+        return expense.statut === ExpenseStatus.APPROUVEE;
+    }
+
+    // ========== Export ==========
+
+    exportToPdf(): void {
+        const filter = this.buildFilter();
+
+        this.expenseService.exportToPdf(filter)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (blob) => {
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `depenses-${new Date().toISOString().split('T')[0]}.pdf`;
+                    link.click();
+                    window.URL.revokeObjectURL(url);
+
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Succès',
+                        detail: 'Export PDF téléchargé avec succès'
+                    });
+                },
+                error: (error) => {
+                    console.error('Erreur lors de l\'export PDF', error);
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Erreur',
+                        detail: 'Impossible d\'exporter en PDF'
+                    });
+                }
+            });
+    }
+
+    exportToExcel(): void {
+        const filter = this.buildFilter();
+
+        this.expenseService.exportToExcel(filter)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (blob) => {
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `depenses-${new Date().toISOString().split('T')[0]}.xlsx`;
+                    link.click();
+                    window.URL.revokeObjectURL(url);
+
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Succès',
+                        detail: 'Export Excel téléchargé avec succès'
+                    });
+                },
+                error: (error) => {
+                    console.error('Erreur lors de l\'export Excel', error);
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Erreur',
+                        detail: 'Impossible d\'exporter en Excel'
+                    });
+                }
+            });
+    }
+
+    protected readonly Currency = Currency;
+
+    toggleFilters() {
+        this.showFilters = !this.showFilters;
     }
 }

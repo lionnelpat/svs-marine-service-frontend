@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { ChartModule } from 'primeng/chart';
@@ -8,8 +8,8 @@ import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DividerModule } from 'primeng/divider';
 
-import { DashboardService} from '../service/dashboard.service';
-import { Subject, takeUntil, forkJoin } from 'rxjs';
+import { DashboardService } from '../service/dashboard.service';
+import { forkJoin, Subject, takeUntil } from 'rxjs';
 import { ChartData, DashboardStats, PieChartData } from '../../shared/models/dashboard.model';
 
 @Component({

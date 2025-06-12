@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, delay } from 'rxjs';
+import { delay, Observable, of } from 'rxjs';
 import { ChartData, DashboardStats, PieChartData } from '../../shared/models/dashboard.model';
-
 
 
 @Injectable({

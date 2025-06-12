@@ -2,19 +2,19 @@
 
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { delay, map, catchError } from 'rxjs/operators';
+import { catchError, delay, map } from 'rxjs/operators';
 
 import {
+    CreateInvoiceRequest,
     Invoice,
+    InvoiceExportData,
     InvoiceListFilter,
     InvoiceListResponse,
     InvoiceStatistics,
     InvoiceStatus,
-    CreateInvoiceRequest,
-    UpdateInvoiceRequest,
-    InvoiceExportData
+    UpdateInvoiceRequest
 } from '../../shared/models/invoice.model';
-import { MOCK_INVOICES, MOCK_COMPANIES, MOCK_SHIPS, MOCK_OPERATIONS } from '../../shared/data/invoice.data';
+import { MOCK_COMPANIES, MOCK_INVOICES, MOCK_OPERATIONS, MOCK_SHIPS } from '../../shared/data/invoice.data';
 import { LoggerService } from '../../core/services/logger.service';
 import { ErrorHandlerService } from '../../core/services/error-handler.service';
 

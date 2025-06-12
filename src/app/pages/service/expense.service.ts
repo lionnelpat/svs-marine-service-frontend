@@ -1,492 +1,443 @@
-
+// src/app/pages/expenses/service/expense.service.ts
 
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { delay, map, catchError } from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 import {
     Expense,
+    ExpenseCreateRequest,
     ExpenseListFilter,
     ExpenseListResponse,
-    ExpenseStatistics,
+    ExpensePageResponse,
+    ExpenseSearchFilter,
+    ExpenseStatsResponse,
     ExpenseStatus,
-    CreateExpenseRequest,
-    UpdateExpenseRequest,
-    ExpenseExportData,
-    PaymentMethod,
-    Currency
+    ExpenseStatusChangeRequest,
+    ExpenseUpdateRequest
 } from '../../shared/models/expense.model';
-import { MOCK_EXPENSES, MOCK_EXPENSE_CATEGORIES, MOCK_EXPENSE_SUPPLIERS, EXPENSE_CONFIG } from '../../shared/data/expense.data';
+import { environment } from '../../../environments/environment';
 import { LoggerService } from '../../core/services/logger.service';
 import { ErrorHandlerService } from '../../core/services/error-handler.service';
+import { ApiResponse } from '../../core/interfaces/api-response.interface';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ExpenseService {
-    private readonly expensesSubject = new BehaviorSubject<Expense[]>(MOCK_EXPENSES);
-    public expenses$ = this.expensesSubject.asObservable();
+    private readonly apiUrl = `${environment.apiBaseUrl}/${environment.apiVersion}/expenses`;
 
     constructor(
+        private readonly http: HttpClient,
         private readonly logger: LoggerService,
         private readonly errorHandler: ErrorHandlerService
     ) {
         this.logger.info('ExpenseService initialisé');
     }
 
-    // Récupération des dépenses avec pagination et filtres
-    getExpenses(filter?: ExpenseListFilter): Observable<ExpenseListResponse> {
-        this.logger.debug('Récupération des dépenses', filter);
+    // ========== CRUD de base ==========
 
-        return of(this.expensesSubject.value).pipe(
-            delay(300),
-            map(expenses => {
-                let filteredExpenses = this.applyFilter(expenses, filter);
-
-                // Pagination
-                const page = filter?.page || 0;
-                const size = filter?.size || 10;
-                const startIndex = page * size;
-                const endIndex = startIndex + size;
-
-                return {
-                    expenses: filteredExpenses.slice(startIndex, endIndex),
-                    total: filteredExpenses.length,
-                    page,
-                    size
-                };
-            }),
-            catchError(error => {
-                this.errorHandler.handleError(error, 'Erreur lors de la récupération des dépenses');
-                return throwError(() => error);
-            })
-        );
-    }
-
-    // Récupération d'une dépense par ID
-    getExpenseById(id: number): Observable<Expense | undefined> {
-        this.logger.debug('Récupération dépense par ID', { id });
-
-        return of(this.expensesSubject.value.find(expense => expense.id === id)).pipe(
-            delay(200),
-            catchError(error => {
-                this.errorHandler.handleError(error, `Erreur lors de la récupération de la dépense ${id}`);
-                return throwError(() => error);
-            })
-        );
-    }
-
-    // Création d'une dépense
-    createExpense(request: CreateExpenseRequest): Observable<Expense> {
+    /**
+     * Créer une nouvelle dépense
+     */
+    createExpense(request: ExpenseCreateRequest): Observable<Expense> {
         this.logger.info('Création d\'une nouvelle dépense', request);
 
-        return of(request).pipe(
-            delay(500),
-            map(req => {
-                const currentExpenses = this.expensesSubject.value;
-                const maxId = Math.max(...currentExpenses.map(exp => exp.id), 0);
-                const newId = maxId + 1;
-
-                // Générer le numéro de dépense
-                const numero = this.generateExpenseNumber();
-
-                // Récupérer les objets complets
-                const categorie = MOCK_EXPENSE_CATEGORIES.find(c => c.id === req.categorieId);
-                const fournisseur = req.fournisseurId ?
-                    MOCK_EXPENSE_SUPPLIERS.find(s => s.id === req.fournisseurId) : undefined;
-
-                if (!categorie) {
-                    throw new Error('Catégorie non trouvée');
-                }
-
-                // Calculer le montant en XOF si nécessaire
-                let montantXOF = req.montantXOF;
-
-                const newExpense: Expense = {
-                    id: newId,
-                    numero,
-                    titre: req.titre,
-                    description: req.description,
-                    categorieId: req.categorieId,
-                    categorie,
-                    fournisseurId: req.fournisseurId,
-                    fournisseur,
-                    dateDepense: req.dateDepense,
-                    montantXOF: req.montantXOF,
-                    montantEURO: req.montantEURO,
-                    tauxChange: req.montantEURO && req.montantXOF ? req.montantXOF / req.montantEURO : undefined,
-                    devise: Currency.XOF,
-                    modePaiement: req.modePaiement,
-                    statut: ExpenseStatus.EN_ATTENTE,
-                    created_at: new Date(),
-                    updated_at: new Date()
-                };
-
-                this.expensesSubject.next([...currentExpenses, newExpense]);
-                this.logger.info('Dépense créée avec succès', { id: newExpense.id });
-                return newExpense;
-            }),
-            catchError(error => {
-                this.errorHandler.handleError(error, 'Erreur lors de la création de la dépense');
-                return throwError(() => error);
-            })
+        return this.http.post<ApiResponse<Expense>>(`${this.apiUrl}`, request).pipe(
+            map(response => this.mapExpenseResponse(response.data)),
+            catchError(err => this.handleError(err, 'Création de la dépense'))
         );
     }
 
-    // Mise à jour d'une dépense
-    updateExpense(request: UpdateExpenseRequest): Observable<Expense> {
-        this.logger.info('Mise à jour de la dépense', { id: request.id });
+    /**
+     * Mettre à jour une dépense
+     */
+    updateExpense(id: number, request: ExpenseUpdateRequest): Observable<Expense> {
+        this.logger.info(`Mise à jour de la dépense ${id}`, request);
 
-        return of(this.expensesSubject.value).pipe(
-            delay(400),
-            map(expenses => {
-                const index = expenses.findIndex(exp => exp.id === request.id);
-                if (index === -1) {
-                    throw new Error(`Dépense avec l'ID ${request.id} non trouvée`);
-                }
-
-                // Récupérer les objets complets
-                const categorie = MOCK_EXPENSE_CATEGORIES.find(c => c.id === request.categorieId);
-                const fournisseur = request.fournisseurId ?
-                    MOCK_EXPENSE_SUPPLIERS.find(s => s.id === request.fournisseurId) : undefined;
-
-                if (!categorie) {
-                    throw new Error('Catégorie non trouvée');
-                }
-
-                // Calculer le montant en XOF si nécessaire
-                let montantXOF = request.montantXOF;
-
-                const updatedExpense: Expense = {
-                    ...expenses[index],
-                    titre: request.titre,
-                    description: request.description,
-                    categorieId: request.categorieId,
-                    categorie,
-                    fournisseurId: request.fournisseurId,
-                    fournisseur,
-                    dateDepense: request.dateDepense,
-                    montantXOF: request.montantXOF,
-                    montantEURO: request.montantEURO,
-                    tauxChange: request.montantEURO && request.montantXOF ? request.montantXOF / request.montantEURO : undefined,
-                    modePaiement: request.modePaiement,
-                    updated_at: new Date()
-                };
-
-                const updatedExpenses = [...expenses];
-                updatedExpenses[index] = updatedExpense;
-                this.expensesSubject.next(updatedExpenses);
-
-                this.logger.info('Dépense mise à jour avec succès', { id: request.id });
-                return updatedExpense;
-            }),
-            catchError(error => {
-                this.errorHandler.handleError(error, `Erreur lors de la mise à jour de la dépense ${request.id}`);
-                return throwError(() => error);
-            })
+        return this.http.put<ApiResponse<Expense>>(`${this.apiUrl}/${id}`, request).pipe(
+            map(response => this.mapExpenseResponse(response.data)),
+            catchError(err => this.handleError(err, 'Mise à jour de la dépense'))
         );
     }
 
-    // Suppression d'une dépense (suppression définitive)
-    deleteExpense(id: number): Observable<boolean> {
-        this.logger.info('Suppression de la dépense', { id });
+    /**
+     * Récupérer une dépense par ID
+     */
+    getExpenseById(id: number): Observable<Expense> {
+        this.logger.info(`Récupération de la dépense ${id}`);
 
-        return of(this.expensesSubject.value).pipe(
-            delay(300),
-            map(expenses => {
-                const filteredExpenses = expenses.filter(exp => exp.id !== id);
-                if (filteredExpenses.length === expenses.length) {
-                    throw new Error(`Dépense avec l'ID ${id} non trouvée`);
-                }
-
-                this.expensesSubject.next(filteredExpenses);
-                this.logger.info('Dépense supprimée avec succès', { id });
-                return true;
-            }),
-            catchError(error => {
-                this.errorHandler.handleError(error, `Erreur lors de la suppression de la dépense ${id}`);
-                return throwError(() => error);
-            })
+        return this.http.get<ApiResponse<Expense>>(`${this.apiUrl}/${id}`).pipe(
+            map(response => this.mapExpenseResponse(response.data)),
+            catchError(err => this.handleError(err, 'Récupération de la dépense'))
         );
     }
 
-    // Changement de statut d'une dépense
-    updateExpenseStatus(id: number, status: ExpenseStatus): Observable<Expense> {
-        this.logger.info('Changement de statut de dépense', { id, status });
+    /**
+     * Supprimer une dépense
+     */
+    deleteExpense(id: number): Observable<void> {
+        this.logger.info(`Suppression de la dépense ${id}`);
 
-        return of(this.expensesSubject.value).pipe(
-            delay(300),
-            map(expenses => {
-                const index = expenses.findIndex(exp => exp.id === id);
-                if (index === -1) {
-                    throw new Error(`Dépense avec l'ID ${id} non trouvée`);
-                }
-
-                const updatedExpense = {
-                    ...expenses[index],
-                    statut: status,
-                    updated_at: new Date()
-                };
-
-                // Ajouter des informations d'approbation si nécessaire
-                if (status === ExpenseStatus.APPROUVEE) {
-                    // Dans un vrai système, ces informations viendraient de l'utilisateur connecté
-                }
-
-                const updatedExpenses = [...expenses];
-                updatedExpenses[index] = updatedExpense;
-                this.expensesSubject.next(updatedExpenses);
-
-                this.logger.info('Statut de dépense mis à jour', { id, status });
-                return updatedExpense;
-            }),
-            catchError(error => {
-                this.errorHandler.handleError(error, `Erreur lors du changement de statut de la dépense ${id}`);
-                return throwError(() => error);
-            })
+        return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/${id}`).pipe(
+            map(() => void 0),
+            catchError(err => this.handleError(err, 'Suppression de la dépense'))
         );
     }
 
-    // Statistiques des dépenses
-    getStatistics(): Observable<ExpenseStatistics> {
-        this.logger.debug('Calcul des statistiques de dépenses');
+    // ========== Recherche et filtres ==========
 
-        return of(this.expensesSubject.value).pipe(
-            delay(200),
-            map(expenses => this.calculateStatistics(expenses)),
-            catchError(error => {
-                this.errorHandler.handleError(error, 'Erreur lors du calcul des statistiques');
-                return throwError(() => error);
-            })
+    /**
+     * Récupérer les dépenses avec filtres et pagination
+     */
+    getExpenses(filter?: ExpenseListFilter): Observable<ExpenseListResponse> {
+        this.logger.info('Récupération des dépenses avec filtres', filter);
+
+        const searchFilter = this.mapToSearchFilter(filter);
+        let params = this.buildHttpParams(searchFilter);
+
+        return this.http.get<ApiResponse<ExpensePageResponse>>(`${this.apiUrl}`, { params }).pipe(
+            map(response => this.mapPageResponse(response.data)),
+            catchError(err => this.handleError(err, 'Récupération des dépenses'))
         );
     }
 
-    // Export des données
-    getExpensesForExport(filter?: ExpenseListFilter): Observable<ExpenseExportData[]> {
-        this.logger.info('Préparation des données pour export', filter);
+    /**
+     * Recherche textuelle dans les dépenses
+     */
+    searchExpenses(query: string, page = 0, size = 20): Observable<ExpenseListResponse> {
+        this.logger.info(`Recherche textuelle: "${query}"`);
 
-        return this.getExpenses(filter).pipe(
-            map(response => response.expenses.map(expense => ({
-                numero: expense.numero,
-                titre: expense.titre,
-                categorie: expense.categorie?.nom || '',
-                fournisseur: expense.fournisseur?.nom || 'N/A',
-                dateDepense: expense.dateDepense.toLocaleDateString('fr-FR'),
-                montantXOF: expense.montantXOF,
-                montantEURO: expense.montantEURO || 0,
-                devise: expense.devise,
-                modePaiement: this.getPaymentMethodLabel(expense.modePaiement),
-                statut: this.getStatusLabel(expense.statut)
-            }))),
-            catchError(error => {
-                this.errorHandler.handleError(error, 'Erreur lors de la préparation des données d\'export');
-                return throwError(() => error);
-            })
+        let params = new HttpParams()
+            .set('query', query)
+            .set('page', page.toString())
+            .set('size', size.toString())
+            .set('sortBy', 'dateDepense')
+            .set('sortDirection', 'desc');
+
+        return this.http.get<ApiResponse<ExpensePageResponse>>(`${this.apiUrl}/search`, { params }).pipe(
+            map(response => this.mapPageResponse(response.data)),
+            catchError(err => this.handleError(err, 'Recherche de dépenses'))
         );
     }
 
-    // Génération du prochain numéro de dépense
-    generateExpenseNumber(): string {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
+    /**
+     * Filtrer les dépenses avec critères avancés
+     */
+    filterExpenses(filter: ExpenseSearchFilter): Observable<ExpenseListResponse> {
+        this.logger.info('Filtrage avancé des dépenses', filter);
 
-        const currentExpenses = this.expensesSubject.value.filter(exp => {
-            const expDate = new Date(exp.dateDepense);
-            return expDate.getFullYear() === year && expDate.getMonth() === now.getMonth();
-        });
-
-        const nextNumber = currentExpenses.length + 1;
-        const numberPart = String(nextNumber).padStart(4, '0');
-
-        return `${EXPENSE_CONFIG.numeroPrefix}-${year}-${month}-${numberPart}`;
+        return this.http.post<ApiResponse<ExpensePageResponse>>(`${this.apiUrl}/filter`, filter).pipe(
+            map(response => this.mapPageResponse(response.data)),
+            catchError(err => this.handleError(err, 'Filtrage des dépenses'))
+        );
     }
 
-    // Récupération des catégories
-    getCategories(): Observable<any[]> {
-        return of(MOCK_EXPENSE_CATEGORIES).pipe(delay(100));
+    /**
+     * Dépenses par catégorie
+     */
+    getExpensesByCategory(categorieId: number, page = 0, size = 20): Observable<ExpenseListResponse> {
+        this.logger.info(`Dépenses par catégorie ${categorieId}`);
+
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString());
+
+        return this.http.get<ApiResponse<ExpensePageResponse>>(`${this.apiUrl}/category/${categorieId}`, { params }).pipe(
+            map(response => this.mapPageResponse(response.data)),
+            catchError(err => this.handleError(err, 'Dépenses par catégorie'))
+        );
     }
 
-    // Récupération des fournisseurs
-    getSuppliers(): Observable<any[]> {
-        return of(MOCK_EXPENSE_SUPPLIERS).pipe(delay(100));
+    /**
+     * Dépenses par fournisseur
+     */
+    getExpensesBySupplier(fournisseurId: number, page = 0, size = 20): Observable<ExpenseListResponse> {
+        this.logger.info(`Dépenses par fournisseur ${fournisseurId}`);
+
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString());
+
+        return this.http.get<ApiResponse<ExpensePageResponse>>(`${this.apiUrl}/supplier/${fournisseurId}`, { params }).pipe(
+            map(response => this.mapPageResponse(response.data)),
+            catchError(err => this.handleError(err, 'Dépenses par fournisseur'))
+        );
     }
 
-    // Méthodes utilitaires privées
-    private applyFilter(expenses: Expense[], filter?: ExpenseListFilter): Expense[] {
-        if (!filter) return expenses;
+    /**
+     * Dépenses par statut
+     */
+    getExpensesByStatus(statut: ExpenseStatus, page = 0, size = 20): Observable<ExpenseListResponse> {
+        this.logger.info(`Dépenses par statut ${statut}`);
 
-        return expenses.filter(expense => {
-            if (filter.search && !this.matchesSearch(expense, filter.search)) return false;
-            if (filter.categorieId && expense.categorieId !== filter.categorieId) return false;
-            if (filter.fournisseurId && expense.fournisseurId !== filter.fournisseurId) return false;
-            if (filter.statut && expense.statut !== filter.statut) return false;
-            if (filter.modePaiement && expense.modePaiement !== filter.modePaiement) return false;
-            if (filter.dateDebut && expense.dateDepense < filter.dateDebut) return false;
-            if (filter.dateFin && expense.dateDepense > filter.dateFin) return false;
-            if (filter.mois && expense.dateDepense.getMonth() + 1 !== filter.mois) return false;
-            if (filter.annee && expense.dateDepense.getFullYear() !== filter.annee) return false;
-            if (filter.montantMin && expense.montantXOF < filter.montantMin) return false;
-            if (filter.montantMax && expense.montantXOF > filter.montantMax) return false;
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString());
 
-            return true;
-        });
+        return this.http.get<ApiResponse<ExpensePageResponse>>(`${this.apiUrl}/status/${statut}`, { params }).pipe(
+            map(response => this.mapPageResponse(response.data)),
+            catchError(err => this.handleError(err, 'Dépenses par statut'))
+        );
     }
 
-    private matchesSearch(expense: Expense, search: string): boolean {
-        const searchLower = search.toLowerCase();
-        return expense.numero.toLowerCase().includes(searchLower) ||
-            expense.titre.toLowerCase().includes(searchLower) ||
-            expense.description.toLowerCase().includes(searchLower) ||
-            (expense.categorie?.nom?.toLowerCase().includes(searchLower) ?? false) ||
-            (expense.fournisseur?.nom?.toLowerCase().includes(searchLower) ?? false);
+    /**
+     * Réinitialiser la recherche
+     */
+    resetSearch(page = 0, size = 20): Observable<ExpenseListResponse> {
+        this.logger.info('Réinitialisation de la recherche');
+
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString());
+
+        return this.http.post<ApiResponse<ExpensePageResponse>>(`${this.apiUrl}/reset-search`, {}, { params }).pipe(
+            map(response => this.mapPageResponse(response.data)),
+            catchError(err => this.handleError(err, 'Réinitialisation de la recherche'))
+        );
     }
 
-    private calculateStatistics(expenses: Expense[]): ExpenseStatistics {
-        const totalDepenses = expenses.length;
-        const montantTotalXOF = expenses.reduce((sum, exp) => sum + exp.montantXOF, 0);
-        const montantTotalEURO = expenses.reduce((sum, exp) => sum + (exp.montantEURO || 0), 0);
+    // ========== Gestion des statuts ==========
 
-        const depensesEnAttente = expenses.filter(exp => exp.statut === ExpenseStatus.EN_ATTENTE).length;
-        const depensesApprouvees = expenses.filter(exp => exp.statut === ExpenseStatus.APPROUVEE).length;
-        const depensesRejetees = expenses.filter(exp => exp.statut === ExpenseStatus.REJETEE).length;
-        const depensesRemboursables = 0; // Propriété supprimée du modèle
-        const depensesRemboursees = 0; // Propriété supprimée du modèle
+    /**
+     * Changer le statut d'une dépense
+     */
+    changeExpenseStatus(id: number, request: ExpenseStatusChangeRequest): Observable<Expense> {
+        this.logger.info(`Changement de statut de la dépense ${id}`, request);
 
-        // Calcul par catégorie
-        const depensesParCategorie = this.calculateCategoryStats(expenses);
+        return this.http.put<ApiResponse<Expense>>(`${this.apiUrl}/${id}/status`, request).pipe(
+            map(response => this.mapExpenseResponse(response.data)),
+            catchError(err => this.handleError(err, 'Changement de statut'))
+        );
+    }
 
-        // Calcul par mois
-        const depensesParMois = this.calculateMonthlyStats(expenses);
+    /**
+     * Approuver une dépense
+     */
+    approveExpense(id: number, commentaire?: string): Observable<Expense> {
+        this.logger.info(`Approbation de la dépense ${id}`);
 
-        // Top fournisseurs
-        const topFournisseurs = this.calculateTopSuppliers(expenses);
+        let params = new HttpParams();
+        if (commentaire) {
+            params = params.set('commentaire', commentaire);
+        }
 
+        return this.http.patch<ApiResponse<Expense>>(`${this.apiUrl}/${id}/approve`, {}, { params }).pipe(
+            map(response => this.mapExpenseResponse(response.data)),
+            catchError(err => this.handleError(err, 'Approbation de la dépense'))
+        );
+    }
+
+    /**
+     * Rejeter une dépense
+     */
+    rejectExpense(id: number, commentaire: string): Observable<Expense> {
+        this.logger.info(`Rejet de la dépense ${id}`);
+
+        let params = new HttpParams().set('commentaire', commentaire);
+
+        return this.http.patch<ApiResponse<Expense>>(`${this.apiUrl}/${id}/reject`, {}, { params }).pipe(
+            map(response => this.mapExpenseResponse(response.data)),
+            catchError(err => this.handleError(err, 'Rejet de la dépense'))
+        );
+    }
+
+    /**
+     * Marquer comme payée
+     */
+    markExpenseAsPaid(id: number, commentaire?: string): Observable<Expense> {
+        this.logger.info(`Marquage comme payée de la dépense ${id}`);
+
+        let params = new HttpParams();
+        if (commentaire) {
+            params = params.set('commentaire', commentaire);
+        }
+
+        return this.http.patch<ApiResponse<Expense>>(`${this.apiUrl}/${id}/mark-paid`, {}, { params }).pipe(
+            map(response => this.mapExpenseResponse(response.data)),
+            catchError(err => this.handleError(err, 'Marquage comme payée'))
+        );
+    }
+
+    /**
+     * Dépenses en attente
+     */
+    getPendingExpenses(): Observable<Expense[]> {
+        this.logger.info('Récupération des dépenses en attente');
+
+        return this.http.get<ApiResponse<Expense[]>>(`${this.apiUrl}/pending`).pipe(
+            map(response => response.data.map(expense => this.mapExpenseResponse(expense))),
+            catchError(err => this.handleError(err, 'Dépenses en attente'))
+        );
+    }
+
+    /**
+     * Dépenses récentes
+     */
+    getRecentExpenses(limit = 10): Observable<Expense[]> {
+        this.logger.info(`Récupération des ${limit} dépenses récentes`);
+
+        let params = new HttpParams().set('limit', limit.toString());
+
+        return this.http.get<ApiResponse<Expense[]>>(`${this.apiUrl}/recent`, { params }).pipe(
+            map(response => response.data.map(expense => this.mapExpenseResponse(expense))),
+            catchError(err => this.handleError(err, 'Dépenses récentes'))
+        );
+    }
+
+    // ========== Statistiques ==========
+
+    /**
+     * Statistiques des dépenses
+     */
+    getExpenseStatistics(): Observable<ExpenseStatsResponse> {
+        this.logger.info('Récupération des statistiques des dépenses');
+
+        return this.http.get<ApiResponse<ExpenseStatsResponse>>(`${this.apiUrl}/stats`).pipe(
+            map(response => response.data),
+            catchError(err => this.handleError(err, 'Statistiques des dépenses'))
+        );
+    }
+
+    // ========== Export ==========
+
+    /**
+     * Export PDF
+     */
+    exportToPdf(filter?: ExpenseSearchFilter): Observable<Blob> {
+        this.logger.info('Export PDF des dépenses');
+
+        const searchFilter = filter || {};
+
+        return this.http.post(`${this.apiUrl}/export/pdf`, searchFilter, {
+            responseType: 'blob',
+            observe: 'body'
+        }).pipe(
+            catchError(err => this.handleError(err, 'Export PDF'))
+        );
+    }
+
+    /**
+     * Export Excel
+     */
+    exportToExcel(filter?: ExpenseSearchFilter): Observable<Blob> {
+        this.logger.info('Export Excel des dépenses');
+
+        const searchFilter = filter || {};
+
+        return this.http.post(`${this.apiUrl}/export/excel`, searchFilter, {
+            responseType: 'blob',
+            observe: 'body'
+        }).pipe(
+            catchError(err => this.handleError(err, 'Export Excel'))
+        );
+    }
+
+    // ========== Utilitaires ==========
+
+    /**
+     * Vérifier l'unicité du numéro
+     */
+    checkNumeroExists(numero: string, excludeId?: number): Observable<boolean> {
+        this.logger.info(`Vérification de l'existence du numéro ${numero}`);
+
+        let params = new HttpParams();
+        if (excludeId) {
+            params = params.set('excludeId', excludeId.toString());
+        }
+
+        return this.http.get<ApiResponse<boolean>>(`${this.apiUrl}/exists/numero/${numero}`, { params }).pipe(
+            map(response => response.data),
+            catchError(err => this.handleError(err, 'Vérification du numéro'))
+        );
+    }
+
+    /**
+     * Générer un numéro automatique
+     */
+    generateNumero(): Observable<string> {
+        this.logger.info('Génération d\'un nouveau numéro');
+
+        return this.http.get<ApiResponse<string>>(`${this.apiUrl}/generate-numero`).pipe(
+            map(response => response.data),
+            catchError(err => this.handleError(err, 'Génération du numéro'))
+        );
+    }
+
+    // ========== Méthodes privées ==========
+
+    private mapToSearchFilter(filter?: ExpenseListFilter): ExpenseSearchFilter {
+        if (!filter) return {};
+
+        const searchFilter: ExpenseSearchFilter = {
+            page: filter.page || 0,
+            size: filter.size || environment.defaultPageSize,
+            sortBy: 'dateDepense',
+            sortDirection: 'desc'
+        };
+
+        if (filter.search) searchFilter.search = filter.search;
+        if (filter.categorieId) searchFilter.categorieId = filter.categorieId;
+        if (filter.fournisseurId) searchFilter.fournisseurId = filter.fournisseurId;
+        if (filter.statut) searchFilter.statut = filter.statut;
+        if (filter.paymentMethodId) searchFilter.paymentMethodId = filter.paymentMethodId;
+        if (filter.montantMin) searchFilter.minAmount = filter.montantMin;
+        if (filter.montantMax) searchFilter.maxAmount = filter.montantMax;
+        if (filter.dateDebut) searchFilter.startDate = filter.dateDebut;
+        if (filter.dateFin) searchFilter.endDate = filter.dateFin;
+        if (filter.mois) searchFilter.month = filter.mois;
+        if (filter.annee) searchFilter.year = filter.annee;
+
+        return searchFilter;
+    }
+
+    private buildHttpParams(filter: ExpenseSearchFilter): HttpParams {
+        let params = new HttpParams()
+            .set('page', (filter.page || 0).toString())
+            .set('size', (filter.size || environment.defaultPageSize).toString())
+            .set('sortBy', filter.sortBy || 'dateDepense')
+            .set('sortDirection', filter.sortDirection || 'desc');
+
+        if (filter.search) params = params.set('search', filter.search);
+        if (filter.categorieId) params = params.set('categorieId', filter.categorieId.toString());
+        if (filter.fournisseurId) params = params.set('fournisseurId', filter.fournisseurId.toString());
+        if (filter.statut) params = params.set('statut', filter.statut);
+        if (filter.paymentMethodId) params = params.set('paymentMethodId', filter.paymentMethodId.toString());
+        if (filter.minAmount) params = params.set('minAmount', filter.minAmount.toString());
+        if (filter.maxAmount) params = params.set('maxAmount', filter.maxAmount.toString());
+        if (filter.startDate) params = params.set('startDate', filter.startDate.toISOString().split('T')[0]);
+        if (filter.endDate) params = params.set('endDate', filter.endDate.toISOString().split('T')[0]);
+        if (filter.year) params = params.set('year', filter.year.toString());
+        if (filter.month) params = params.set('month', filter.month.toString());
+        if (filter.day) params = params.set('day', filter.day.toString());
+        if (filter.active !== undefined) params = params.set('active', filter.active.toString());
+
+        return params;
+    }
+
+    private mapExpenseResponse(expense: any): Expense {
         return {
-            totalDepenses,
-            montantTotalXOF,
-            montantTotalEURO,
-            depensesEnAttente,
-            depensesApprouvees,
-            depensesRejetees,
-            depensesRemboursables,
-            depensesRemboursees,
-            depensesParCategorie,
-            depensesParMois,
-            topFournisseurs
+            ...expense,
+            dateDepense: new Date(expense.dateDepense),
+            createdAt: new Date(expense.createdAt),
+            updatedAt: new Date(expense.updatedAt)
         };
     }
 
-    private calculateCategoryStats(expenses: Expense[]) {
-        const categoryMap = new Map();
-
-        expenses.forEach(expense => {
-            const categoryId = expense.categorieId;
-            const categoryName = expense.categorie?.nom || 'Inconnue';
-
-            if (!categoryMap.has(categoryId)) {
-                categoryMap.set(categoryId, {
-                    categorieId: categoryId,
-                    categorieNom: categoryName,
-                    nombreDepenses: 0,
-                    montantTotalXOF: 0,
-                    montantTotalEURO: 0,
-                    pourcentage: 0
-                });
-            }
-
-            const stats = categoryMap.get(categoryId);
-            stats.nombreDepenses++;
-            stats.montantTotalXOF += expense.montantXOF;
-            stats.montantTotalEURO += expense.montantEURO || 0;
-        });
-
-        const totalAmount = expenses.reduce((sum, exp) => sum + exp.montantXOF, 0);
-        return Array.from(categoryMap.values())
-            .map(stats => ({
-                ...stats,
-                pourcentage: totalAmount > 0 ? (stats.montantTotalXOF / totalAmount) * 100 : 0
-            }))
-            .sort((a, b) => b.montantTotalXOF - a.montantTotalXOF);
-    }
-
-    private calculateMonthlyStats(expenses: Expense[]) {
-        const monthlyMap = new Map();
-
-        expenses.forEach(expense => {
-            const date = new Date(expense.dateDepense);
-            const key = `${date.getFullYear()}-${date.getMonth()}`;
-
-            if (!monthlyMap.has(key)) {
-                monthlyMap.set(key, {
-                    mois: date.getMonth() + 1,
-                    annee: date.getFullYear(),
-                    nombreDepenses: 0,
-                    montantTotalXOF: 0,
-                    montantTotalEURO: 0
-                });
-            }
-
-            const stats = monthlyMap.get(key);
-            stats.nombreDepenses++;
-            stats.montantTotalXOF += expense.montantXOF;
-            stats.montantTotalEURO += expense.montantEURO || 0;
-        });
-
-        return Array.from(monthlyMap.values()).sort((a, b) =>
-            (a.annee * 12 + a.mois) - (b.annee * 12 + b.mois)
-        );
-    }
-
-    private calculateTopSuppliers(expenses: Expense[]) {
-        const supplierMap = new Map();
-
-        expenses.forEach(expense => {
-            if (!expense.fournisseurId) return;
-
-            const supplierId = expense.fournisseurId;
-            const supplierName = expense.fournisseur?.nom || 'Inconnu';
-
-            if (!supplierMap.has(supplierId)) {
-                supplierMap.set(supplierId, {
-                    fournisseurId: supplierId,
-                    fournisseurNom: supplierName,
-                    nombreDepenses: 0,
-                    montantTotalXOF: 0,
-                    montantTotalEURO: 0
-                });
-            }
-
-            const stats = supplierMap.get(supplierId);
-            stats.nombreDepenses++;
-            stats.montantTotalXOF += expense.montantXOF;
-            stats.montantTotalEURO += expense.montantEURO || 0;
-        });
-
-        return Array.from(supplierMap.values())
-            .sort((a, b) => b.montantTotalXOF - a.montantTotalXOF)
-            .slice(0, 5); // Top 5
-    }
-
-    private getStatusLabel(status: ExpenseStatus): string {
-        const labels: { [key in ExpenseStatus]: string } = {
-            [ExpenseStatus.EN_ATTENTE]: 'En attente',
-            [ExpenseStatus.APPROUVEE]: 'Approuvée',
-            [ExpenseStatus.REJETEE]: 'Rejetée',
-            [ExpenseStatus.PAYEE]: 'Payée'
+    private mapPageResponse(pageResponse: ExpensePageResponse): ExpenseListResponse {
+        return {
+            expenses: pageResponse.expenses.map(expense => this.mapExpenseResponse(expense)),
+            total: pageResponse.total,
+            page: pageResponse.page,
+            size: pageResponse.size
         };
-        return labels[status];
     }
 
-    private getPaymentMethodLabel(method: PaymentMethod): string {
-        const labels: { [key in PaymentMethod]: string } = {
-            [PaymentMethod.ESPECES]: 'Espèces',
-            [PaymentMethod.CHEQUE]: 'Chèque',
-            [PaymentMethod.VIREMENT]: 'Virement',
-            [PaymentMethod.CARTE_BANCAIRE]: 'Carte bancaire',
-            [PaymentMethod.MOBILE_MONEY]: 'Mobile Money',
-            [PaymentMethod.AUTRE]: 'Autre'
-        };
-        return labels[method];
+    private handleError(error: any, context: string) {
+        const message = error?.error?.message || error.message || 'Erreur inconnue';
+        this.logger.error(`${context} - ${message}`, error);
+        this.errorHandler.handleError(error, context);
+        return throwError(() => new Error(message));
     }
 }

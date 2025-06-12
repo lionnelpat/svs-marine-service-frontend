@@ -1,8 +1,8 @@
 // src/app/pages/invoices/components/invoice-form/invoice-form.component.ts
 
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 // PrimeNG Imports
 import { CardModule } from 'primeng/card';
@@ -21,15 +21,15 @@ import { LoggerService } from '../../../../core/services/logger.service';
 
 // Models
 import {
+    CreateInvoiceRequest,
     Invoice,
     InvoiceLineItem,
-    CreateInvoiceRequest,
-    UpdateInvoiceRequest,
-    TVA_RATES
+    TVA_RATES,
+    UpdateInvoiceRequest
 } from '../../../../shared/models/invoice.model';
 import { Company } from '../../../../shared/models';
 import { Ship } from '../../../../shared/models/ship.model';
-import { MOCK_COMPANIES, MOCK_SHIPS, MOCK_OPERATIONS } from '../../../../shared/data/invoice.data';
+import { MOCK_COMPANIES, MOCK_OPERATIONS, MOCK_SHIPS } from '../../../../shared/data/invoice.data';
 import { Textarea } from 'primeng/textarea';
 
 @Component({

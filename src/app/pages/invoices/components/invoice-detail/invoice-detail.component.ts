@@ -1,10 +1,9 @@
 // src/app/pages/invoices/components/invoice-detail/invoice-detail.component.ts
 
-import { Component, Input, Output, EventEmitter, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 // print invoice
-
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -16,13 +15,12 @@ import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 
 // Models
-import { Invoice, InvoiceStatus, INVOICE_STATUS_LABELS } from '../../../../shared/models/invoice.model';
+import { Invoice, INVOICE_STATUS_LABELS, InvoiceStatus } from '../../../../shared/models/invoice.model';
 import { COMPANY_CONFIG } from '../../../../shared/data/invoice.data';
 
 // Services
 import { LoggerService } from '../../../../core/services/logger.service';
 import { CurrencyUtils } from '../../../../shared/utils';
-import { InvoiceService } from '../../../service/invoice.service';
 import { MessageService } from 'primeng/api';
 
 @Component({

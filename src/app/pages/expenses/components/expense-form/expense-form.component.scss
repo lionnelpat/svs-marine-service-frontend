@@ -1,0 +1,410 @@
+// src/app/pages/expenses/components/expense-form/expense-form.component.scss
+
+:host {
+    display: block;
+}
+
+.expense-form {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1.5rem;
+
+    @media (max-width: 768px) {
+        padding: 1rem;
+    }
+}
+
+// ========== En-tête du formulaire ==========
+.form-header {
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 1rem;
+
+    h2 {
+        color: #111827;
+        margin-bottom: 0.5rem;
+
+        .pi {
+            color: var(--primary-500, #3b82f6);
+        }
+    }
+
+    p {
+        margin: 0;
+        font-size: 0.875rem;
+    }
+}
+
+// ========== Sections du formulaire ==========
+.form-section {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    border: 1px solid #f3f4f6;
+    transition: box-shadow 0.2s ease-in-out;
+
+    &:hover {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 768px) {
+        padding: 1rem;
+    }
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+
+    .pi {
+        font-size: 1.125rem;
+        color: var(--primary-500, #3b82f6);
+    }
+
+    h3 {
+        margin: 0;
+        font-weight: 600;
+        color: var(--primary-700, #1d4ed8);
+    }
+}
+
+// ========== Champs du formulaire ==========
+.field {
+    margin-bottom: 1.5rem;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.field-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+
+    .text-red-500 {
+        color: #ef4444;
+    }
+}
+
+.field-input {
+    width: 100%;
+}
+
+.field-textarea {
+    width: 100%;
+    resize: vertical;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-size: 0.875rem;
+    font-family: inherit;
+    line-height: 1.5;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    min-height: 80px;
+
+    &:focus {
+        outline: none;
+        border-color: var(--primary-500, #3b82f6);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    &::placeholder {
+        color: #9ca3af;
+    }
+
+    &.p-invalid {
+        border-color: #ef4444;
+
+        &:focus {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+    }
+}
+
+.field-error {
+    display: block;
+    font-size: 0.75rem;
+    color: #ef4444;
+    margin-top: 0.25rem;
+    line-height: 1.4;
+}
+
+// ========== Informations du fournisseur ==========
+.supplier-info {
+    margin-top: 0.75rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-500, #3b82f6);
+
+    .pi {
+        color: var(--primary-600, #2563eb);
+        font-size: 0.75rem;
+    }
+}
+
+// ========== Informations de conversion ==========
+.conversion-info {
+    padding: 0.75rem;
+    background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    border-left: 4px solid #10b981;
+
+    .pi {
+        color: #059669;
+    }
+}
+
+// ========== Actions du formulaire ==========
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+
+    @media (max-width: 768px) {
+        flex-direction: column-reverse;
+        gap: 0.5rem;
+
+        .p-button {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+}
+
+// ========== Informations de validation ==========
+.form-validation-info {
+    margin-top: 1rem;
+
+    .p-message {
+        border-radius: 8px;
+
+        .p-message-text {
+            font-size: 0.875rem;
+        }
+    }
+}
+
+.expense-meta-info {
+    .p-message {
+        border-radius: 8px;
+
+        .p-message-text {
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+    }
+}
+
+// ========== Styles pour les composants PrimeNG ==========
+:deep(.p-inputtext),
+:deep(.p-dropdown),
+:deep(.p-calendar),
+:deep(.p-inputnumber) {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+    &:enabled:focus {
+        border-color: var(--primary-500, #3b82f6);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    &.p-invalid {
+        border-color: #ef4444;
+
+        &:enabled:focus {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+    }
+}
+
+:deep(.p-dropdown) {
+    .p-dropdown-trigger {
+        border-left: 1px solid #d1d5db;
+    }
+
+    &:not(.p-disabled).p-focus {
+        .p-dropdown-trigger {
+            border-left-color: var(--primary-500, #3b82f6);
+        }
+    }
+}
+
+:deep(.p-calendar) {
+    .p-datepicker-trigger {
+        border-left: 1px solid #d1d5db;
+    }
+
+    &:not(.p-disabled).p-focus {
+        .p-datepicker-trigger {
+            border-left-color: var(--primary-500, #3b82f6);
+        }
+    }
+}
+
+:deep(.p-inputnumber) {
+    &.p-inputnumber-buttons-stacked {
+        .p-inputnumber-button {
+            border-left: 1px solid #d1d5db;
+        }
+    }
+}
+
+:deep(.p-button) {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.15s ease-in-out;
+    padding: 0.75rem 1.5rem;
+
+    &.p-button-outlined {
+        background: transparent;
+
+        &:enabled:hover {
+            background: var(--surface-100);
+        }
+    }
+
+    &[severity="primary"] {
+        background: var(--primary-500, #3b82f6);
+        border-color: var(--primary-500, #3b82f6);
+
+        &:enabled:hover {
+            background: var(--primary-600, #2563eb);
+            border-color: var(--primary-600, #2563eb);
+        }
+
+        &:enabled:active {
+            background: var(--primary-700, #1d4ed8);
+            border-color: var(--primary-700, #1d4ed8);
+        }
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+// ========== Messages d'aide ==========
+.text-color-secondary {
+    color: #6b7280;
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+
+// ========== Animations ==========
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-section {
+    animation: fadeIn 0.3s ease-out;
+}
+
+// ========== États de chargement ==========
+:deep(.p-dropdown.p-disabled),
+:deep(.p-inputtext:disabled),
+:deep(.p-calendar.p-disabled) {
+    background-color: #f9fafb;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+// ========== Mode sombre (si supporté) ==========
+@media (prefers-color-scheme: dark) {
+    .form-section {
+        background: #1f2937;
+        border-color: #374151;
+        color: #f9fafb;
+    }
+
+    .section-header {
+        border-color: #374151;
+    }
+
+    .field-label {
+        color: #e5e7eb;
+    }
+
+    .field-textarea {
+        background: #374151;
+        border-color: #4b5563;
+        color: #f9fafb;
+
+        &::placeholder {
+            color: #9ca3af;
+        }
+    }
+
+    .supplier-info,
+    .conversion-info {
+        background: #374151;
+        border-color: #4b5563;
+    }
+}
+
+// ========== Accessibilité ==========
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+// ========== Focus visible pour l'accessibilité ==========
+.field-input:focus-visible,
+.field-textarea:focus-visible {
+    outline: 2px solid var(--primary-500, #3b82f6);
+    outline-offset: 2px;
+}
+
+// ========== Responsive ==========
+@media (max-width: 480px) {
+    .expense-form {
+        padding: 0.75rem;
+    }
+
+    .form-section {
+        padding: 0.75rem;
+        border-radius: 8px;
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+
+        .pi {
+            align-self: flex-start;
+        }
+    }
+
+    .form-header h2 {
+        font-size: 1.25rem;
+    }
+}

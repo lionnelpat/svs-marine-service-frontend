@@ -1,0 +1,73 @@
+
+.login-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: linear-gradient(to bottom right, #0f3d9e, #001f4d);
+}
+
+.login-card {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.icon-wrapper {
+    background-color: #e3f2fd;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-icon {
+    font-size: 24px;
+    color: #0f3d9e;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+    color: #1a237e;
+}
+
+.subtitle {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 1.5rem;
+}
+
+.field {
+    margin-bottom: 1.25rem;
+    text-align: left;
+}
+
+.field label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.login-button {
+    width: 100%;
+}
+
+.demo-accounts {
+    margin-top: 2rem;
+    font-size: 0.85rem;
+    color: #333;
+}
+
+.demo-accounts a {
+    color: #1e88e5;
+    text-decoration: none;
+}

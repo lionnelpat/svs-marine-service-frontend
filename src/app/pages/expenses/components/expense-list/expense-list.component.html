@@ -1,22 +1,51 @@
-<div class="expense-list">
-    <!-- Barre de recherche et filtres -->
-    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-4">
-        <div class="flex flex-column md:flex-row gap-3 flex-1">
-            <!-- Recherche -->
-            <div class="relative">
-                <i class="pi pi-search absolute text-color-secondary" style="top: 50%; margin-top: -0.5rem; left: 0.75rem;"></i>
-                <input
-                    type="text"
-                    pInputText
-                    [(ngModel)]="searchTerm"
-                    placeholder="Rechercher par titre, numéro ou fournisseur..."
-                    (input)="onSearchInputChange()"
-                    class="pl-6 w-full md:w-20rem"
-                />
+<div class="expense-list mb-5">
+    <!-- Actions et boutons -->
+    <div class="filters-actions">
+        <div class="export-actions">
+            <p-button
+                label="Recherche et Filtres"
+                icon="pi {{showFilters? 'pi-filter-slash' : 'pi-filter'}} "
+                severity="warn"
+                [outlined]="true"
+                (onClick)="toggleFilters()" />
+        </div>
+        <div class="export-actions" *ngIf="showActions">
+                <p-button
+                    icon="pi pi-file-pdf"
+                    label="Exporter en PDF"
+                    severity="danger"
+                    [outlined]="true"
+                    (onClick)="exportToPdf()"
+                    pTooltip="Exporter en PDF">
+                </p-button>
+                <p-button
+                    icon="pi pi-file-excel"
+                    label="Exporter en Excel"
+                    severity="success"
+                    [outlined]="true"
+                    (onClick)="exportToExcel()"
+                    pTooltip="Exporter en Excel">
+                </p-button>
             </div>
+    </div>
 
-            <!-- Filtres -->
-            <div class="flex flex-wrap gap-2">
+    <!-- Barre de recherche et filtres -->
+    <div class="filters-container my-4" *ngIf="showFilters">
+        <!-- Barre de recherche -->
+        <div class="search-bar mb-3">
+            <p-iconfield iconPosition="right">
+                <input pInputText type="text" [(ngModel)]="searchTerm"
+                       (input)="onSearchInputChange()"
+                       placeholder="Rechercher par titre, numéro ou description..."
+                       class="w-full" />
+                <p-inputicon class="pi pi-search" />
+            </p-iconfield>
+        </div>
+
+        <!-- Filtres principaux -->
+        <div class="filters-grid mb-3">
+            <div class="filter-group">
+                <label class="filter-label">Catégorie</label>
                 <p-dropdown
                     [(ngModel)]="selectedCategory"
                     [options]="categoryOptions"
@@ -25,9 +54,26 @@
                     optionValue="value"
                     [showClear]="true"
                     (onChange)="applyFilters()"
-                    class="w-12rem">
+                    class="w-full">
                 </p-dropdown>
+            </div>
 
+            <div class="filter-group">
+                <label class="filter-label">Fournisseur</label>
+                <p-dropdown
+                    [(ngModel)]="selectedSupplier"
+                    [options]="supplierOptions"
+                    placeholder="Tous les fournisseurs"
+                    optionLabel="label"
+                    optionValue="value"
+                    [showClear]="true"
+                    (onChange)="applyFilters()"
+                    class="w-full">
+                </p-dropdown>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Statut</label>
                 <p-dropdown
                     [(ngModel)]="selectedStatus"
                     [options]="statusOptions"
@@ -36,9 +82,12 @@
                     optionValue="value"
                     [showClear]="true"
                     (onChange)="applyFilters()"
-                    class="w-10rem">
+                    class="w-full">
                 </p-dropdown>
+            </div>
 
+            <div class="filter-group">
+                <label class="filter-label">Mode de paiement</label>
                 <p-dropdown
                     [(ngModel)]="selectedPaymentMethod"
                     [options]="paymentMethodOptions"
@@ -47,90 +96,148 @@
                     optionValue="value"
                     [showClear]="true"
                     (onChange)="applyFilters()"
-                    class="w-10rem">
+                    class="w-full">
                 </p-dropdown>
+            </div>
+        </div>
 
-                <!-- Filtre par période -->
-                <p-dropdown
-                    [(ngModel)]="selectedPeriodType"
-                    [options]="periodTypeOptions"
-                    placeholder="Filtrer par"
-                    optionLabel="label"
-                    optionValue="value"
-                    (onChange)="onPeriodTypeChange()"
-                    class="w-8rem">
-                </p-dropdown>
+        <!-- Filtres par période -->
+        <div class="period-filters mb-3">
+            <div class="period-header">
+                <span class="filter-section-title">Filtrer par période</span>
+            </div>
 
-                <!-- Date spécifique -->
-                <p-calendar
-                    *ngIf="selectedPeriodType === 'day'"
-                    [(ngModel)]="selectedDate"
-                    dateFormat="dd/mm/yy"
-                    placeholder="Jour"
-                    [showIcon]="true"
-                    (onSelect)="applyFilters()"
-                    (onClearClick)="applyFilters()"
-                    class="w-10rem">
-                </p-calendar>
-
-                <!-- Mois et année -->
-                <div *ngIf="selectedPeriodType === 'month'" class="flex gap-1">
+            <div class="period-controls">
+                <div class="period-type">
+                    <label class="filter-label">Type de période</label>
                     <p-dropdown
-                        [(ngModel)]="selectedMonth"
-                        [options]="monthOptions"
-                        placeholder="Mois"
+                        [(ngModel)]="selectedPeriodType"
+                        [options]="periodTypeOptions"
+                        placeholder="Filtrer par"
                         optionLabel="label"
                         optionValue="value"
                         [showClear]="true"
-                        (onChange)="applyFilters()"
-                        class="w-7rem">
-                    </p-dropdown>
-                    <p-dropdown
-                        [(ngModel)]="selectedYear"
-                        [options]="yearOptions"
-                        placeholder="Année"
-                        optionLabel="label"
-                        optionValue="value"
-                        [showClear]="true"
-                        (onChange)="applyFilters()"
-                        class="w-6rem">
+                        (onChange)="onPeriodTypeChange()"
+                        class="w-full">
                     </p-dropdown>
                 </div>
 
-                <!-- Année -->
-                <p-dropdown
-                    *ngIf="selectedPeriodType === 'year'"
-                    [(ngModel)]="selectedYear"
-                    [options]="yearOptions"
-                    placeholder="Année"
-                    optionLabel="label"
-                    optionValue="value"
-                    [showClear]="true"
-                    (onChange)="applyFilters()"
-                    class="w-6rem">
-                </p-dropdown>
+                <!-- Date spécifique -->
+                <div class="period-value" *ngIf="selectedPeriodType === 'day'">
+                    <label class="filter-label">Date</label>
+                    <p-calendar
+                        [(ngModel)]="selectedDate"
+                        dateFormat="dd/mm/yy"
+                        placeholder="Sélectionner le jour"
+                        [showIcon]="true"
+                        (onSelect)="applyFilters()"
+                        (onClearClick)="applyFilters()"
+                        class="w-full">
+                    </p-calendar>
+                </div>
+
+                <!-- Mois et année -->
+                <div class="period-value month-year-selector" *ngIf="selectedPeriodType === 'month'">
+                    <div class="month-selector">
+                        <label class="filter-label">Mois</label>
+                        <p-dropdown
+                            [(ngModel)]="selectedMonth"
+                            [options]="monthOptions"
+                            placeholder="Mois"
+                            optionLabel="label"
+                            optionValue="value"
+                            [showClear]="true"
+                            (onChange)="applyFilters()"
+                            class="w-full">
+                        </p-dropdown>
+                    </div>
+                    <div class="year-selector">
+                        <label class="filter-label">Année</label>
+                        <p-dropdown
+                            [(ngModel)]="selectedYear"
+                            [options]="yearOptions"
+                            placeholder="Année"
+                            optionLabel="label"
+                            optionValue="value"
+                            [showClear]="true"
+                            (onChange)="applyFilters()"
+                            class="w-full">
+                        </p-dropdown>
+                    </div>
+                </div>
+
+                <!-- Année seule -->
+                <div class="period-value" *ngIf="selectedPeriodType === 'year'">
+                    <label class="filter-label">Année</label>
+                    <p-dropdown
+                        [(ngModel)]="selectedYear"
+                        [options]="yearOptions"
+                        placeholder="Sélectionner l'année"
+                        optionLabel="label"
+                        optionValue="value"
+                        [showClear]="true"
+                        (onChange)="applyFilters()"
+                        class="w-full">
+                    </p-dropdown>
+                </div>
 
                 <!-- Période personnalisée -->
-                <p-calendar
-                    *ngIf="selectedPeriodType === 'range'"
-                    [(ngModel)]="dateRange"
-                    selectionMode="range"
-                    [readonlyInput]="true"
-                    placeholder="Période"
-                    dateFormat="dd/mm/yy"
-                    [showIcon]="true"
-                    (onSelect)="applyFilters()"
-                    (onClearClick)="applyFilters()"
-                    class="w-14rem">
-                </p-calendar>
+                <div class="period-value" *ngIf="selectedPeriodType === 'range'">
+                    <label class="filter-label">Période personnalisée</label>
+                    <p-calendar
+                        [(ngModel)]="dateRange"
+                        selectionMode="range"
+                        [readonlyInput]="true"
+                        placeholder="Sélectionner la période"
+                        dateFormat="dd/mm/yy"
+                        [showIcon]="true"
+                        (onSelect)="applyFilters()"
+                        (onClearClick)="applyFilters()"
+                        class="w-full">
+                    </p-calendar>
+                </div>
+            </div>
+        </div>
 
-                <!-- Bouton reset -->
+        <!-- Filtres par montant -->
+        <div class="period-filters mb-3">
+            <div class="period-header">
+                <span class="filter-section-title">Filtrer par Montant</span>
+            </div>
+            <div class="flex flex-wrap gap-3 mb-4" *ngIf="showFilters">
+                <div class="flex align-items-center gap-2">
+                    <label class="text-sm font-medium">Montant entre:</label>
+                    <p-inputNumber
+                        [(ngModel)]="minAmount"
+                        mode="currency"
+                        currency="XOF"
+                        locale="fr-SN"
+                        placeholder="Min"
+                        (onInput)="onAmountFilterChange()"
+                        class="w-8rem">
+                    </p-inputNumber>
+                    <span class="text-sm">et</span>
+                    <p-inputNumber
+                        [(ngModel)]="maxAmount"
+                        mode="currency"
+                        currency="XOF"
+                        locale="fr-SN"
+                        placeholder="Max"
+                        (onInput)="onAmountFilterChange()"
+                        class="w-8rem">
+                    </p-inputNumber>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="filters-actions">
+            <div class="export-actions">
                 <p-button
-                    icon="pi pi-filter-slash"
-                    label="Réinitialiser"
-                    severity="secondary"
+                    icon="pi pi-refresh"
+                    label="Réinitialiser tous les filtres"
+                    severity="info"
                     [outlined]="true"
-                    size="small"
                     (onClick)="resetAllFilters()"
                     pTooltip="Réinitialiser tous les filtres">
                 </p-button>
@@ -138,31 +245,9 @@
         </div>
     </div>
 
-    <!-- Filtres par montant -->
-    <div class="flex flex-wrap gap-3 mb-4">
-        <div class="flex align-items-center gap-2">
-            <label class="text-sm font-medium">Montant entre:</label>
-            <p-inputNumber
-                [(ngModel)]="minAmount"
-                mode="currency"
-                currency="XOF"
-                locale="fr-SN"
-                placeholder="Min"
-                (onInput)="onAmountFilterChange()"
-                class="w-8rem">
-            </p-inputNumber>
-            <span class="text-sm">et</span>
-            <p-inputNumber
-                [(ngModel)]="maxAmount"
-                mode="currency"
-                currency="XOF"
-                locale="fr-SN"
-                placeholder="Max"
-                (onInput)="onAmountFilterChange()"
-                class="w-8rem">
-            </p-inputNumber>
-        </div>
-    </div>
+</div>
+
+<div class="expense-list filters-container">
 
     <!-- Tableau des dépenses -->
     <p-table
@@ -173,16 +258,23 @@
         [paginator]="true"
         [rows]="pageSize"
         [totalRecords]="totalRecords"
-        [rowsPerPageOptions]="[10, 25, 50]"
+        [rowsPerPageOptions]="[10, 20, 50, 100]"
         [sortField]="'dateDepense'"
         [sortOrder]="-1"
         responsiveLayout="scroll"
         (onLazyLoad)="onLazyLoadChange($event)"
-        styleClass="p-datatable-sm">
+        [(selection)]="selectedExpenses"
+        [selectionMode]="selectionMode ? 'multiple' : null"
+        (selectionChange)="onExpenseSelectionChange($event)"
+        styleClass="p-datatable-sm"
+        [first]="first">
 
         <!-- En-tête du tableau -->
         <ng-template pTemplate="header">
             <tr>
+                <th *ngIf="selectionMode" style="width: 3rem">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
                 <th style="width: 3rem">#</th>
                 <th pSortableColumn="numero" style="min-width: 10rem">
                     Numéro
@@ -191,24 +283,30 @@
                 <th style="min-width: 12rem">Titre</th>
                 <th style="min-width: 8rem">Catégorie</th>
                 <th style="min-width: 10rem">Fournisseur</th>
-                <th style="min-width: 8rem">
+                <th pSortableColumn="dateDepense" style="min-width: 8rem">
                     Date
+                    <p-sortIcon field="dateDepense"></p-sortIcon>
                 </th>
                 <th pSortableColumn="montantXOF" style="min-width: 10rem">
                     Montant
                     <p-sortIcon field="montantXOF"></p-sortIcon>
                 </th>
                 <th style="min-width: 8rem">Mode paiement</th>
-                <th style="min-width: 8rem">
+                <th pSortableColumn="statut" style="min-width: 8rem">
                     Statut
+                    <p-sortIcon field="statut"></p-sortIcon>
                 </th>
-                <th style="width: 8rem">Actions</th>
+                <th style="width: 8rem" *ngIf="showActions">Actions</th>
             </tr>
         </ng-template>
 
         <!-- Corps du tableau -->
         <ng-template pTemplate="body" let-expense let-rowIndex="rowIndex">
             <tr>
+                <td *ngIf="selectionMode">
+                    <p-tableCheckbox [value]="expense"></p-tableCheckbox>
+                </td>
+
                 <td>{{ getDisplayIndex(rowIndex) }}</td>
 
                 <td>
@@ -218,35 +316,33 @@
 
                 <td>
                     <div class="font-medium">{{ expense.titre }}</div>
-                    <div class="text-sm text-color-secondary">{{ expense.description | slice:0:50 }}{{ expense.description.length > 50 ? '...' : '' }}</div>
-                </td>
-
-                <td>
-                    <div class="flex align-items-center gap-2">
-                        <i [class]="'pi ' + expense.categorie?.icone" [style.color]="expense.categorie?.couleur"></i>
-                        <span class="font-medium">{{ expense.categorie?.nom }}</span>
+                    <div class="text-sm text-color-secondary" *ngIf="expense.description">
+                        {{ expense.description | slice:0:50 }}{{ expense.description.length > 50 ? '...' : '' }}
                     </div>
                 </td>
 
                 <td>
-                    <div *ngIf="expense.fournisseur" class="font-medium">{{ expense.fournisseur.nom }}</div>
-                    <div *ngIf="!expense.fournisseur" class="text-color-secondary">Non spécifié</div>
+                    <div class="flex align-items-center gap-2">
+                        <span class="font-medium">{{ expense.categorieNom }}</span>
+                    </div>
+                </td>
+
+                <td>
+                    <div *ngIf="expense.fournisseurNom" class="font-medium">{{ expense.fournisseurNom }}</div>
+                    <div *ngIf="!expense.fournisseurNom" class="text-color-secondary">Non spécifié</div>
                 </td>
 
                 <td>{{ expense.dateDepense | date:'dd/MM/yyyy' }}</td>
 
                 <td>
-                    <div class="font-bold">{{ formatCurrency(expense.montantXOF) }}</div>
-                    <div *ngIf="expense.montantEURO" class="text-sm text-color-secondary">
-                        {{ expense.montantEURO  }} Euro
+                    <div class="font-bold">{{ formatCurrency(expense.montantXOF, expense.devise) }}</div>
+                    <div *ngIf="expense.montantEURO && expense.devise === Currency.XOF" class="text-sm text-color-secondary">
+                        {{ formatCurrency(expense.montantEURO, Currency.EUR) }}
                     </div>
                 </td>
 
                 <td>
-                    <div class="text-sm">{{ getPaymentMethodLabel(expense.modePaiement) }}</div>
-                    <div *ngIf="expense.numeroFacture" class="text-xs text-color-secondary">
-                        Fact: {{ expense.numeroFacture }}
-                    </div>
+                    <div class="text-sm">{{ expense.paymentMethodNom }}</div>
                 </td>
 
                 <td>
@@ -256,7 +352,7 @@
                     </p-tag>
                 </td>
 
-                <td>
+                <td *ngIf="showActions">
                     <div class="flex gap-1">
                         <p-button
                             icon="pi pi-pencil"
@@ -264,8 +360,28 @@
                             [text]="true"
                             size="small"
                             (onClick)="editExpense(expense)"
+                            [disabled]="!canEditExpense(expense)"
                             pTooltip="Modifier">
                         </p-button>
+
+                        <p-button
+                            #menuButton
+                            icon="pi pi-ellipsis-v"
+                            severity="secondary"
+                            [text]="true"
+                            size="small"
+                            (onClick)="menu.toggle($event)"
+                            pTooltip="Plus d'actions">
+                        </p-button>
+
+                        <p-menu
+                            #menu
+                            [model]="getMenuItems(expense)"
+                            [popup]="true"
+                            appendTo="body"
+                            [baseZIndex]="9999"
+                            [autoZIndex]="false">
+                        </p-menu>
                     </div>
                 </td>
             </tr>
@@ -281,7 +397,7 @@
         <!-- Message si aucun résultat -->
         <ng-template pTemplate="emptymessage">
             <tr>
-                <td colspan="10" class="text-center p-4">
+                <td [attr.colspan]="selectionMode ? (showActions ? 11 : 10) : (showActions ? 10 : 9)" class="text-center p-4">
                     <div class="flex flex-column align-items-center">
                         <i class="pi pi-inbox text-4xl text-color-secondary mb-3"></i>
                         <span class="text-lg">Aucune dépense trouvée</span>
@@ -296,6 +412,26 @@
     <div class="flex justify-content-between align-items-center mt-3">
         <div class="text-sm text-color-secondary">
             Affichage de {{ getDisplayRange() }} sur {{ totalRecords }} dépenses
+        </div>
+
+        <!-- Actions sur la sélection -->
+        <div class="flex gap-2" *ngIf="selectionMode && selectedExpenses.length > 0">
+            <p-button
+                icon="pi pi-check"
+                label="Approuver la sélection"
+                severity="success"
+                size="small"
+                (onClick)="approveSelectedExpenses()"
+                pTooltip="Approuver les dépenses sélectionnées">
+            </p-button>
+            <p-button
+                icon="pi pi-times"
+                label="Rejeter la sélection"
+                severity="danger"
+                size="small"
+                (onClick)="rejectSelectedExpenses()"
+                pTooltip="Rejeter les dépenses sélectionnées">
+            </p-button>
         </div>
     </div>
 </div>

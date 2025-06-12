@@ -20,82 +20,66 @@
                     (onClick)="showNewExpenseForm()"
                     class="p-button-primary">
                 </p-button>
-
-                <p-button
-                    icon="pi pi-file-excel"
-                    label="Export Excel"
-                    severity="success"
-                    [outlined]="true"
-                    (onClick)="exportToExcel()">
-                </p-button>
-
-                <p-button
-                    icon="pi pi-file-pdf"
-                    label="Export PDF"
-                    severity="danger"
-                    [outlined]="true"
-                    (onClick)="exportToPDF()">
-                </p-button>
             </div>
         </div>
     </div>
 
     <!-- Statistiques rapides -->
 
-    <div class="grid grid-cols-12 gap-8">
-        <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-            <div class="card mb-0">
-                <div class="flex justify-between mb-4">
-                    <div>
-                        <span class="block text-muted-color font-medium mb-4">Total Dépenses</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.totalDepenses || 0 }}</div>
-                    </div>
-                    <div class="flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
-                        <i class="pi pi-receipt text-blue-500 !text-xl"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-            <div class="card mb-0">
-                <div class="flex justify-between mb-4">
-                    <div>
-                        <span class="block text-muted-color font-medium mb-4">Approuvées</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.depensesApprouvees || 0 }}</div>
-                    </div>
-                    <div class="flex items-center justify-center bg-green-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
-                        <i class="pi pi-dollar text-green-500 !text-xl"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-            <div class="card mb-0">
-                <div class="flex justify-between mb-4">
-                    <div>
-                        <span class="block text-muted-color font-medium mb-4">En attente</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.depensesEnAttente || 0 }}</div>
-                    </div>
-                    <div class="flex items-center justify-center bg-yellow-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
-                        <i class="pi  pi-stopwatch  text-yellow-500 !text-xl"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-            <div class="card mb-0">
-                <div class="flex justify-between mb-4">
-                    <div>
-                        <span class="block text-muted-color font-medium mb-4">Montant Total (XOF)</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.montantTotalXOF || 0 }}</div>
-                    </div>
-                    <div class="flex items-center justify-center bg-red-100 rounded-border" style="width: 2.5rem; height: 2.5rem">
-                        <i class="pi pi-exclamation-circle text-red-500 !text-xl"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<!--    <div class="grid grid-cols-12 gap-8">-->
+<!--        <div class="col-span-12 lg:col-span-6 xl:col-span-3">-->
+<!--            <div class="card mb-0">-->
+<!--                <div class="flex justify-between mb-4">-->
+<!--                    <div>-->
+<!--                        <span class="block text-muted-color font-medium mb-4">Total Dépenses</span>-->
+<!--                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.totalExpenses || 0 }}</div>-->
+<!--                    </div>-->
+<!--                    <div class="flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">-->
+<!--                        <i class="pi pi-receipt text-blue-500 !text-xl"></i>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="col-span-12 lg:col-span-6 xl:col-span-3">-->
+<!--            <div class="card mb-0">-->
+<!--                <div class="flex justify-between mb-4">-->
+<!--                    <div>-->
+<!--                        <span class="block text-muted-color font-medium mb-4">Approuvées</span>-->
+<!--                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.totalAmountEUR || 0 }}</div>-->
+<!--                    </div>-->
+<!--                    <div class="flex items-center justify-center bg-green-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">-->
+<!--                        <i class="pi pi-dollar text-green-500 !text-xl"></i>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="col-span-12 lg:col-span-6 xl:col-span-3">-->
+<!--            <div class="card mb-0">-->
+<!--                <div class="flex justify-between mb-4">-->
+<!--                    <div>-->
+<!--                        <span class="block text-muted-color font-medium mb-4">En attente</span>-->
+<!--                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.totalAmountXOF || 0 }}</div>-->
+<!--                    </div>-->
+<!--                    <div class="flex items-center justify-center bg-yellow-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">-->
+<!--                        <i class="pi  pi-stopwatch  text-yellow-500 !text-xl"></i>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="col-span-12 lg:col-span-6 xl:col-span-3">-->
+<!--            <div class="card mb-0">-->
+<!--                <div class="flex justify-between mb-4">-->
+<!--                    <div>-->
+<!--                        <span class="block text-muted-color font-medium mb-4">Montant Total (XOF)</span>-->
+<!--                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.totalAmountXOF || 0 }}</div>-->
+<!--                    </div>-->
+<!--                    <div class="flex items-center justify-center bg-red-100 rounded-border" style="width: 2.5rem; height: 2.5rem">-->
+<!--                        <i class="pi pi-exclamation-circle text-red-500 !text-xl"></i>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
 
     <!-- Formulaire de nouvelle dépense (modal) -->
     <div *ngIf="showFormModal" class="fixed-modal-overlay" (click)="closeFormModal()">
@@ -122,14 +106,13 @@
     <!-- Liste des dépenses -->
     <div class="card mt-3">
         <app-expense-list
-            [expenses]="expenses"
-            [loading]="loading"
-            [totalRecords]="totalRecords"
+            [showFilters]="false"
+            [showActions]="true"
+            [selectionMode]="false"
             (onEdit)="onEditExpense($event)"
             (onDelete)="onDeleteExpense($event)"
             (onStatusChange)="onStatusChange($event)"
-            (onFilter)="onFilterChange($event)"
-            (onPageChange)="onPageChange($event)">
+            (onSelectionChange)="onSelectionChange($event)">
         </app-expense-list>
     </div>
 </div>

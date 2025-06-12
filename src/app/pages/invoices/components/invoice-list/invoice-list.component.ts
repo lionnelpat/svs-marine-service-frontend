@@ -1,6 +1,6 @@
 // src/app/pages/invoices/components/invoice-list/invoice-list.component.ts
 
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -18,7 +18,12 @@ import { PaginatorModule } from 'primeng/paginator';
 import { MenuItem } from 'primeng/api';
 
 // Models
-import { Invoice, InvoiceListFilter, InvoiceStatus, INVOICE_STATUS_LABELS, INVOICE_STATUS_SEVERITIES } from '../../../../shared/models/invoice.model';
+import {
+    Invoice,
+    INVOICE_STATUS_LABELS,
+    InvoiceListFilter,
+    InvoiceStatus
+} from '../../../../shared/models/invoice.model';
 import { MOCK_COMPANIES } from '../../../../shared/data/invoice.data';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';

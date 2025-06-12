@@ -5,10 +5,10 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import {
     Company,
-    CreateCompanyRequest,
-    UpdateCompanyRequest,
     CompanyListFilter,
-    CompanyListResponse
+    CompanyListResponse,
+    CreateCompanyRequest,
+    UpdateCompanyRequest
 } from '../../shared/models';
 import { LoggerService } from '../../core/services/logger.service';
 import { ErrorHandlerService } from '../../core/services/error-handler.service';

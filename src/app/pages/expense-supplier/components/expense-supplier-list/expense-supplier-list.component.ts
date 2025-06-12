@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
@@ -12,11 +12,6 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { LoggerService } from '../../../../core/services/logger.service';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
-import {
-    ExpenseCategory,
-    ExpenseCategoryEvent,
-    ExpenseCategoryListFilter
-} from '../../../../shared/models/expense-category.model';
 import {
     ExpenseSupplier,
     ExpenseSupplierEvent,

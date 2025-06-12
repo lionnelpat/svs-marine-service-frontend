@@ -1,14 +1,6 @@
-import {
-    Component,
-    Input,
-    Output,
-    EventEmitter,
-    OnInit,
-    OnChanges,
-    SimpleChanges,
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
@@ -17,10 +9,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { LoggerService } from '../../../../core/services/logger.service';
 import { Textarea } from 'primeng/textarea';
 import { getErrorMessage } from '../../../../core/utilities/error';
-import {
-    ExpenseCategory,
-    ExpenseCategoryCreate
-} from '../../../../shared/models/expense-category.model';
+import { ExpenseCategory, ExpenseCategoryCreate } from '../../../../shared/models/expense-category.model';
 import { ExpenseCategoryService } from '../../service/expense-category.service';
 import { EXPENSE_CATEGORY_KEY } from '../../constants/constants';
 import { FormErrorUtils } from '../../../../core/utilities/form-error.utils';
@@ -115,7 +104,7 @@ export class ExpenseCategoryFormComponent implements OnInit, OnChanges {
 
             if (this.isEditMode && this.expenseCategory) {
 
-                this.expenseCategoryService.updateCategory(this.expenseCategory.id, this.expenseCategory).subscribe({
+                this.expenseCategoryService.updateCategory(this.expenseCategory.id, formValue).subscribe({
                     next: (updatedCompany) => {
                         this.messageService.add({
                             key: EXPENSE_CATEGORY_KEY,

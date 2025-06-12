@@ -4,11 +4,10 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import {
+    CreateOperationRequest,
     Operation,
     OperationListFilter,
-    OperationListResponse
-    ,
-    CreateOperationRequest,
+    OperationListResponse,
     UpdateOperationRequest
 } from '../../shared/models/operation.model';
 import { LoggerService } from '../../core/services/logger.service';

@@ -1,0 +1,92 @@
+
+<form [formGroup]="paymentMethodForm" (ngSubmit)="onSubmit()" class="operation-form">
+    <!-- Informations générales -->
+    <div class="form-section">
+        <h5 class="section-title">
+            <i class="pi pi-cog mr-2"></i>
+            Informations générales
+        </h5>
+
+        <div class="grid">
+            <div class="col-12 md:col-6 mb-3 ">
+                <label for="nom" class="field-label">
+                    Nom : <span class="required">*</span>
+                </label>
+                <input
+                    id="nom"
+                    pInputText
+                    formControlName="nom"
+                    placeholder="Ex: Orange Money"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('nom')"
+                />
+                <small class="field-error" *ngIf="paymentMethodForm.get('nom')?.hasError('serverError')">
+                    {{ paymentMethodForm.get('nom')?.getError('serverError') }}
+                </small>
+            </div>
+
+            <div class="col-12 md:col-6 mb-3">
+                <label for="code" class="field-label">
+                    Code <span class="required">*</span>
+                </label>
+                <input
+                    id="code"
+                    pInputText
+                    formControlName="code"
+                    placeholder="Ex: OM"
+                    class="w-full"
+                    [class.ng-invalid]="isFieldInvalid('code')"
+                />
+                <small class="field-error" *ngIf="paymentMethodForm.get('code')?.hasError('serverError')">
+                    {{ paymentMethodForm.get('code')?.getError('serverError') }}
+                </small>
+            </div>
+
+            <div class="col-12 mb-3">
+                <label for="description" class="field-label">
+                    Description <span class="required">*</span>
+                </label>
+                <textarea
+                    id="description"
+                    pInputTextarea
+                    formControlName="description"
+                    placeholder="description  ..."
+                    class="w-full"
+                    rows="3"
+                    [class.ng-invalid]="isFieldInvalid('description')"
+                ></textarea>
+                <small class="field-error" *ngIf="paymentMethodForm.get('description')?.hasError('serverError')">
+                    {{ paymentMethodForm.get('description')?.getError('serverError') }}
+                </small>
+            </div>
+
+        </div>
+
+        <p-divider></p-divider>
+
+        <!-- Actions -->
+        <div class="form-actions mt-3 flex flex-row justify-end">
+            <button
+                type="button"
+                pButton
+                label="Annuler"
+                icon="pi pi-times"
+                class="p-button-text"
+                (click)="onCancel()"
+            ></button>
+            <button
+                type="submit"
+                pButton
+                [label]="isEditMode ? 'Modifier' : 'Créer'"
+                [icon]="isEditMode ? 'pi pi-check' : 'pi pi-plus'"
+                [loading]="loading"
+                [disabled]="paymentMethodForm.invalid"
+                class="ml-2"
+                style="background-color: var(--svs-primary); border-color: var(--svs-primary)"
+            ></button>
+        </div>
+    </div>
+</form>
+
+<!-- Messages toast -->
+<p-toast key="{{PAYMENT_METHOD_KEY}}"></p-toast>

@@ -1,5 +1,5 @@
-import {HttpErrorResponse} from "@angular/common/http";
-import {Observable, throwError} from "rxjs";
+import { HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
 
 export const getErrorMessage = (error: any) => {
     return (
