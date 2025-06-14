@@ -71,9 +71,35 @@
                             "optimization": false,
                             "extractLicenses": false,
                             "sourceMap": true
+                        },
+                        "staging": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "src/environments/environment.ts",
+                                    "with": "src/environments/environment.staging.ts"
+                                }
+                            ],
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "budgets": [
+                                {
+                                    "type": "initial",
+                                    "maximumWarning": "10Mb",
+                                    "maximumError": "9Mb"
+                                },
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "10Mb",
+                                    "maximumError": "9Mb"
+                                }
+                            ]
                         }
                     },
-                    "defaultConfiguration": "production"
+                    "defaultConfiguration": "staging"
                 },
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",

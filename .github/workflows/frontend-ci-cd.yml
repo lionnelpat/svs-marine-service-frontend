@@ -1,0 +1,59 @@
+name: CI/CD Frontend Staging
+
+on:
+    push:
+        branches: [ develop ]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout du code
+              uses: actions/checkout@v3
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '18'
+                  cache: 'npm'
+
+            - name: Installation des dépendances
+              run: npm install
+
+            - name: Build pour Staging
+              run: npm run build:staging
+
+            - name: Zip du dossier dist
+              run: zip -r dist.zip ./dist/svs-angular-app # Adaptez 'your-app-name'
+
+            - name: Upload de l'artefact
+              uses: actions/upload-artifact@v3
+              with:
+                  name: angular-dist
+                  path: dist.zip
+
+    deploy:
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Download de l'artefact
+              uses: actions/download-artifact@v3
+              with:
+                  name: angular-dist
+
+            - name: Déploiement sur le VPS via SSH
+              uses: appleboy/scp-action@master
+              with:
+                  host: ${{ secrets.VPS_HOST }}
+                  username: ${{ secrets.VPS_USERNAME }}
+                  key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+                  source: "dist.zip"
+                  target: "/home/deployer/new_artifact"
+
+            - name: Exécute le script de déploiement
+              uses: appleboy/ssh-action@master
+              with:
+                  host: ${{ secrets.VPS_HOST }}
+                  username: ${{ secrets.VPS_USERNAME }}
+                  key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+                  script: /home/deployer/deploy_frontend.sh
