@@ -1,6 +1,6 @@
 // src/app/pages/invoices/components/invoice-list/invoice-list.component.ts
 
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -15,7 +15,7 @@ import { MenuModule } from 'primeng/menu';
 import { TooltipModule } from 'primeng/tooltip';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { PaginatorModule } from 'primeng/paginator';
-import { MenuItem } from 'primeng/api';
+import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 
 // Models
 import {
@@ -27,6 +27,10 @@ import {
 import { MOCK_COMPANIES } from '../../../../shared/data/invoice.data';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import { Subject, takeUntil } from 'rxjs';
+import { ExpenseListFilter } from '../../../../shared/models/expense.model';
+import { InvoiceService } from '../../../service/invoice.service';
+import { CompanyService } from '../../../service/company.service';
 
 @Component({
     selector: 'app-invoice-list',
@@ -47,6 +51,7 @@ import { InputIcon } from 'primeng/inputicon';
         IconField,
         InputIcon
     ],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './invoice-list.component.html',
     styleUrl: './invoice-list.component.scss',
 })
@@ -62,6 +67,11 @@ export class InvoiceListComponent implements OnInit {
     @Output() onFilter = new EventEmitter<InvoiceListFilter>();
     @Output() onExport = new EventEmitter<'excel' | 'pdf'>();
     @Output() onPageChange = new EventEmitter<any>();
+
+    private readonly invoiceService = inject(InvoiceService)
+    private readonly companyService = inject(CompanyService)
+    private readonly messageService = inject(MessageService)
+    private readonly confirmationService = inject(ConfirmationService)
 
     // Variables de recherche et filtres
     searchTerm = '';
@@ -115,19 +125,26 @@ export class InvoiceListComponent implements OnInit {
     // Timeout pour la recherche
     private searchTimeout: any;
 
+    // Subject pour la gestion de la destruction du composant
+    private destroy$ = new Subject<void>();
+
     ngOnInit(): void {
         this.initializeOptions();
     }
 
     private initializeOptions(): void {
-        // Options des compagnies
-        this.companyOptions = [
-            { label: 'Toutes les compagnies', value: 0 },
-            ...MOCK_COMPANIES.map(company => ({
-                label: company.nom,
-                value: company.id
-            }))
-        ];
+
+        this.companyService.getCompanies().subscribe((resp) => {
+            // Options des compagnies
+            this.companyOptions = [
+                { label: 'Toutes les compagnies', value: 0 },
+                ...resp.companies.map(company => ({
+                    label: company.nom,
+                    value: company.id
+                }))
+            ];
+        })
+
 
         // Options des statuts
         this.statusOptions = Object.values(InvoiceStatus).map(status => ({
@@ -144,6 +161,12 @@ export class InvoiceListComponent implements OnInit {
                 value: year
             });
         }
+    }
+
+    loadInvoices(){
+        this.invoiceService.getInvoices().subscribe((resp) => {
+            this.invoices = resp.invoices;
+        })
     }
 
     // Gestion de la recherche et des filtres
@@ -279,7 +302,7 @@ export class InvoiceListComponent implements OnInit {
         }
 
         // Relancer le chargement avec les filtres vides
-        this.applyFilters();
+        this.loadInvoices();
     }
 
     // Réinitialiser uniquement les filtres de date
@@ -360,16 +383,16 @@ export class InvoiceListComponent implements OnInit {
             {
                 separator: true
             },
-            {
-                label: 'Imprimer',
-                icon: 'pi pi-print',
-                command: () => this.printInvoice(invoice)
-            },
-            {
-                label: 'Dupliquer',
-                icon: 'pi pi-copy',
-                command: () => this.duplicateInvoice(invoice)
-            },
+            // {
+            //     label: 'Imprimer',
+            //     icon: 'pi pi-print',
+            //     command: () => this.printInvoice(invoice)
+            // },
+            // {
+            //     label: 'Dupliquer',
+            //     icon: 'pi pi-copy',
+            //     command: () => this.duplicateInvoice(invoice)
+            // },
             {
                 separator: true
             },
@@ -404,13 +427,147 @@ export class InvoiceListComponent implements OnInit {
         this.onEdit.emit(duplicatedInvoice);
     }
 
-    // Export
-    exportToExcel(): void {
-        this.onExport.emit('excel');
+    private applyDateFilters(filter: InvoiceListFilter): void {
+        if (!this.selectedPeriodType) return;
+
+        switch (this.selectedPeriodType) {
+            case 'day':
+                if (this.selectedDate) {
+                    const startOfDay = new Date(this.selectedDate);
+                    startOfDay.setHours(0, 0, 0, 0);
+                    const endOfDay = new Date(this.selectedDate);
+                    endOfDay.setHours(23, 59, 59, 999);
+
+                    filter.dateDebut = startOfDay;
+                    filter.dateFin = endOfDay;
+                }
+                break;
+
+            case 'month':
+                if (this.selectedMonth) {
+                    filter.mois = this.selectedMonth;
+                }
+                if (this.selectedYear) {
+                    filter.annee = this.selectedYear;
+                }
+                if (this.selectedMonth && this.selectedYear) {
+                    const startOfMonth = new Date(this.selectedYear, this.selectedMonth - 1, 1);
+                    const endOfMonth = new Date(this.selectedYear, this.selectedMonth, 0, 23, 59, 59, 999);
+                    filter.dateDebut = startOfMonth;
+                    filter.dateFin = endOfMonth;
+                }
+                break;
+
+            case 'year':
+                if (this.selectedYear) {
+                    filter.annee = this.selectedYear;
+                    const startOfYear = new Date(this.selectedYear, 0, 1);
+                    const endOfYear = new Date(this.selectedYear, 11, 31, 23, 59, 59, 999);
+                    filter.dateDebut = startOfYear;
+                    filter.dateFin = endOfYear;
+                }
+                break;
+
+            case 'range':
+                if (this.dateRange && this.dateRange.length === 2) {
+                    const startDate = new Date(this.dateRange[0]);
+                    startDate.setHours(0, 0, 0, 0);
+                    const endDate = new Date(this.dateRange[1]);
+                    endDate.setHours(23, 59, 59, 999);
+
+                    filter.dateDebut = startDate;
+                    filter.dateFin = endDate;
+                }
+                break;
+        }
     }
 
-    exportToPDF(): void {
-        this.onExport.emit('pdf');
+    private buildFilter(): InvoiceListFilter {
+        const filter: InvoiceListFilter = {
+            page: this.currentPage,
+            size: this.pageSize
+        };
+
+        if (this.searchTerm?.trim()) {
+            filter.search = this.searchTerm.trim();
+        }
+
+        if (this.selectedCompany) {
+            filter.compagnieId = this.selectedCompany;
+        }
+
+
+        if (this.selectedStatus) {
+            filter.statut = this.selectedStatus;
+        }
+
+        // Gestion des filtres de date
+        this.applyDateFilters(filter);
+
+        return filter;
+    }
+
+    // Export
+    exportToPdf(): void {
+        const filter = this.buildFilter();
+
+        this.invoiceService.exportToPdf(filter)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (blob) => {
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `depenses-${new Date().toISOString().split('T')[0]}.pdf`;
+                    link.click();
+                    window.URL.revokeObjectURL(url);
+
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Succès',
+                        detail: 'Export PDF téléchargé avec succès'
+                    });
+                },
+                error: (error) => {
+                    console.error('Erreur lors de l\'export PDF', error);
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Erreur',
+                        detail: 'Impossible d\'exporter en PDF'
+                    });
+                }
+            });
+    }
+
+    exportToExcel(): void {
+        const filter = this.buildFilter();
+
+        this.invoiceService.exportToExcel(filter)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (blob) => {
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `depenses-${new Date().toISOString().split('T')[0]}.xlsx`;
+                    link.click();
+                    window.URL.revokeObjectURL(url);
+
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Succès',
+                        detail: 'Export Excel téléchargé avec succès'
+                    });
+                },
+                error: (error) => {
+                    console.error('Erreur lors de l\'export Excel', error);
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Erreur',
+                        detail: 'Impossible d\'exporter en Excel'
+                    });
+                }
+            });
     }
 
     // Méthodes utilitaires

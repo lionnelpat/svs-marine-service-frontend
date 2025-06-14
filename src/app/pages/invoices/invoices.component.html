@@ -20,72 +20,64 @@
                     (onClick)="showNewInvoiceForm()"
                     class="p-button-primary">
                 </p-button>
-
-                <p-button
-                    icon="pi pi-download"
-                    label="Exporter"
-                    severity="warn"
-                    [outlined]="true"
-                    (onClick)="exportInvoices()">
-                </p-button>
             </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-12 gap-8">
-        <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-            <div class="card mb-0">
-                <div class="flex justify-between mb-4">
-                    <div>
-                        <span class="block text-muted-color font-medium mb-4">Total Factures</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.totalFactures || 0 }}</div>
-                    </div>
-                    <div class="flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
-                        <i class="pi pi-receipt text-blue-500 !text-xl"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-            <div class="card mb-0">
-                <div class="flex justify-between mb-4">
-                    <div>
-                        <span class="block text-muted-color font-medium mb-4">Payés</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.facturesPayees || 0 }}</div>
-                    </div>
-                    <div class="flex items-center justify-center bg-green-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
-                        <i class="pi pi-dollar text-green-500 !text-xl"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-            <div class="card mb-0">
-                <div class="flex justify-between mb-4">
-                    <div>
-                        <span class="block text-muted-color font-medium mb-4">En attente</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.facturesEnAttente || 0 }}</div>
-                    </div>
-                    <div class="flex items-center justify-center bg-yellow-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
-                        <i class="pi  pi-stopwatch  text-yellow-500 !text-xl"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-            <div class="card mb-0">
-                <div class="flex justify-between mb-4">
-                    <div>
-                        <span class="block text-muted-color font-medium mb-4">En retard</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.facturesEnRetard || 0 }}</div>
-                    </div>
-                    <div class="flex items-center justify-center bg-red-100 rounded-border" style="width: 2.5rem; height: 2.5rem">
-                        <i class="pi pi-exclamation-circle text-red-500 !text-xl"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<!--    <div class="grid grid-cols-12 gap-8">-->
+<!--        <div class="col-span-12 lg:col-span-6 xl:col-span-3">-->
+<!--            <div class="card mb-0">-->
+<!--                <div class="flex justify-between mb-4">-->
+<!--                    <div>-->
+<!--                        <span class="block text-muted-color font-medium mb-4">Total Factures</span>-->
+<!--                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.totalFactures || 0 }}</div>-->
+<!--                    </div>-->
+<!--                    <div class="flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">-->
+<!--                        <i class="pi pi-receipt text-blue-500 !text-xl"></i>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="col-span-12 lg:col-span-6 xl:col-span-3">-->
+<!--            <div class="card mb-0">-->
+<!--                <div class="flex justify-between mb-4">-->
+<!--                    <div>-->
+<!--                        <span class="block text-muted-color font-medium mb-4">Payés</span>-->
+<!--                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.facturesPayees || 0 }}</div>-->
+<!--                    </div>-->
+<!--                    <div class="flex items-center justify-center bg-green-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">-->
+<!--                        <i class="pi pi-dollar text-green-500 !text-xl"></i>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="col-span-12 lg:col-span-6 xl:col-span-3">-->
+<!--            <div class="card mb-0">-->
+<!--                <div class="flex justify-between mb-4">-->
+<!--                    <div>-->
+<!--                        <span class="block text-muted-color font-medium mb-4">En attente</span>-->
+<!--                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.facturesEnAttente || 0 }}</div>-->
+<!--                    </div>-->
+<!--                    <div class="flex items-center justify-center bg-yellow-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">-->
+<!--                        <i class="pi  pi-stopwatch  text-yellow-500 !text-xl"></i>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="col-span-12 lg:col-span-6 xl:col-span-3">-->
+<!--            <div class="card mb-0">-->
+<!--                <div class="flex justify-between mb-4">-->
+<!--                    <div>-->
+<!--                        <span class="block text-muted-color font-medium mb-4">En retard</span>-->
+<!--                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ statistics?.facturesEnRetard || 0 }}</div>-->
+<!--                    </div>-->
+<!--                    <div class="flex items-center justify-center bg-red-100 rounded-border" style="width: 2.5rem; height: 2.5rem">-->
+<!--                        <i class="pi pi-exclamation-circle text-red-500 !text-xl"></i>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
 
 
     <!-- Formulaire de nouvelle facture (modal) -->
@@ -140,8 +132,8 @@
             (onView)="onViewInvoice($event)"
             (onEdit)="onEditInvoice($event)"
             (onDelete)="onDeleteInvoice($event)"
-            (onStatusChange)="onStatusChange($event)"
             (onFilter)="onFilterChange($event)"
+            (onStatusChange)="onStatusChange($event)"
             (onExport)="onExportInvoices($event)"
             (onPageChange)="onPageChange($event)">
         </app-invoice-list>

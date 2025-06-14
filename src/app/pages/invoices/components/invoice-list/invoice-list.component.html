@@ -118,7 +118,7 @@
                     severity="secondary"
                     [text]="true"
                     size="small"
-                    (onClick)="resetDateFilters()"
+                    (onClick)="resetAllFilters()"
                     pTooltip="Réinitialiser les filtres de date"
                     class="ml-2">
                 </p-button>
@@ -129,21 +129,19 @@
         <div class="flex gap-2 mt-3 md:mt-0">
             <p-button
                 icon="pi pi-file-excel"
-                label="Excel"
+                label="Exporter en Excel"
                 severity="success"
                 [outlined]="true"
-                size="small"
                 (onClick)="exportToExcel()"
                 pTooltip="Exporter vers Excel">
             </p-button>
 
             <p-button
                 icon="pi pi-file-pdf"
-                label="PDF"
+                label="Exporter en PDF"
                 severity="danger"
                 [outlined]="true"
-                size="small"
-                (onClick)="exportToPDF()"
+                (onClick)="exportToPdf()"
                 pTooltip="Exporter vers PDF">
             </p-button>
         </div>

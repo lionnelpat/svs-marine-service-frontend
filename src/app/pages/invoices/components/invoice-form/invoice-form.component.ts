@@ -31,6 +31,9 @@ import { Company } from '../../../../shared/models';
 import { Ship } from '../../../../shared/models/ship.model';
 import { MOCK_COMPANIES, MOCK_OPERATIONS, MOCK_SHIPS } from '../../../../shared/data/invoice.data';
 import { Textarea } from 'primeng/textarea';
+import { CompanyService } from '../../../service/company.service';
+import { ShipService } from '../../../service/ship.service';
+import { OperationService } from '../../../service/operation.service';
 
 @Component({
     selector: 'app-invoice-form',
@@ -80,6 +83,9 @@ export class InvoiceFormComponent implements OnInit, OnChanges {
     constructor(
         private readonly fb: FormBuilder,
         private readonly invoiceService: InvoiceService,
+        private readonly companyService: CompanyService,
+        private readonly shipService: ShipService,
+        private readonly operationService: OperationService,
         private readonly logger: LoggerService
     ) {
         this.initializeForm();
@@ -116,28 +122,44 @@ export class InvoiceFormComponent implements OnInit, OnChanges {
 
     private initializeOptions(): void {
         // Options des compagnies
-        this.companyOptions = MOCK_COMPANIES.map(company => ({
-            label: company.nom,
-            value: company.id
-        }));
+        this.companyService.getCompanies().subscribe((response) => {
+            this.companyOptions =response.companies.map(company => ({
+                label: company.nom,
+                value: company.id
+            }));
+        });
+
 
         // Options des navires
-        this.shipOptions = MOCK_SHIPS.map(ship => ({
-            label: `${ship.nom} (IMO: ${ship.numeroIMO})`,
-            value: ship.id
-        }));
+        this.shipService.getActiveShips().subscribe((resp) => {
+            this.shipOptions = resp.ships.map(ship => ({
+                label: `${ship.nom} (IMO: ${ship.numeroIMO})`,
+                value: ship.id
+            }));
+        });
+
+
 
         // Options des opérations
-        this.operationOptions = MOCK_OPERATIONS.map(operation => ({
-            label: operation.nom,
-            value: operation.id
-        }));
+        this.operationService.getOperations().subscribe((resp) => {
+            this.operationOptions = resp.operations.map(operation => ({
+                label: operation.nom,
+                value: operation.id
+            }));
+        })
+
     }
 
     private generateInvoiceNumber(): void {
         if (!this.editMode) {
-            const numero = this.invoiceService.generateInvoiceNumber();
-            this.invoiceForm.patchValue({ numero });
+            let invoiceNumber = 'FACT-TEST-001';
+             this.invoiceService.getInvoices().subscribe((resp) => {
+                 const total = resp.total.toString();
+                 invoiceNumber = this.invoiceService.generateInvoiceNumber(total)
+                 console.log(` Invoice number generated ${invoiceNumber}`)
+                 this.invoiceForm.patchValue({ numero: invoiceNumber });
+            });
+
         }
     }
 
@@ -199,20 +221,24 @@ export class InvoiceFormComponent implements OnInit, OnChanges {
     // Gestion des événements de sélection
     onCompanyChange(event: any): void {
         const compagnieId = event.value;
-        this.selectedCompany = MOCK_COMPANIES.find(c => c.id === compagnieId) || null;
+        this.companyService.getCompanies().subscribe((resp) => {
+             this.selectedCompany = resp.companies.find(c => c.id === compagnieId) || null;
+        })
 
         // Filtrer les navires de cette compagnie
         if (this.selectedCompany) {
-            this.shipOptions = MOCK_SHIPS
-                .filter(ship => ship.compagnieId === compagnieId)
-                .map(ship => ({
-                    label: `${ship.nom} (IMO: ${ship.numeroIMO})`,
-                    value: ship.id
-                }));
+            this.shipService.getShips().subscribe((resp) => {
+                this.shipOptions = resp.ships
+                    .filter(ship => ship.compagnieId === compagnieId)
+                    .map(ship => ({
+                        label: `${ship.nom} (IMO: ${ship.numeroIMO})`,
+                        value: ship.id
+                    }));
+                // Reset le navire sélectionné
+                this.invoiceForm.patchValue({ navireId: null });
+                this.selectedShip = null;
+            })
 
-            // Reset le navire sélectionné
-            this.invoiceForm.patchValue({ navireId: null });
-            this.selectedShip = null;
         }
 
         this.logger.debug('Compagnie sélectionnée', this.selectedCompany);
@@ -220,25 +246,33 @@ export class InvoiceFormComponent implements OnInit, OnChanges {
 
     onShipChange(event: any): void {
         const navireId = event.value;
-        this.selectedShip = MOCK_SHIPS.find(s => s.id === navireId) || null;
+        this.shipService.getShips().subscribe((resp) => {
+            this.selectedShip = resp.ships.find(s => s.id === navireId) || null;
+        });
+
         this.logger.debug('Navire sélectionné', this.selectedShip);
     }
 
     onOperationChange(index: number, event: any): void {
         const operationId = event.value;
-        const operation = MOCK_OPERATIONS.find(op => op.id === operationId);
 
-        if (operation) {
-            const prestationGroup = this.prestationsArray.at(index);
-            prestationGroup.patchValue({
-                description: operation.description,
-                prixUnitaireXOF: operation.prixXOF,
-                prixUnitaireEURO: operation.prixEURO
-            });
+        this.operationService.getOperations().subscribe((resp) => {
+            const operation = resp.operations.find(op => op.id === operationId);
+            if (operation) {
+                const prestationGroup = this.prestationsArray.at(index);
+                prestationGroup.patchValue({
+                    description: operation.description,
+                    prixUnitaireXOF: operation.prixXOF,
+                    prixUnitaireEURO: operation.prixEURO
+                });
 
-            this.calculatePrestationTotal(index);
-            this.logger.debug('Opération sélectionnée', { index, operation: operation.nom });
-        }
+                this.calculatePrestationTotal(index);
+                this.logger.debug('Opération sélectionnée', { index, operation: operation.nom });
+            }
+        });
+
+
+
     }
 
     // Calculs
@@ -292,8 +326,8 @@ export class InvoiceFormComponent implements OnInit, OnChanges {
                 id: this.invoice.id,
                 compagnieId: formValue.compagnieId,
                 navireId: formValue.navireId,
-                dateFacture: formValue.dateFacture,
-                dateEcheance: formValue.dateEcheance,
+                dateFacture: new Date(formValue.dateFacture).toISOString().split('T')[0],
+                dateEcheance: new Date(formValue.dateEcheance).toISOString().split('T')[0],
                 prestations,
                 tauxTva: formValue.tauxTva,
                 notes: formValue.notes
@@ -303,8 +337,8 @@ export class InvoiceFormComponent implements OnInit, OnChanges {
             const createRequest: CreateInvoiceRequest = {
                 compagnieId: formValue.compagnieId,
                 navireId: formValue.navireId,
-                dateFacture: formValue.dateFacture,
-                dateEcheance: formValue.dateEcheance,
+                dateFacture: new Date(formValue.dateFacture).toISOString().split('T')[0],
+                dateEcheance: new Date(formValue.dateEcheance).toISOString().split('T')[0],
                 prestations,
                 tauxTva: formValue.tauxTva,
                 notes: formValue.notes

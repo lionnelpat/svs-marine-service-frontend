@@ -75,7 +75,6 @@ export class InvoicesComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.loadInvoices();
-        this.loadStatistics();
     }
 
     ngOnDestroy(): void {
@@ -98,20 +97,6 @@ export class InvoicesComponent implements OnInit, OnDestroy {
                 error: (error) => {
                     this.loading = false;
                     this.logger.error('Erreur lors du chargement des factures', error);
-                }
-            });
-    }
-
-    private loadStatistics(): void {
-        this.invoiceService.getStatistics()
-            .pipe(takeUntil(this.destroy$))
-            .subscribe({
-                next: (stats) => {
-                    this.statistics = stats;
-                    this.logger.debug('Statistiques chargées', stats);
-                },
-                error: (error) => {
-                    this.logger.error('Erreur lors du chargement des statistiques', error);
                 }
             });
     }
@@ -171,7 +156,6 @@ export class InvoicesComponent implements OnInit, OnDestroy {
                                 detail: 'Facture supprimée avec succès'
                             });
                             this.loadInvoices();
-                            this.loadStatistics();
                         }
                     });
             }
@@ -179,7 +163,7 @@ export class InvoicesComponent implements OnInit, OnDestroy {
     }
 
     onStatusChange(event: { invoice: Invoice; status: InvoiceStatus }): void {
-        this.invoiceService.updateInvoiceStatus(event.invoice.id, event.status)
+        this.invoiceService.changeInvoiceStatus(event.invoice.id, event.status)
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: (updatedInvoice) => {
@@ -189,7 +173,7 @@ export class InvoicesComponent implements OnInit, OnDestroy {
                         detail: 'Statut de la facture mis à jour'
                     });
                     this.loadInvoices();
-                    this.loadStatistics();
+                    // this.loadStatistics();
 
                     // Mettre à jour la facture sélectionnée si c'est la même
                     if (this.selectedInvoice?.id === updatedInvoice.id) {
@@ -203,7 +187,7 @@ export class InvoicesComponent implements OnInit, OnDestroy {
     onSaveInvoice(invoiceData: any): void {
         const operation = this.editMode ? 'mise à jour' : 'création';
         const serviceCall = this.editMode
-            ? this.invoiceService.updateInvoice(invoiceData)
+            ? this.invoiceService.updateInvoice(invoiceData.id, invoiceData)
             : this.invoiceService.createInvoice(invoiceData);
 
         serviceCall
@@ -217,7 +201,6 @@ export class InvoicesComponent implements OnInit, OnDestroy {
                     });
 
                     this.loadInvoices();
-                    this.loadStatistics();
                     this.closeFormModal();
                 }
             });

@@ -22,6 +22,7 @@ import { COMPANY_CONFIG } from '../../../../shared/data/invoice.data';
 import { LoggerService } from '../../../../core/services/logger.service';
 import { CurrencyUtils } from '../../../../shared/utils';
 import { MessageService } from 'primeng/api';
+import { InvoiceService } from '../../../service/invoice.service';
 
 @Component({
     selector: 'app-invoice-detail',
@@ -52,6 +53,7 @@ export class InvoiceDetailComponent implements OnInit {
 
     constructor(
         private readonly messageService: MessageService,
+        private readonly invoiceService: InvoiceService,
         private readonly logger: LoggerService
     ) {}
 
@@ -76,27 +78,14 @@ export class InvoiceDetailComponent implements OnInit {
 
     printInvoice(): void {
         if (this.invoice) {
-            // Sauvegarder les styles originaux
-            const originalStyles = this.saveOriginalStyles();
-
-            // Appliquer les styles d'impression
-            this.applyPrintStyles();
-
-            // Délai pour permettre l'application des styles
-            setTimeout(() => {
-                window.print();
-
-                // Restaurer les styles originaux après l'impression
-                setTimeout(() => {
-                    this.restoreOriginalStyles(originalStyles);
-                }, 500);
-
-                if(this.invoice){
-                    this.onPrint.emit(this.invoice);
-                    this.logger.info('Impression facture', { id: this.invoice?.id });
-                }
-
-            }, 300);
+            this.invoiceService.exportInvoiceToPdfAndDownload(this.invoice.id, this.invoice.numero).subscribe((resp) => {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Succès',
+                    detail: 'PDF généré avec succès'
+                });
+                this.logger.info('Export PDF réussi', { id: this.invoice?.id });
+            })
         }
     }
 
